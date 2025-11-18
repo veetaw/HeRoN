@@ -7,21 +7,22 @@ from classes.agent import DQNAgent
 from classes.environment import BattleEnv
 import pandas as pd
 import re
-import lmstudio as lms
+from openai import OpenAI
 import action_score as score
 from classes.instructor_agent import InstructorAgent
 from transformers import AutoTokenizer, T5ForConditionalGeneration
 import torch
 
-SERVER_API_HOST = "http://127.0.0.1:1234" #host for connecting to LM Studio
+SERVER_API_HOST = "http://127.0.0.1:1234/v1"
 
-lms.get_default_client(SERVER_API_HOST)
+client = OpenAI(base_url=SERVER_API_HOST, api_key="lm-studio")
 
 #Reviewer model
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-tokenizer_instruction = AutoTokenizer.from_pretrained("")
-model_instruction = T5ForConditionalGeneration.from_pretrained("").to(device)
-
+# tokenizer_instruction = AutoTokenizer.from_pretrained("")
+# model_instruction = T5ForConditionalGeneration.from_pretrained("").to(device)
+tokenizer_instruction = None
+model_instruction = None
 
 def map_llm_action_to_agent_action(llm_response):
     match = re.search(r'\[(.*?)\]', llm_response)
@@ -127,23 +128,30 @@ def train_dqn(episodes, batch_size=32):
                              "Write only the chosen action in square brackets and " \
                              "explain your reasoning briefly, max 50 words. /no_think"
 
-                with lms.Client() as client:
-                    model = client.llm.model("yi-34b-chat")  # Helper model
-                    llm_response = model.respond(input_text)
-                    llm_response = str(llm_response)
-                    llm_response = re.sub(r"<think>.*?</think>", "", llm_response, flags=re.DOTALL).strip()
-                    print("NPC Response: ", llm_response)
-                    response = instructor_agent.generate_suggestion(game_description, llm_response) # Reviewer suggestion
-                    print("\nReviewer response: ", response)
+                response_obj = client.chat.completions.create(
+                    model="qwen/qwen3-vl-4b",
+                    messages=[{"role": "user", "content": input_text}],
+                    temperature=0.7,
+                    max_tokens=100
+                )
+                llm_response = response_obj.choices[0].message.content
+                llm_response = re.sub(r"<think>.*?</think>", "", llm_response, flags=re.DOTALL).strip()
+                print("NPC Response: ", llm_response)
+                response = instructor_agent.generate_suggestion(game_description, llm_response)
+                print("\nReviewer response: ", response)
 
-                    revise = f"Given the game state '{game_description}'. Your initial response was '{llm_response}'. Considering " \
-                             f"this suggestion '{response}', rephrase your answer. Write only the chosen action in square brackets and explain your reasoning briefly, max 50 words. /no_think"
+                revise = f"Given the game state '{game_description}'. Your initial response was '{llm_response}'. Considering " \
+                         f"this suggestion '{response}', rephrase your answer. Write only the chosen action in square brackets and explain your reasoning briefly, max 50 words. /no_think"
 
-                    new_llm_response = model.respond(revise) # Final Helper response
-
-                    new_llm_response = str(new_llm_response)
-                    new_llm_response = re.sub(r"<think>.*?</think>", "", new_llm_response, flags=re.DOTALL).strip()
-                    print("\nNew NPC response: ", new_llm_response)
+                response_obj = client.chat.completions.create(
+                    model="qwen/qwen3-vl-4b",
+                    messages=[{"role": "user", "content": revise}],
+                    temperature=0.7,
+                    max_tokens=100
+                )
+                new_llm_response = response_obj.choices[0].message.content
+                new_llm_response = re.sub(r"<think>.*?</think>", "", new_llm_response, flags=re.DOTALL).strip()
+                print("\nNew NPC response: ", new_llm_response)
 
                 action = map_llm_action_to_agent_action(new_llm_response)
 

@@ -7,12 +7,12 @@ from classes.agent import DQNAgent
 from classes.environment import BattleEnv
 import pandas as pd
 import re
-import lmstudio as lms
+from openai import OpenAI
 import action_score as score
 
 SERVER_API_HOST = "http://127.0.0.1:1234" # host for connecting to LM Studio, if it does not work insert the string localhost:1234
 
-lms.get_default_client(SERVER_API_HOST)
+client = OpenAI(base_url=SERVER_API_HOST, api_key="lm-studio")
 
 
 def map_llm_action_to_agent_action(llm_response):
@@ -111,11 +111,13 @@ def train_dqn(episodes, batch_size=32):
                              "explain your reasoning briefly, max 50 words. /no_think"
 
 
-            with lms.Client() as client:
-                model = client.llm.model("") # Helper model
-                llm_response = model.respond(input_text)
-
-            llm_response = str(llm_response)
+            response_obj = client.chat.completions.create(
+                model="",
+                messages=[{"role": "user", "content": input_text}],
+                temperature=0.7,
+                max_tokens=100
+            )
+            llm_response = response_obj.choices[0].message.content
             llm_response = re.sub(r"<think>.*?</think>", "", llm_response, flags=re.DOTALL).strip()
             print(f"LLM response: {llm_response}")
 
