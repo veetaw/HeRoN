@@ -10,7 +10,6 @@ import os
 import action_score as score
 import re
 
-
 def map_action(action):
     if action == 0:
         return "attack"
@@ -40,9 +39,10 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     player_items = [{"item": potion, "quantity": 3}, {"item": grenade, "quantity": 2},
                     {"item": hielixer, "quantity": 1}]
     player1 = Person("Valos", 3260, 132, 300, 34, player_spells, player_items)
+    player2 = Person("Cristo", 3260, 132, 300, 34, player_spells, player_items)
     enemy1 = Person("Magus", 4000, 701, 525, 25, [fire, cura], [])
 
-    players = [player1]
+    players = [player1,player2]
     enemies = [enemy1]
 
     env = BattleEnv(players, enemies)
@@ -117,7 +117,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     #    save_path = f"model_dqn_episode_{e + 1}"
     #    print(f"Saving model to {save_path}...")
     #    agent.save(save_path)
-    agent.save("") # save the agent model
+    agent.save("ModelloNoLLM") # save the agent model
 
     #append_csv("reward_per_episode.csv", rewards_per_episode, "Reward")
     #append_csv("agent_wins.csv", agent_wins, "Wins")
@@ -210,7 +210,7 @@ if __name__ == "__main__":
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, match_score = train_dqn(episodes=1000)
+    rewards, agent_wins, enemy_wins, moves, success_rate, match_score = train_dqn(episodes=10)
     plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_score)
 
     export_success_rate(success_rate)

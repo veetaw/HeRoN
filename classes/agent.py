@@ -79,10 +79,10 @@ class DQNAgent:
             self.epsilon *= self.epsilon_decay
 
     def save(self, path_prefix):
-        self.model.save(f"/{path_prefix}.keras") # enter model path
-        with open(f"/{path_prefix}_memory.pkl", 'wb') as f: # enter model path
+        self.model.save(f"{path_prefix}.keras") # enter model path
+        with open(f"{path_prefix}_memory.pkl", 'wb') as f: # enter model path
             pickle.dump(self.memory, f)
-        with open(f"/{path_prefix}_epsilon.txt", 'w') as f: # enter model path
+        with open(f"{path_prefix}_epsilon.txt", 'w') as f: # enter model path
             f.write(str(self.epsilon))
 
 '''
