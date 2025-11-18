@@ -34,20 +34,24 @@ def map_action(action):
 
 # Main loop with training
 def train_dqn(episodes, batch_size=32, load_model_path=None):
-    #environment settings
+    # Environment settings
     player_spells = [fire, thunder, blizzard, meteor, cura]
     player_items = [{"item": potion, "quantity": 3}, {"item": grenade, "quantity": 2},
                     {"item": hielixer, "quantity": 1}]
-    player1 = Person("Valos", 3260, 132, 300, 34, player_spells, player_items)
-    player2 = Person("Cristo", 3260, 132, 300, 34, player_spells, player_items)
+    
+    # Usa .copy() per dare a ogni player una copia indipendente degli item
+    player1 = Person("Valos", 3260, 132, 300, 34, player_spells, player_items.copy())
+    player2 = Person("Cristo", 3260, 132, 300, 34, player_spells, player_items.copy())
     enemy1 = Person("Magus", 4000, 701, 525, 25, [fire, cura], [])
 
-    players = [player1,player2]
+    players = [player1, player2]
     enemies = [enemy1]
 
     env = BattleEnv(players, enemies)
-    #NPC
-    agent = DQNAgent(env.state_size, env.action_size, load_model_path)
+    
+    # Due agenti DQN - uno per ogni player
+    agent1 = DQNAgent(env.state_size, env.action_size, load_model_path)
+    agent2 = DQNAgent(env.state_size, env.action_size, load_model_path)
 
     rewards_per_episode = []
     agent_wins = []
@@ -55,15 +59,6 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     agent_moves_per_episode = []
     success_rate = []
     action_scores = []
-
-    '''
-    # Load existing progress
-    rewards_per_episode = load_csv_series("reward_per_episode.csv", "Reward")
-    agent_wins = load_csv_series("agent_wins.csv", "Wins")
-    enemy_wins = load_csv_series("enemy_wins.csv", "Wins")
-    agent_moves_per_episode = load_csv_series("agent_moves.csv", "Moves")
-    success_rate = load_csv_series("success_rate.csv", "Rate")
-    '''
 
     total_agent_wins = 0
 
@@ -75,27 +70,47 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
         moves = 0
         match_score = []
         score.reset_quantity()
+        
         while not done:
-            action = agent.act(state, env)
+            # Player 1 (Valos) sceglie l'azione
+            action1 = agent1.act(state, env)
+            match1 = map_action(action1)
+            total_score1 = score.calculate_scores(players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
+            match_score.append(round(total_score1.get(match1), 2))
 
-            match = map_action(action)
-            total_score = score.calculate_scores(players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
-            match_score.append(round(total_score.get(match), 2))
-
-            next_state, reward, done, a_win, e_win, enemy_choise = env.step(action)
-            score.updage_quantity(match, players[0].get_mp())
+            # Player 2 (Cristo) sceglie l'azione
+            action2 = agent2.act(state, env)
+            match2 = map_action(action2)
+            total_score2 = score.calculate_scores(players[1].get_hp(), players[1].get_mp(), enemies[0].get_hp())
+            match_score.append(round(total_score2.get(match2), 2))
+            
+            # Esegue entrambe le azioni nell'ambiente
+            next_state, reward, done, a_win, e_win, enemy_choice = env.step([action1, action2])
+            
+            # Aggiorna le quantità per entrambi i player
+            score.updage_quantity(match1, players[0].get_mp())
+            score.updage_quantity(match2, players[1].get_mp())
 
             total_reward += reward
             next_state = np.reshape(next_state, [1, env.state_size])
-            agent.remember(state, action, reward, next_state, done)
+            
+            # Entrambi gli agenti salvano l'esperienza
+            agent1.remember(state, action1, reward, next_state, done)
+            agent2.remember(state, action2, reward, next_state, done)
+            
             state = next_state
             moves += 1
 
-            if len(agent.memory) > batch_size:
-                agent.replay(batch_size, env)
+            # Entrambi gli agenti fanno replay
+            if len(agent1.memory) > batch_size:
+                agent1.replay(batch_size, env)
+            if len(agent2.memory) > batch_size:
+                agent2.replay(batch_size, env)
 
             if done:
-                print(f"Episode: {e}/{episodes}, Score: {total_reward}, Moves: {moves}, Epsilon: {agent.epsilon}")
+                print(f"Episode: {e}/{episodes}, Score: {total_reward}, Moves: {moves}")
+                print(f"Epsilon - Agent1: {agent1.epsilon:.4f}, Agent2: {agent2.epsilon:.4f}")
+                
                 if a_win:
                     agent_wins.append(1)
                     enemy_wins.append(0)
@@ -106,24 +121,18 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
 
                 success_rate.append(total_agent_wins / (e + 1))
                 print("Vittorie agente: ", agent_wins.count(1), " Vittorie nemico: ", enemy_wins.count(1))
+                
         rewards_per_episode.append(total_reward)
         agent_moves_per_episode.append(moves)
         action_scores.append(np.mean(match_score))
+        
     print("Average rewards: ", np.mean(rewards_per_episode))
     print("Average moves: ", np.mean(agent_moves_per_episode))
     print("Average move score: ", np.mean(action_scores))
 
-    #if (e + 1) % 200 == 0:
-    #    save_path = f"model_dqn_episode_{e + 1}"
-    #    print(f"Saving model to {save_path}...")
-    #    agent.save(save_path)
-    agent.save("ModelloNoLLM") # save the agent model
-
-    #append_csv("reward_per_episode.csv", rewards_per_episode, "Reward")
-    #append_csv("agent_wins.csv", agent_wins, "Wins")
-    #append_csv("enemy_wins.csv", enemy_wins, "Wins")
-    #append_csv("agent_moves.csv", agent_moves_per_episode, "Moves")
-    #append_csv("success_rate.csv", success_rate, "Rate")
+    # Salva entrambi i modelli separatamente
+    agent1.save("ModelloNoLLM_Player1")
+    agent2.save("ModelloNoLLM_Player2")
 
     return rewards_per_episode, agent_wins, enemy_wins, agent_moves_per_episode, success_rate, action_scores
 
@@ -136,6 +145,7 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.xlabel('Episodes')
     plt.ylabel('Total Rewards')
     plt.savefig("Train_reward_DQN.png")
+    plt.close()
 
     plt.figure(figsize=(8, 6))
     cumulative_agent_wins = np.cumsum(agent_wins)
@@ -149,6 +159,7 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.xlabel('Episodes')
     plt.ylabel('Cumulative Wins')
     plt.savefig("Train_cumulative_Win_DQN.png")
+    plt.close()
 
     plt.figure(figsize=(8, 6))
     plt.plot(moves)
@@ -156,6 +167,7 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.xlabel('Episodes')
     plt.ylabel('Moves')
     plt.savefig("Train_moves_DQN.png")
+    plt.close()
 
     plt.figure(figsize=(8, 6))
     plt.plot(success_rate, label="Success Rate", color='blue')
@@ -164,6 +176,7 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.ylabel('Success Rate')
     plt.legend()
     plt.savefig("Train_success_rate_DQN.png")
+    plt.close()
 
     plt.figure(figsize=(8, 6))
     plt.plot(match_score)
@@ -171,6 +184,7 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.xlabel('Episodes')
     plt.ylabel('Total Score')
     plt.savefig("Score_DQN.png")
+    plt.close()
 
 
 def export_success_rate(success_rate):
@@ -178,7 +192,6 @@ def export_success_rate(success_rate):
         "Episode": list(range(1, len(success_rate) + 1)),
         "Success Rate": success_rate
     })
-
     df.to_csv('train_success_rate_model_dqn_1000.csv', index=False)
 
 
@@ -209,7 +222,7 @@ if __name__ == "__main__":
     hielixer = Item("MegaElixer", "elixer", "Fully restores party's HP/MP", 9999)
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
-    # Train the agent
+    # Train the agents
     rewards, agent_wins, enemy_wins, moves, success_rate, match_score = train_dqn(episodes=10)
     plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_score)
 
