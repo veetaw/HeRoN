@@ -5,7 +5,6 @@ from classes.magic import Spell
 from classes.inventory import Item
 from classes.environment import BattleEnv
 from classes.agent import DQNAgent
-from classes.supporter_agent import SupporterAgent
 import pandas as pd
 import os
 import action_score as score
@@ -36,27 +35,16 @@ def map_action(action):
 
 # Main loop with training
 def train_dqn(episodes, batch_size=32, load_model_path=None):
-    #environment settings
     player_spells = [fire, thunder, blizzard, meteor, cura]
     player_items = [{"item": potion, "quantity": 3}, {"item": grenade, "quantity": 2},
                     {"item": hielixer, "quantity": 1}]
     player1 = Person("Valos", 3260, 132, 300, 34, player_spells, player_items)
     enemy1 = Person("Magus", 4000, 701, 525, 25, [fire, cura], [])
 
-    # Supporter player setup (only healing spells plus minor Fire)
-    supporter_spells = [cura, curam, curatot, curatotm, splash, fire]
-    supporter_items = [{"item": potion, "quantity": 3}, {"item": grenade, "quantity": 2},
-                       {"item": hielixer, "quantity": 1}]
-    player2 = Person("Healer", 2800, 200, 120, 20, supporter_spells, supporter_items)
-
-    players = [player1, player2]
+    players = [player1]
     enemies = [enemy1]
 
     env = BattleEnv(players, enemies)
-    # Register supporter agent (rule-based) so it acts each turn
-    supporter_agent = SupporterAgent(player_index=1)
-    env.set_supporter(supporter_agent)
-    #NPC
     agent = DQNAgent(env.state_size, env.action_size, load_model_path)
 
     rewards_per_episode = []
@@ -65,15 +53,6 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     agent_moves_per_episode = []
     success_rate = []
     action_scores = []
-
-    '''
-    # Load existing progress
-    rewards_per_episode = load_csv_series("reward_per_episode.csv", "Reward")
-    agent_wins = load_csv_series("agent_wins.csv", "Wins")
-    enemy_wins = load_csv_series("enemy_wins.csv", "Wins")
-    agent_moves_per_episode = load_csv_series("agent_moves.csv", "Moves")
-    success_rate = load_csv_series("success_rate.csv", "Rate")
-    '''
 
     total_agent_wins = 0
 
@@ -218,16 +197,11 @@ if __name__ == "__main__":
     blizzard = Spell("Blizzard", 35, 800, "black")
     meteor = Spell("Meteor", 40, 1000, "black")
     cura = Spell("Cura", 32, 1500, "white")
-    curam = Spell("Curam", 32, 1500, "white")
-    curatot = Spell("Curatot", 45, 2200, "white")
-    curatotm = Spell("Curatotm", 45, 2200, "white")
-    splash = Spell("Splash", 27, 800, "white")
 
     potion = Item("Potion", "potion", "Heals 50 HP", 50)
     hielixer = Item("MegaElixer", "elixer", "Fully restores party's HP/MP", 9999)
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
-    # Train the agent
     rewards, agent_wins, enemy_wins, moves, success_rate, match_score = train_dqn(episodes=3)
     plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_score)
 

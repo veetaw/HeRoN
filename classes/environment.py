@@ -24,10 +24,6 @@ class BattleEnv:
         self.state_size = len(self.get_state())
         self.action_size = self.get_action_size()
         self.done = False
-        self.supporter_agent = None
-
-    def set_supporter(self, agent):
-        self.supporter_agent = agent
 
     def get_state(self):
         state = []
@@ -78,167 +74,69 @@ class BattleEnv:
 
         return self.get_state()
 
-    def step(self, action):
+    def step(self, actions):
+        if not isinstance(actions, list):
+            actions = [actions]
+        
         reward = 0
         agent_win = False
         enemy_win = False
 
-        # human-readable move tracking for per-turn log
-        main_move_desc = "No action"
-        supp_move_desc = "No action"
-        enemy_move_desc = "No action"
-
-
-        # Agent choise
-        if action == 0:
-            for player in self.players:
+        for player_idx, action in enumerate(actions):
+            if player_idx >= len(self.players):
+                continue
+            
+            player = self.players[player_idx]
+            
+            if action == 0:
                 dmg = player.generate_damage()
                 enemy = self.enemies[0]
                 enemy.take_damage(dmg)
                 reward += 25
-            main_move_desc = "attack"
 
-        elif action > 0 and action <= len(self.players[0].magic):
-            player = self.players[0]
-            spell = player.magic[action - 1]
-            main_move_desc = spell.name
-            if player.get_mp() >= spell.cost:
-                magic_dmg = spell.generate_damage()
-                player.reduce_mp(spell.cost)
-                if spell.type == "white":
-                    player.heal(magic_dmg)
-                else:
-                    enemy = self.enemies[0]
-                    enemy.take_damage(magic_dmg)
-                reward += 15
-
-        # Main player's items (separate block so supporter presence doesn't skip it)
-        if action > len(self.players[0].magic):
-            item_index = action - len(self.players[0].magic) - 1
-            player = self.players[0]
-            if 0 <= item_index < len(player.items):
-                item = player.items[item_index]["item"]
-                main_move_desc = item.name
-                if player.items[item_index]["quantity"] > 0:
-                    player.items[item_index]["quantity"] -= 1
-                    if item.type == "potion":
-                        player.heal(item.prop)
+            elif action > 0 and action <= len(player.magic):
+                spell = player.magic[action - 1]
+                if player.get_mp() >= spell.cost:
+                    magic_dmg = spell.generate_damage()
+                    player.reduce_mp(spell.cost)
+                    if spell.type == "white":
+                        player.heal(magic_dmg)
                         reward += 15
-                    elif item.type == "attack":
-                        enemy = self.enemies[0]
-                        enemy.take_damage(item.prop)
-                        reward += 15
-                    elif item.type == "elixir":
-                        if player.hp <= 1000:
-                            reward += 50
-                        else:
-                            reward += 5
-                        player.hp = player.maxhp
-                        player.mp = player.maxmp
-
-        # Supporter (if present) acts after the main agent and before enemies
-        if self.supporter_agent is not None and len(self.players) > 1:
-            try:
-                supp_action = self.supporter_agent.act(self)
-            except Exception:
-                supp_action = None
-
-            if supp_action is not None:
-                # build supporter move description
-                supporter_player = self.players[1]
-                if supp_action == 0:
-                    supp_move_desc = "attack"
-                elif supp_action > 0 and supp_action <= len(supporter_player.magic):
-                    supp_move_desc = supporter_player.magic[supp_action - 1].name
-                else:
-                    idx = supp_action - len(supporter_player.magic) - 1
-                    if 0 <= idx < len(supporter_player.items):
-                        supp_move_desc = supporter_player.items[idx]["item"].name
-                print(f"Supporter action chosen: {supp_action}")
-                # Supporter actions follow the local indexing: 0 attack, 1..magic, then items
-                if supp_action == 0:
-                    dmg = supporter_player.generate_damage()
-                    self.enemies[0].take_damage(dmg)
-                    reward += 5
-                    print(f"Supporter attacks for {dmg} dmg")
-
-                elif supp_action > 0 and supp_action <= len(supporter_player.magic):
-                    spell = supporter_player.magic[supp_action - 1]
-                    if supporter_player.get_mp() >= spell.cost:
-                        magic_dmg = spell.generate_damage()
-                        supporter_player.reduce_mp(spell.cost)
-                        if spell.type == "white":
-                            # If spell name indicates it should heal mate (contains 'm' or 'M'), heal ally
-                            if 'm' in spell.name.lower():
-                                # heal the other player (index 0)
-                                self.players[0].heal(magic_dmg)
-                            elif spell.name=='Splash':
-                                for p in self.players:
-                                    p.heal(magic_dmg)
-                            else:
-                                supporter_player.heal(magic_dmg)
-                        else:
-                            self.enemies[0].take_damage(magic_dmg)
-                        reward += 10
-
-                elif supp_action > len(supporter_player.magic):
-                    item_index = supp_action - len(supporter_player.magic) - 1
-                    if item_index >= 0 and item_index < len(supporter_player.items):
-                        if supporter_player.items[item_index]["quantity"] > 0:
-                            supporter_player.items[item_index]["quantity"] -= 1
-                            item = supporter_player.items[item_index]["item"]
-                            if item.type == "potion":
-                                supporter_player.heal(item.prop)
-                                reward += 10
-                                print(f"Supporter used potion on self (+{item.prop})")
-                            elif item.type == "attack":
-                                self.enemies[0].take_damage(item.prop)
-                                reward += 10
-                                print(f"Supporter used attack item for {item.prop} dmg")
-                            elif item.type == "elixir":
-                                supporter_player.hp = supporter_player.maxhp
-                                supporter_player.mp = supporter_player.maxmp
-                                reward += 10
-                                print(f"Supporter used elixir: full restore")
-
-        elif action > len(self.players[0].magic):
-            item_index = action - len(self.players[0].magic) - 1
-            player = self.players[0]
-            item = player.items[item_index]["item"]
-            if player.items[item_index]["quantity"] > 0:
-                player.items[item_index]["quantity"] -= 1
-                if item.type == "potion":
-                    player.heal(item.prop)
-                    reward += 15
-                elif item.type == "attack":
-                    enemy = self.enemies[0]
-                    enemy.take_damage(item.prop)
-                    reward += 15
-                elif item.type == "elixir":
-                    if player.hp <= 1000:
-                        reward += 50
                     else:
-                        reward += 5
-                    player.hp = player.maxhp
-                    player.mp = player.maxmp
+                        enemy = self.enemies[0]
+                        enemy.take_damage(magic_dmg)
+                        reward += 15
 
+            elif action > len(player.magic):
+                item_index = action - len(player.magic) - 1
+                if 0 <= item_index < len(player.items):
+                    if player.items[item_index]["quantity"] > 0:
+                        player.items[item_index]["quantity"] -= 1
+                        item = player.items[item_index]["item"]
+                        if item.type == "potion":
+                            player.heal(item.prop)
+                            reward += 15
+                        elif item.type == "attack":
+                            enemy = self.enemies[0]
+                            enemy.take_damage(item.prop)
+                            reward += 15
+                        elif item.type == "elixir":
+                            if player.hp <= 1000:
+                                reward += 50
+                            else:
+                                reward += 5
+                            player.hp = player.maxhp
+                            player.mp = player.maxmp
 
-        # Check for battle ended (log turn before returning)
         if self.enemies[0].get_hp() <= 0:
             self.done = True
             reward += 100
             agent_win = True
-            p1hp = self.players[0].get_hp()
-            p2hp = self.players[1].get_hp() if len(self.players) > 1 else None
-            ehdp = self.enemies[0].get_hp()
-            print(f"Turn log -> P1: HP={p1hp} Move={main_move_desc} | P2: HP={p2hp} Move={supp_move_desc} | Enemy: HP={ehdp} Move={enemy_move_desc}")
             return self.get_state(), reward, self.done, agent_win, enemy_win, "No action"
 
-        # Enemy choise (Random)
         for enemy in self.enemies:
             enemy_choice = 'attack'
 
-            # If the enemy has enough magic points, it can also choose magic.
             if enemy.get_mp() >= MIN_SPELL_COST:
                 enemy_choice = random.choice(['attack', 'magic'])
 
@@ -246,7 +144,6 @@ class BattleEnv:
                 target = random.choice(self.players)
                 enemy_dmg = enemy.generate_damage()
                 target.take_damage(enemy_dmg)
-                enemy_move_desc = 'attack'
 
             elif enemy_choice == 'magic':
                 spell, magic_dmg = enemy.choose_enemy_spell()
@@ -255,18 +152,9 @@ class BattleEnv:
                     enemy.reduce_mp(spell.cost)
                     if spell.type == "white":
                         enemy.heal(magic_dmg)
-                        enemy_move_desc = spell.name
                     else:
                         target = random.choice(self.players)
                         target.take_damage(magic_dmg)
-                        enemy_move_desc = spell.name
-
-        #  Check for battle ended
-        # print turn log before final returns
-        p1hp = self.players[0].get_hp()
-        p2hp = self.players[1].get_hp() if len(self.players) > 1 else None
-        ehdp = self.enemies[0].get_hp()
-        print(f"Turn log -> P1: HP={p1hp} Move={main_move_desc} | P2: HP={p2hp} Move={supp_move_desc} | Enemy: HP={ehdp} Move={enemy_move_desc}")
 
         if all(p.get_hp() <= 0 for p in self.players):
             self.done = True
