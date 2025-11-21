@@ -113,11 +113,24 @@ class BattleEnv:
                             hp_gained = player.get_hp() - hp_before
                             player_reward = max(5, hp_gained // 50)
                         else:
-                            target_player = self.players[0]
-                            hp_before = target_player.get_hp()
-                            target_player.heal(magic_dmg)
-                            hp_gained = target_player.get_hp() - hp_before
-                            player_reward = max(10, hp_gained // 30)
+                            if spell.name.lower().endswith('m'):
+                                target_player = self.players[0]
+                                hp_before = target_player.get_hp()
+                                target_player.heal(magic_dmg)
+                                hp_gained = target_player.get_hp() - hp_before
+                                player_reward = max(10, hp_gained // 30)
+                            elif 'splash' in spell.name.lower():
+                                total_hp_gained = 0
+                                for p in self.players:
+                                    hp_before = p.get_hp()
+                                    p.heal(magic_dmg)
+                                    total_hp_gained += (p.get_hp() - hp_before)
+                                player_reward = max(15, total_hp_gained // 40)
+                            else:
+                                hp_before = player.get_hp()
+                                player.heal(magic_dmg)
+                                hp_gained = player.get_hp() - hp_before
+                                player_reward = max(8, hp_gained // 40)
                     else:
                         enemy = self.enemies[0]
                         enemy.take_damage(magic_dmg)
