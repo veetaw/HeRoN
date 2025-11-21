@@ -260,7 +260,7 @@ if __name__ == "__main__":
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, action_score = train_dqn(episodes=1000)
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_score = train_dqn(episodes=10)
     plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_score)
 
     export_success_rate(success_rate)

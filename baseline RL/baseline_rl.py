@@ -117,7 +117,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     #    save_path = f"model_dqn_episode_{e + 1}"
     #    print(f"Saving model to {save_path}...")
     #    agent.save(save_path)
-    agent.save("") # save the agent model
+    agent.save("MODELLO_NO_LLM") # save the agent model
 
     #append_csv("reward_per_episode.csv", rewards_per_episode, "Reward")
     #append_csv("agent_wins.csv", agent_wins, "Wins")
@@ -210,7 +210,7 @@ if __name__ == "__main__":
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, match_score = train_dqn(episodes=1000)
+    rewards, agent_wins, enemy_wins, moves, success_rate, match_score = train_dqn(episodes=100)
     plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_score)
 
     export_success_rate(success_rate)
