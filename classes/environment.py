@@ -78,21 +78,28 @@ class BattleEnv:
         if not isinstance(actions, list):
             actions = [actions]
         
-        reward = 0
+        rewards = []
         agent_win = False
         enemy_win = False
+        player_moves = []
 
         for player_idx, action in enumerate(actions):
             if player_idx >= len(self.players):
                 continue
             
             player = self.players[player_idx]
+            move_desc = "No action"
+            player_reward = 0
             
             if action == 0:
                 dmg = player.generate_damage()
                 enemy = self.enemies[0]
                 enemy.take_damage(dmg)
-                reward += 25
+                if player_idx == 0:
+                    player_reward = 25
+                else:
+                    player_reward = 10
+                move_desc = "attack"
 
             elif action > 0 and action <= len(player.magic):
                 spell = player.magic[action - 1]
@@ -100,12 +107,25 @@ class BattleEnv:
                     magic_dmg = spell.generate_damage()
                     player.reduce_mp(spell.cost)
                     if spell.type == "white":
-                        player.heal(magic_dmg)
-                        reward += 15
+                        if player_idx == 0:
+                            hp_before = player.get_hp()
+                            player.heal(magic_dmg)
+                            hp_gained = player.get_hp() - hp_before
+                            player_reward = max(5, hp_gained // 50)
+                        else:
+                            target_player = self.players[0]
+                            hp_before = target_player.get_hp()
+                            target_player.heal(magic_dmg)
+                            hp_gained = target_player.get_hp() - hp_before
+                            player_reward = max(10, hp_gained // 30)
                     else:
                         enemy = self.enemies[0]
                         enemy.take_damage(magic_dmg)
-                        reward += 15
+                        if player_idx == 0:
+                            player_reward = 20
+                        else:
+                            player_reward = 10
+                    move_desc = spell.name
 
             elif action > len(player.magic):
                 item_index = action - len(player.magic) - 1
@@ -113,27 +133,52 @@ class BattleEnv:
                     if player.items[item_index]["quantity"] > 0:
                         player.items[item_index]["quantity"] -= 1
                         item = player.items[item_index]["item"]
+                        move_desc = item.name
                         if item.type == "potion":
-                            player.heal(item.prop)
-                            reward += 15
+                            if player_idx == 0:
+                                hp_before = player.get_hp()
+                                player.heal(item.prop)
+                                hp_gained = player.get_hp() - hp_before
+                                player_reward = max(5, hp_gained // 10)
+                            else:
+                                target_player = self.players[0]
+                                hp_before = target_player.get_hp()
+                                target_player.heal(item.prop)
+                                hp_gained = target_player.get_hp() - hp_before
+                                player_reward = max(8, hp_gained // 8)
                         elif item.type == "attack":
                             enemy = self.enemies[0]
                             enemy.take_damage(item.prop)
-                            reward += 15
+                            if player_idx == 0:
+                                player_reward = 20
+                            else:
+                                player_reward = 10
                         elif item.type == "elixir":
                             if player.hp <= 1000:
-                                reward += 50
+                                player_reward = 50
                             else:
-                                reward += 5
+                                player_reward = 5
                             player.hp = player.maxhp
                             player.mp = player.maxmp
+            
+            player_moves.append(move_desc)
+            rewards.append(player_reward)
 
         if self.enemies[0].get_hp() <= 0:
             self.done = True
-            reward += 100
+            for i in range(len(rewards)):
+                rewards[i] += 100
             agent_win = True
-            return self.get_state(), reward, self.done, agent_win, enemy_win, "No action"
+            p1hp = self.players[0].get_hp()
+            p2hp = self.players[1].get_hp() if len(self.players) > 1 else None
+            enemy_hp = self.enemies[0].get_hp()
+            main_move_desc = player_moves[0] if len(player_moves) > 0 else "No action"
+            supp_move_desc = player_moves[1] if len(player_moves) > 1 else "No action"
+            print(f"Turn log -> P1: HP={p1hp} Move={main_move_desc} | P2: HP={p2hp} Move={supp_move_desc} | Enemy: HP={enemy_hp} Move=No action")
+            total_reward = sum(rewards) if len(rewards) > 0 else 0
+            return self.get_state(), total_reward, self.done, agent_win, enemy_win, "No action"
 
+        enemy_move_desc = "No action"
         for enemy in self.enemies:
             enemy_choice = 'attack'
 
@@ -144,6 +189,7 @@ class BattleEnv:
                 target = random.choice(self.players)
                 enemy_dmg = enemy.generate_damage()
                 target.take_damage(enemy_dmg)
+                enemy_move_desc = "attack"
 
             elif enemy_choice == 'magic':
                 spell, magic_dmg = enemy.choose_enemy_spell()
@@ -155,13 +201,22 @@ class BattleEnv:
                     else:
                         target = random.choice(self.players)
                         target.take_damage(magic_dmg)
+                    enemy_move_desc = spell.name
 
         if all(p.get_hp() <= 0 for p in self.players):
             self.done = True
-            reward -= 100
+            for i in range(len(rewards)):
+                rewards[i] -= 100
             enemy_win = True
 
-        return self.get_state(), reward, self.done, agent_win, enemy_win, enemy_choice
+        p1hp = self.players[0].get_hp()
+        p2hp = self.players[1].get_hp() if len(self.players) > 1 else None
+        enemy_hp = self.enemies[0].get_hp()
+        main_move_desc = player_moves[0] if len(player_moves) > 0 else "No action"
+        supp_move_desc = player_moves[1] if len(player_moves) > 1 else "No action"
+        print(f"Turn log -> P1: HP={p1hp} Move={main_move_desc} | P2: HP={p2hp} Move={supp_move_desc} | Enemy: HP={enemy_hp} Move={enemy_move_desc}")
+        total_reward = sum(rewards) if len(rewards) > 0 else 0
+        return self.get_state(), total_reward, self.done, agent_win, enemy_win, enemy_choice
 
     def describe_game_state(self, last_enemy_move):
         state_description = ""
