@@ -10,44 +10,84 @@ import os
 import action_score as score
 import re
 
+from classes.support_agent import DQNSupportAgent
 
-def map_action(action):
-    if action == 0:
-        return "attack"
-    elif action == 1:
-        return "fire spell"
-    elif action == 2:
-        return "thunder spell"
-    elif action == 3:
-        return "blizzard spell"
-    elif action == 4:
-        return "meteor spell"
-    elif action == 5:
-        return "cura spell"
-    elif action == 6:
-        return "potion"
-    elif action == 7:
-        return "grenade"
-    elif action == 8:
-        return "elixir"
-    return None
+
+def map_action_attack(action):
+    """Mappa l'indice azione al nome per ATTACKER"""
+    actions_map = {
+        0: 'attack',
+        1: 'fire spell',
+        2: 'thunder spell',
+        3: 'blizzard spell',
+        4: 'meteor spell',
+        5: 'cura spell',
+        6: 'potion',
+        7: 'grenade',
+        8: 'elixir'
+    }
+    return actions_map.get(action, 'attack')
+
+
+def map_action_support(action):
+    """Mappa l'indice azione al nome per SUPPORT"""
+    actions_map = {
+        0: 'attack',
+        1: 'fire spell',
+        2: 'cura spell',     # Auto-cure (white)
+        3: 'cura_tot',       # Cura entrambi (white_tot)
+        4: 'splash',         # Cura entrambi meno (white_tot)
+        5: 'cura_m',         # Cura mate (white_m)
+        6: 'cura_totm',      # Cura mate tanto (white_m)
+        7: 'potion',
+        8: 'grenade',
+        9: 'elixir'
+    }
+    return actions_map.get(action, 'attack')
 
 
 # Main loop with training
 def train_dqn(episodes, batch_size=32, load_model_path=None):
-    #environment settings
-    player_spells = [fire, thunder, blizzard, meteor, cura]
-    player_items = [{"item": potion, "quantity": 3}, {"item": grenade, "quantity": 2},
-                    {"item": hielixer, "quantity": 1}]
-    player1 = Person("Valos", 3260, 132, 300, 34, player_spells, player_items)
-    enemy1 = Person("Magus", 4000, 701, 525, 25, [fire, cura], [])
+    """
+    Allena DQNAgent
 
-    players = [player1]
+    qua vengono creati players, enemies e environment (a partire da players e enemies)
+
+    l'agent prende input state size, action size e prev modello se presente
+
+
+    """
+    #environment settings
+    attacker_spells = [fire, thunder, blizzard, meteor, cura]
+    
+    # SUPPORT spells (offensivi base + cure variegate)
+    support_spells = [fire, cura_support, cura_tot, splash, cura_m, cura_totm]
+
+    player_items = [
+        {"item": potion, "quantity": 3}, 
+        {"item": grenade, "quantity": 2},
+        {"item": hielixer, "quantity": 1}
+    ]
+    player1 = Person("Maria", 2600, 120, 300, 34, attacker_spells, player_items)
+    player2 = Person("Juana", 2300, 180, 100, 50, support_spells, player_items)
+    enemy1 = Person("Antonio", 4000, 701, 525, 25, [fire, cura], [])
+
+    players = [player1, player2]
     enemies = [enemy1]
 
     env = BattleEnv(players, enemies)
     #NPC
-    agent = DQNAgent(env.state_size, env.action_size, load_model_path)
+    # al posto di env.state_size va messo len(env.get state (index)), idem per actiopn size
+    attacker_agent = DQNAgent(
+        env.get_state_size_of_player('Maria'), 
+        env.get_action_size(0), 
+        load_model_path
+    )
+    supporter_agent = DQNSupportAgent(
+        env.get_state_size_of_player('Juana'), 
+        env.get_action_size(1), 
+        load_model_path
+    )
 
     rewards_per_episode = []
     agent_wins = []
@@ -66,58 +106,199 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     '''
 
     total_agent_wins = 0
+    total_enemy_wins = 0
 
+    """
+    in ogni episodio (partita) viene resettato lo state e poi viene fatto il reshape per renderlo una matrice 1 x state_size
+    """
     for e in range(episodes):
-        state = env.reset()
-        state = np.reshape(state, [1, env.state_size])
+        # reset dovrebbe ritornare i due stati mi sa
+        state_global = env.reset()
+        state_attacker = state_global['Maria']
+        state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player('Maria')])
+        state_support = state_global['Juana']
+        state_support = np.reshape(state_support, [1, env.get_state_size_of_player('Juana')])
+
         done = False
-        total_reward = 0
+        total_reward_support = 0
+        total_reward_attacker = 0
         moves = 0
-        match_score = []
-        score.reset_quantity()
+        match_score_attacker = []
+        match_score_support = []
+        score.reset_quantities()
+        state_size_attacker = env.get_state_size_of_player('Maria')
+        state_size_support = env.get_state_size_of_player('Juana')
+
+        """
+        nel game loop viene eseguita la funzione act sull'agent (vedere agent.DQNAgent.act) che ritorna l'azione da eseguire
+        l'azione viene mappata in testo per il gioco
+        poi vengono calcolati i punteggi normalizzati e salvati in match_score
+
+        viene effettuato lo step nell'env (vedere environment.BattleEnv.step) che ritorna next_state, reward, done, a_win, e_win, enemy_choise
+        vengono successivamente aggiornati i conteggi delle azioni ancora rimanenti (tipo gli item etc)
+        viene fatto il reshape del next_state
+        l'agent memorizza l'esperienza (state, action, reward, next_state, done) nel suo replay memory
+        se la memoria è più grande del batch size viene effettuato il replay (vedere agent.DQNAgent.replay)
+
+        alla fine vengono stampate le info dell'episodio e aggiornate le statistiche di vittorie/sconfitte
+        """
         while not done:
-            action = agent.act(state, env)
+            attacker_action = attacker_agent.act(state_attacker, env, 0)
+            support_action = supporter_agent.act(state_support, env, 1)
+            
+            # ✅ Se un player è morto, usa un'azione dummy (nessuna azione)
+            if attacker_action is None:
+                print(f"⚠️  Attacker è morto, salta il turno")
+                attacker_action = 0  # Placeholder, verrà ignorato in perform_action()
+            
+            if support_action is None:
+                print(f"⚠️  Support è morto, salta il turno")
+                support_action = 0  # Placeholder, verrà ignorato in perform_action()
+            
+            # Mappa azioni
+            match_attacker = map_action_attack(attacker_action)
+            match_support = map_action_support(support_action)
+            
+            # Calcola score (solo per player vivi)
+            player_attacker = players[0]
+            player_support = players[1]
+            
+            if player_attacker.get_hp() > 0:
+                attacker_scores = score.calculate_scores_attacker(
+                    player_attacker.get_hp(), 
+                    player_attacker.get_mp(), 
+                    enemies[0].get_hp()
+                )
+            else:
+                attacker_scores = {match_attacker: 0}  # Score 0 se morto
+            
+            if player_support.get_hp() > 0:
+                support_scores = score.calculate_scores_support(
+                    player_support.get_hp(), 
+                    player_attacker.get_hp(),
+                    player_support.get_mp(), 
+                    enemies[0].get_hp()
+                )
+            else:
+                support_scores = {match_support: 0}  # Score 0 se morto
+            
+            match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
+            match_score_support.append(round(support_scores.get(match_support, 0), 2))
+            
+            # Print (con indicatore di stato)
+            if moves % 3 == 0 or moves == 0:
+                status_atk = "💀" if player_attacker.get_hp() <= 0 else "🗡️"
+                status_sup = "💀" if player_support.get_hp() <= 0 else "❤️"
+                
+                print(f"\n[Move {moves:02d}] Ep {e+1}/{episodes}")
+                print(f"  {status_atk}  ATK: {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
+                print(f"  {status_sup}  SUP: {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
+                print(f"  👹 Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
 
-            match = map_action(action)
-            total_score = score.calculate_scores(players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
-            match_score.append(round(total_score.get(match), 2))
-
-            next_state, reward, done, a_win, e_win, enemy_choise = env.step(action)
-            score.updage_quantity(match, players[0].get_mp())
-
-            total_reward += reward
-            next_state = np.reshape(next_state, [1, env.state_size])
-            agent.remember(state, action, reward, next_state, done)
-            state = next_state
+            next_state, reward_attacker, reward_support, done, a_win, _, __ = env.step(attacker_action, support_action)
+            
+            # ✅ Aggiorna reward in base allo stato (bonus per sopravvivenza)
+            if player_attacker.get_hp() > 0:
+                total_reward_attacker += reward_attacker
+            else:
+                total_reward_attacker += reward_attacker  # Include la penalità per morte
+            
+            if player_support.get_hp() > 0:
+                total_reward_support += reward_support
+            else:
+                total_reward_support += reward_support  # Include la penalità per morte
+            
+            next_state_attacker = np.reshape(next_state['Maria'], [1, state_size_attacker])
+            next_state_support = np.reshape(next_state['Juana'], [1, state_size_support])
+            
+            # ✅ Salva experience solo per player vivi
+            if player_attacker.get_hp() > 0 or moves == 0:  # Salva anche l'ultima azione prima di morire
+                attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
+            
+            if player_support.get_hp() > 0 or moves == 0:
+                supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
+            
+            state_attacker = next_state_attacker
+            state_support = next_state_support
+            
             moves += 1
 
-            if len(agent.memory) > batch_size:
-                agent.replay(batch_size, env)
+            # Replay (solo se hanno abbastanza memoria)
+            if len(attacker_agent.memory) > batch_size:
+                attacker_agent.replay(batch_size, env, 0)
+            
+            if len(supporter_agent.memory) > batch_size:
+                supporter_agent.replay(batch_size, env, 1)
 
+            # ✅ Controlla condizioni di terminazione
             if done:
-                print(f"Episode: {e}/{episodes}, Score: {total_reward}, Moves: {moves}, Epsilon: {agent.epsilon}")
+                result = "🎉 VICTORY" if a_win else "💀 DEFEAT"
+                
+                # Mostra chi è sopravvissuto
+                survivors = []
+                if player_attacker.get_hp() > 0:
+                    survivors.append(f"Maria (HP: {player_attacker.get_hp()})")
+                if player_support.get_hp() > 0:
+                    survivors.append(f"Juana (HP: {player_support.get_hp()})")
+                
+                survivor_text = ", ".join(survivors) if survivors else "Nessuno"
+                
+                print(f"\n{'='*70}")
+                print(f"  {result}  |  Episode {e+1}/{episodes}")
+                print(f"{'='*70}")
+                print(f"  Attacker Reward: {total_reward_attacker:>6.0f}  |  Moves: {moves}")
+                print(f"  Support Reward:  {total_reward_support:>6.0f}  |  Epsilon: ATK={attacker_agent.epsilon:.3f}, SUP={supporter_agent.epsilon:.3f}")
+                print(f"  Sopravvissuti: {survivor_text}")
+                
                 if a_win:
-                    agent_wins.append(1)
-                    enemy_wins.append(0)
                     total_agent_wins += 1
                 else:
-                    agent_wins.append(0)
-                    enemy_wins.append(1)
+                    total_enemy_wins += 1
+                
+                win_rate = total_agent_wins / (e + 1)
+                print(f"  Win Rate: {total_agent_wins}/{e+1} ({100*win_rate:.1f}%)")
+                print(f"{'='*70}\n")
+                
+                break
 
-                success_rate.append(total_agent_wins / (e + 1))
-                print("Vittorie agente: ", agent_wins.count(1), " Vittorie nemico: ", enemy_wins.count(1))
-        rewards_per_episode.append(total_reward)
+        # Salva reward e mosse per l'episodio
+        rewards_per_episode.append({
+            'attacker': total_reward_attacker,
+            'support': total_reward_support,
+            'combined': total_reward_attacker + total_reward_support
+        })
         agent_moves_per_episode.append(moves)
-        action_scores.append(np.mean(match_score))
-    print("Average rewards: ", np.mean(rewards_per_episode))
-    print("Average moves: ", np.mean(agent_moves_per_episode))
-    print("Average move score: ", np.mean(action_scores))
+        
+        action_scores.append({
+            'attacker': np.mean(match_score_attacker),
+            'support': np.mean(match_score_support),
+            'combined': (np.mean(match_score_attacker) + np.mean(match_score_support)) / 2
+        })
+    avg_reward_attacker = np.mean([r['attacker'] for r in rewards_per_episode])
+    avg_reward_support = np.mean([r['support'] for r in rewards_per_episode])
+    avg_reward_combined = np.mean([r['combined'] for r in rewards_per_episode])
+    avg_moves = np.mean(agent_moves_per_episode)
+    avg_score_attacker = np.mean([s['attacker'] for s in action_scores])
+    avg_score_support = np.mean([s['support'] for s in action_scores])
+    avg_score_combined = np.mean([s['combined'] for s in action_scores])
+    
+    print("\n=== TRAINING SUMMARY ===")
+    print(f"Average reward (Attacker): {avg_reward_attacker:.2f}")
+    print(f"Average reward (Support): {avg_reward_support:.2f}")
+    print(f"Average reward (Combined): {avg_reward_combined:.2f}")
+    print(f"Average moves: {avg_moves:.2f}")
+    print(f"Average score (Attacker): {avg_score_attacker:.4f}")
+    print(f"Average score (Support): {avg_score_support:.4f}")
+    print(f"Average score (Combined): {avg_score_combined:.4f}")
+
 
     #if (e + 1) % 200 == 0:
     #    save_path = f"model_dqn_episode_{e + 1}"
     #    print(f"Saving model to {save_path}...")
     #    agent.save(save_path)
-    agent.save("MODELLO_NO_LLM") # save the agent model
+    
+    attacker_agent.save("MODELLO_NO_LLM_ATTACKER") # save the agent model
+    supporter_agent.save("MODELLO_NO_LLM_SUPPORT") # save the agent model
 
     #append_csv("reward_per_episode.csv", rewards_per_episode, "Reward")
     #append_csv("agent_wins.csv", agent_wins, "Wins")
@@ -129,12 +310,20 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
 
 
 # Plotting function
-def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_score):
+def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores):
     plt.figure(figsize=(8, 6))
-    plt.plot(rewards)
+    reward_attacker = [r['attacker'] for r in rewards]
+    reward_support = [r['support'] for r in rewards]
+    reward_combined = [r['combined'] for r in rewards]
+    
+    plt.plot(reward_attacker, label='Attacker Reward', color='red', alpha=0.7)
+    plt.plot(reward_support, label='Support Reward', color='blue', alpha=0.7)
+    plt.plot(reward_combined, label='Combined Reward', color='green', linewidth=2)
+    
     plt.title('Rewards per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Total Rewards')
+    plt.legend()
     plt.savefig("Train_reward_DQN.png")
 
     plt.figure(figsize=(8, 6))
@@ -166,11 +355,20 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.savefig("Train_success_rate_DQN.png")
 
     plt.figure(figsize=(8, 6))
-    plt.plot(match_score)
-    plt.title('Score mosse per Episode')
+    attacker_scores = [s['attacker'] for s in action_scores]
+    support_scores = [s['support'] for s in action_scores]
+    combined_scores = [s['combined'] for s in action_scores]
+    
+    plt.plot(attacker_scores, label='Attacker Score', color='red', alpha=0.7)
+    plt.plot(support_scores, label='Support Score', color='blue', alpha=0.7)
+    plt.plot(combined_scores, label='Combined Score', color='green', linewidth=2)
+    
+    plt.title('Action Scores per Episode')
     plt.xlabel('Episodes')
-    plt.ylabel('Total Score')
-    plt.savefig("Score_DQN.png")
+    plt.ylabel('Average Score')
+    plt.legend()
+    plt.savefig("Score_DQN_separated.png")
+
 
 
 def export_success_rate(success_rate):
@@ -198,19 +396,42 @@ def load_csv_series(filename, column):
 
 
 if __name__ == "__main__":
-    # Spells and items setup
+    # Spell offensivi (già esistenti)
     fire = Spell("Fire", 25, 600, "black")
     thunder = Spell("Thunder", 30, 700, "black")
     blizzard = Spell("Blizzard", 35, 800, "black")
     meteor = Spell("Meteor", 40, 1000, "black")
+
+    # Spell curativi per ATTACKER
     cura = Spell("Cura", 32, 1500, "white")
 
+    # Spell curativi per SUPPORT
+    cura_support = Spell("Cura", 32, 1200, "white")  # Auto-cure
+    cura_tot = Spell("Cura Tot", 30, 700, "white_tot")  # Cura entrambi
+    splash = Spell("Splash", 18, 450, "white_tot")  # Cura entrambi (meno potente)
+    cura_m = Spell("Cura M", 28, 1300, "white_m")  # Cura il mate
+    cura_totm = Spell("Cura TotM", 36, 1700, "white_m")  # Cura di più il mate
+
     potion = Item("Potion", "potion", "Heals 50 HP", 50)
-    hielixer = Item("MegaElixer", "elixer", "Fully restores party's HP/MP", 9999)
+    hielixer = Item("MegaElixer", "elixir", "Fully restores party's HP/MP", 9999)
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, match_score = train_dqn(episodes=100)
-    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_score)
-
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=10)
+    
+    # Plot dei risultati
+    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores)
+    
+    # Esporta success rate
     export_success_rate(success_rate)
+    
+    print("\n✅ Training completato!")
+    print("📊 Grafici salvati:")
+    print("   - Train_reward_DQN.png")
+    print("   - Train_cumulative_Win_DQN.png")
+    print("   - Train_moves_DQN.png")
+    print("   - Train_success_rate_DQN.png")
+    print("   - Score_DQN_separated.png")
+    print("💾 Modelli salvati:")
+    print("   - MODELLO_NO_LLM_ATTACKER.h5")
+    print("   - MODELLO_NO_LLM_SUPPORT.h5")

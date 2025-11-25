@@ -36,9 +36,12 @@ class Person:
         return self.hp
 
     def heal(self, dmg):
+        """Cura il player senza superare maxHP"""
         self.hp += dmg
         if self.hp > self.maxhp:
+            # ✅ Non superare maxHP
             self.hp = self.maxhp
+        print(f"{self.name} curato di {dmg} HP → HP: {self.hp}/{self.maxhp}")
 
     def get_hp(self):
         return self.hp

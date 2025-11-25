@@ -14,13 +14,15 @@ class DQNAgent:
         self.state_size = state_size
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
-        self.gamma = 0.95  # discount rate
-        self.epsilon = 0.0 # exploration rate
-        self.epsilon_min = 0.01 # 0.05
+        self.gamma = 0.95
+        self.epsilon = 1.0
+        self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
+        
         if load_model_path:
             self.load(load_model_path)
+            self.epsilon = 0.1
         else:
             self.model = self._build_model()
 
@@ -44,37 +46,64 @@ class DQNAgent:
             with open(memory_path, 'rb') as f:
                 self.memory = pickle.load(f)
 
-    def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
+    def remember(self, state, action, reward, next_state, done, valid_actions=None):
+        """Salva l'esperienza nella memoria (ora include valid_actions)"""
+        self.memory.append((state, action, reward, next_state, done, valid_actions))
 
-    def act(self, state, env):
-        valid_actions = env.get_valid_actions()
+    # TODO: player_index va tolto dato che ora ci sono due agenti
+    def act(self, state, env, player_index):
+        valid_actions = env.get_valid_actions(player_index)
+        
+        # ✅ Se non ci sono azioni valide (player morto), ritorna None
+        if len(valid_actions) == 0:
+            print(f"⚠️  Player {player_index} non ha azioni valide!")
+            return None  # O un'azione dummy (es: 0)
+        
+        # Epsilon-greedy
         if np.random.rand() <= self.epsilon:
             return random.choice(valid_actions)
-        act_values = self.model.predict(state)[0]  # shape: (9,)
-        if len(valid_actions) < 9:
-            masked_q_values = np.full_like(act_values, -np.inf)  
-            masked_q_values[valid_actions] = act_values[valid_actions] 
-            return np.argmax(masked_q_values)
+        
+        act_values = self.model.predict(state, verbose=0)
+        masked_q_values = np.full(act_values.shape[1], -np.inf)
+        masked_q_values[valid_actions] = act_values[0][valid_actions]
+        
+        return np.argmax(masked_q_values)
 
-        return np.argmax(act_values)
-
-    def replay(self, batch_size, env):
+    def replay(self, batch_size, env, player_index):
+        """Versione migliorata che usa le valid_actions salvate"""
+        import random
+        import numpy as np
+        
         minibatch = random.sample(self.memory, batch_size)
-        valid_actions = env.get_valid_actions()
-        for state, action, reward, next_state, done in minibatch:
+        
+        for experience in minibatch:
+            # Gestisci entrambi i formati (con/senza valid_actions)
+            if len(experience) == 6:
+                state, action, reward, next_state, done, valid_actions = experience
+            else:
+                state, action, reward, next_state, done = experience
+                valid_actions = None
+            
             target = reward
+            
             if not done:
-                if len(valid_actions) < 9:
-                    act_values = self.model.predict(state)[0]
-                    masked_q_values = np.full_like(act_values, -np.inf)
-                    masked_q_values[valid_actions] = act_values[valid_actions]
-                    target = (reward + self.gamma * np.amax(masked_q_values))
+                q_values_next = self.model.predict(next_state, verbose=0)[0]
+                
+                if valid_actions is not None and len(valid_actions) > 0:
+                    # Usa le valid_actions salvate
+                    masked_q = np.full_like(q_values_next, -np.inf)
+                    masked_q[valid_actions] = q_values_next[valid_actions]
+                    max_q = np.max(masked_q)
                 else:
-                    target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
-            target_f = self.model.predict(state)
+                    # Fallback: usa tutti i Q-values
+                    max_q = np.max(q_values_next)
+                
+                target = reward + self.gamma * max_q
+            
+            target_f = self.model.predict(state, verbose=0)
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
+        
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
