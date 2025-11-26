@@ -54,10 +54,8 @@ class DQNAgent:
     def act(self, state, env, player_index):
         valid_actions = env.get_valid_actions(player_index)
         
-        # ✅ Se non ci sono azioni valide (player morto), ritorna None
         if len(valid_actions) == 0:
-            print(f"⚠️  Player {player_index} non ha azioni valide!")
-            return None  # O un'azione dummy (es: 0)
+            return None
         
         # Epsilon-greedy
         if np.random.rand() <= self.epsilon:

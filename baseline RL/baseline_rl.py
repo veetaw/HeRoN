@@ -146,20 +146,15 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             attacker_action = attacker_agent.act(state_attacker, env, 0)
             support_action = supporter_agent.act(state_support, env, 1)
             
-            # ✅ Se un player è morto, usa un'azione dummy (nessuna azione)
             if attacker_action is None:
-                print(f"⚠️  Attacker è morto, salta il turno")
-                attacker_action = 0  # Placeholder, verrà ignorato in perform_action()
+                attacker_action = 0
             
             if support_action is None:
-                print(f"⚠️  Support è morto, salta il turno")
-                support_action = 0  # Placeholder, verrà ignorato in perform_action()
+                support_action = 0
             
-            # Mappa azioni
             match_attacker = map_action_attack(attacker_action)
             match_support = map_action_support(support_action)
             
-            # Calcola score (solo per player vivi)
             player_attacker = players[0]
             player_support = players[1]
             
@@ -170,7 +165,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                     enemies[0].get_hp()
                 )
             else:
-                attacker_scores = {match_attacker: 0}  # Score 0 se morto
+                attacker_scores = {match_attacker: 0}
             
             if player_support.get_hp() > 0:
                 support_scores = score.calculate_scores_support(
@@ -180,61 +175,47 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                     enemies[0].get_hp()
                 )
             else:
-                support_scores = {match_support: 0}  # Score 0 se morto
+                support_scores = {match_support: 0}
             
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
             match_score_support.append(round(support_scores.get(match_support, 0), 2))
             
-            # Print (con indicatore di stato)
             if moves % 3 == 0 or moves == 0:
-                status_atk = "💀" if player_attacker.get_hp() <= 0 else "🗡️"
-                status_sup = "💀" if player_support.get_hp() <= 0 else "❤️"
+                status_atk = "DEAD" if player_attacker.get_hp() <= 0 else "ATK"
+                status_sup = "DEAD" if player_support.get_hp() <= 0 else "SUP"
                 
                 print(f"\n[Move {moves:02d}] Ep {e+1}/{episodes}")
-                print(f"  {status_atk}  ATK: {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
-                print(f"  {status_sup}  SUP: {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
-                print(f"  👹 Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
+                print(f"  [{status_atk}] {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
+                print(f"  [{status_sup}] {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
+                print(f"  Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
 
             next_state, reward_attacker, reward_support, done, a_win, _, __ = env.step(attacker_action, support_action)
             
-            # ✅ Aggiorna reward in base allo stato (bonus per sopravvivenza)
-            if player_attacker.get_hp() > 0:
-                total_reward_attacker += reward_attacker
-            else:
-                total_reward_attacker += reward_attacker  # Include la penalità per morte
+            print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
             
-            if player_support.get_hp() > 0:
-                total_reward_support += reward_support
-            else:
-                total_reward_support += reward_support  # Include la penalità per morte
+            total_reward_attacker += reward_attacker
+            total_reward_support += reward_support
             
             next_state_attacker = np.reshape(next_state['Maria'], [1, state_size_attacker])
             next_state_support = np.reshape(next_state['Juana'], [1, state_size_support])
             
-            # ✅ Salva experience solo per player vivi
-            if player_attacker.get_hp() > 0 or moves == 0:  # Salva anche l'ultima azione prima di morire
-                attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
-            
-            if player_support.get_hp() > 0 or moves == 0:
-                supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
+            attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
+            supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
             
             state_attacker = next_state_attacker
             state_support = next_state_support
             
             moves += 1
 
-            # Replay (solo se hanno abbastanza memoria)
             if len(attacker_agent.memory) > batch_size:
                 attacker_agent.replay(batch_size, env, 0)
             
             if len(supporter_agent.memory) > batch_size:
                 supporter_agent.replay(batch_size, env, 1)
 
-            # ✅ Controlla condizioni di terminazione
             if done:
-                result = "🎉 VICTORY" if a_win else "💀 DEFEAT"
+                result = "VICTORY" if a_win else "DEFEAT"
                 
-                # Mostra chi è sopravvissuto
                 survivors = []
                 if player_attacker.get_hp() > 0:
                     survivors.append(f"Maria (HP: {player_attacker.get_hp()})")
@@ -426,13 +407,13 @@ if __name__ == "__main__":
     # Esporta success rate
     export_success_rate(success_rate)
     
-    print("\n✅ Training completato!")
-    print("📊 Grafici salvati:")
+    print("\nTraining completato!")
+    print("Grafici salvati:")
     print("   - Train_reward_DQN.png")
     print("   - Train_cumulative_Win_DQN.png")
     print("   - Train_moves_DQN.png")
     print("   - Train_success_rate_DQN.png")
     print("   - Score_DQN_separated.png")
-    print("💾 Modelli salvati:")
+    print("Modelli salvati:")
     print("   - MODELLO_NO_LLM_ATTACKER.h5")
     print("   - MODELLO_NO_LLM_SUPPORT.h5")

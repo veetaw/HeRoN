@@ -169,20 +169,11 @@ class BattleEnv:
         return self.get_state()
 
     def perform_action(self, player_index, action):
-        """
-        deve ritornare next_state, reward, done, a_win, e_win, enemy_choice
-
-        """
-        
-        # Agent choise
-        # se attacco, allora il player corrente attacca
-
         player = self.players[player_index]
         reward = 0
 
         if player.get_hp() <= 0:
-            print(f"⚠️  {player.name} è morto e non può agire!")
-            return -50
+            return 0
 
         if action == 0:
             dmg = player.generate_damage()
@@ -211,57 +202,50 @@ class BattleEnv:
                 player.reduce_mp(spell.cost)
                 
                 if spell.type.startswith("white"):
-                    # Gestisci i diversi tipi di cure
                     if "_" in spell.type:
-                        dest = spell.type.split("white_")[1]  # "m", "tot"
+                        dest = spell.type.split("white_")[1]
                     else:
-                        dest = ""  # "white" senza suffisso → cura self
+                        dest = ""
                     
-                    if dest == "" or dest is None:  # Cura self (white)
+                    if dest == "" or dest is None:
                         if (player.hp + magic_dmg) > player.maxhp:
-                            reward -= 5  # Penalità per overheal
+                            reward -= 5
                         else:
                             reward += 10
                         player.heal(magic_dmg)
                         
-                    elif dest == "m":  # Cura mate (white_m)
+                    elif dest == "m":
                         if (mate.hp + magic_dmg) > mate.maxhp:
                             reward -= 5
                         else:
-                            # Reward basato su quanto è critico il mate
                             if mate.hp < 0.3 * mate.maxhp:
-                                reward += 25  # Mate critico
+                                reward += 25
                             else:
                                 reward += 15
                         mate.heal(magic_dmg)
                         
-                    elif dest == "tot":  # Cura tutti (white_tot)
-                        # Cura self
+                    elif dest == "tot":
                         overheal_self = max(0, (player.hp + magic_dmg) - player.maxhp)
                         player.heal(magic_dmg)
                         
-                        # Cura mate
                         overheal_mate = max(0, (mate.hp + magic_dmg) - mate.maxhp)
                         mate.heal(magic_dmg)
                         
-                        # Reward basato su efficacia
                         if overheal_self > magic_dmg * 0.5 or overheal_mate > magic_dmg * 0.5:
-                            reward -= 3  # Troppo overheal
+                            reward -= 3
                         else:
                             reward += 12
                     
                     else:
-                        # Tipo sconosciuto, fallback
                         print(f"Warning: Unknown spell dest '{dest}', defaulting to self-heal")
                         player.heal(magic_dmg)
                         reward += 5
 
-                else:  # Spell offensiva (fire, thunder, etc.)
+                else:
                     enemy = self.enemies[0]
                     enemy.take_damage(magic_dmg)
                     reward += 10
 
-        # altrimenti è un item
         elif action > len(player.magic):
             item_index = action - len(player.magic) - 1
             item = player.items[item_index]["item"]
@@ -285,7 +269,6 @@ class BattleEnv:
         return reward
 
     def enemy_turn(self):
-        """Turno del nemico - attacca un player casuale vivo"""
         import random
         
         enemy = self.enemies[0]
@@ -293,66 +276,47 @@ class BattleEnv:
         if enemy.get_hp() <= 0:
             return None
         
-        # Trova player vivi
         alive_players = [p for p in self.players if p.get_hp() > 0]
         
         if not alive_players:
             return None
         
-        # Attacca un player casuale
         target = random.choice(alive_players)
         damage = enemy.generate_damage()
         target.take_damage(damage)
         
-        print(f"👹 {enemy.name} attacca {target.name} per {damage} danni! (HP: {target.get_hp()}/{target.maxhp})")
+        print(f"Enemy {enemy.name} attacks {target.name} for {damage} dmg! (HP: {target.get_hp()}/{target.maxhp})")
         
     def step(self, attacker_action, support_action):
-        """
-        step nel gioco.
-
-        action viene scelta da agent.act, è random
-
-        SE ACTION E' 0 FA PARTIRE L'ATTACK DI OGNI PLAYER, DA SEMPRE REWARD +25
-        
-
-        """
         reward_attacker = 0
         reward_support = 0
         
-        # Esegui azioni
         if attacker_action is not None:
             reward_attacker = self.perform_action(ATTACKER_INDEX, attacker_action)
         
         if support_action is not None:
             reward_support = self.perform_action(SUPPORT_INDEX, support_action)
         
-        # ✅ Penalità se uno dei player è morto
         if self.players[ATTACKER_INDEX].get_hp() <= 0:
-            reward_attacker -= 100  # Penalità pesante
-            reward_support -= 50    # Support ha fallito nel proteggere
-            print(f"💀 {self.players[ATTACKER_INDEX].name} è morto!")
+            reward_attacker -= 100
+            reward_support -= 50
         
         if self.players[SUPPORT_INDEX].get_hp() <= 0:
-            reward_support -= 100  # Penalità pesante
-            reward_attacker -= 30  # Attacker perde supporto
-            print(f"💀 {self.players[SUPPORT_INDEX].name} è morto!")
+            reward_support -= 100
+            reward_attacker -= 30
         
-        # Turno nemico
         self.enemy_turn()
         
         a_win = None
         
-        # ✅ Controlla se il team è sconfitto
         if self.players[ATTACKER_INDEX].get_hp() <= 0 and self.players[SUPPORT_INDEX].get_hp() <= 0:
             self.done = True
             a_win = False
-            print("💀 Tutti i player sono morti! SCONFITTA")
         
-        # Controlla vittoria
         elif all(enemy.get_hp() <= 0 for enemy in self.enemies):
             self.done = True
             a_win = True
-            reward_attacker += 100  # Bonus vittoria
+            reward_attacker += 100
             reward_support += 100
         
         next_state = self.get_state()
