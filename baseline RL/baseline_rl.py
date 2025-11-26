@@ -70,7 +70,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     ]
     player1 = Person("Maria", 2600, 120, 300, 34, attacker_spells, player_items)
     player2 = Person("Juana", 2300, 180, 100, 50, support_spells, player_items)
-    enemy1 = Person("Antonio", 4000, 701, 525, 25, [fire, cura], [])
+    enemy1 = Person("Antonio", 8000, 701, 525, 25, [fire, cura], [])
 
     players = [player1, player2]
     enemies = [enemy1]
@@ -260,6 +260,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 print(f"{'='*70}\n")
                 
                 break
+        print(f"Vittorie agente: {total_agent_wins}, vittorie nemico: {total_enemy_wins}")
 
         # Salva reward e mosse per l'episodio
         rewards_per_episode.append({

@@ -90,7 +90,6 @@ class BattleEnv:
             state["enemies"] = [0, 0]
         for enemy in self.enemies:
             state["enemies"].extend([enemy.get_hp(), enemy.get_mp()])
-        print(f"State: {state}, Length: {len(state)}")
         return state
 
     def get_action_size(self, player_index):
@@ -307,8 +306,6 @@ class BattleEnv:
         
         print(f"👹 {enemy.name} attacca {target.name} per {damage} danni! (HP: {target.get_hp()}/{target.maxhp})")
         
-        return "attack"
-
     def step(self, attacker_action, support_action):
         """
         step nel gioco.
@@ -341,7 +338,9 @@ class BattleEnv:
             print(f"💀 {self.players[SUPPORT_INDEX].name} è morto!")
         
         # Turno nemico
-        enemy_action = self.enemy_turn()
+        self.enemy_turn()
+        
+        a_win = None
         
         # ✅ Controlla se il team è sconfitto
         if self.players[ATTACKER_INDEX].get_hp() <= 0 and self.players[SUPPORT_INDEX].get_hp() <= 0:
@@ -357,7 +356,7 @@ class BattleEnv:
             reward_support += 100
         
         next_state = self.get_state()
-        return next_state, reward_attacker, reward_support, self.done, False, None, None
+        return next_state, reward_attacker, reward_support, self.done, a_win, None, None
 
     def describe_game_state(self, last_enemy_move):
         """
