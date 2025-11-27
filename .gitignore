@@ -1,2 +1,19 @@
 .venv/
 *.pyc
+
+# File generati dai modelli e training
+MODELLO_*.h5
+MODELLO_*.keras
+*_memory.pkl
+*_epsilon.txt
+
+# Grafici e risultati
+*_DQN*.png
+Test_*.png
+Score_*.png
+Train_*.png
+
+# Dataset risultati
+*success_rate*.csv
+*.csv
+*.png

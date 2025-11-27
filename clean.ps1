@@ -63,4 +63,4 @@ foreach ($path in $searchPaths) {
 Write-Host "`n📊 Riepilogo:" -ForegroundColor Cyan
 Write-Host "  - File rimossi: $removedCount" -ForegroundColor Green
 Write-Host "  - File protetti: $protectedCount" -ForegroundColor Blue
-Write-Host "`n✨ Pulizia completata!" -ForegroundColor Cyan
+Write-Host "`nPulizia completata!" -ForegroundColor Cyan

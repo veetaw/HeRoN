@@ -377,7 +377,7 @@ class BattleEnv:
         return game_description
 
 
- def describe_game_state_supporter(self, last_enemy_move):
+    def describe_game_state_supporter(self, last_enemy_move):
         """
         descrive lo stato del game per l'LLM, attualmente non va bene per due giocatori.
 

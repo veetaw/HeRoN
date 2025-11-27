@@ -96,7 +96,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     success_rate = []
     action_scores = []
 
-    '''
+    ''' TODO: FARE IL CARICAMENTO DEI PROGRESSI CHE è STATO COMMENTATO
     # Load existing progress
     rewards_per_episode = load_csv_series("reward_per_episode.csv", "Reward")
     agent_wins = load_csv_series("agent_wins.csv", "Wins")
@@ -112,7 +112,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     in ogni episodio (partita) viene resettato lo state e poi viene fatto il reshape per renderlo una matrice 1 x state_size
     """
     for e in range(episodes):
-        # reset dovrebbe ritornare i due stati mi sa
+        # TODO: non facciamo più update_quantity, da fare
+
         state_global = env.reset()
         state_attacker = state_global['Maria']
         state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player('Maria')])
@@ -193,6 +194,9 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             
             print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
             
+            score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
+            score.update_quantity(match_support, player_support.get_mp(), 1)
+
             total_reward_attacker += reward_attacker
             total_reward_support += reward_support
             

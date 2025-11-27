@@ -4,10 +4,13 @@ from classes.game import Person
 from classes.magic import Spell
 from classes.inventory import Item
 from classes.agent import DQNAgent
+from classes.support_agent import DQNSupportAgent
 from classes.environment import BattleEnv
 import pandas as pd
 import re
 import action_score as score
+
+SERVER_API_HOST = "http://127.0.0.1:1234/v1"
 
 try:
     import lmstudio as lms
@@ -27,7 +30,7 @@ except ImportError:
 
     def get_llm_response(input_text):
         response_obj = client.chat.completions.create(
-            model="",
+            model="qwen/qwen3-vl-4b",
             messages=[{"role": "user", "content": input_text}],
             temperature=0.7,
             max_tokens=100
@@ -120,7 +123,7 @@ def map_action_support(action):
     return actions_map.get(action, 'attack')
 
 #aggiungere il secondo player supporter
-def train_dqn(episodes, batch_size=32):
+def train_dqn(episodes, batch_size=32, load_model_path=None):
     #environment settings
     attacker_spells = [fire, thunder, blizzard, meteor, cura]
     
@@ -164,15 +167,29 @@ def train_dqn(episodes, batch_size=32):
     total_agent_wins = 0
 
     for e in range(episodes):
-        state = env.reset()
-        state = np.reshape(state, [1, env.state_size])
+        state_global = env.reset()
+        state_attacker = state_global['Maria']
+        state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player('Maria')])
+        state_support = state_global['Juana']
+        state_support = np.reshape(state_support, [1, env.get_state_size_of_player('Juana')])
+
         done = False
-        total_reward = 0
+        total_reward_support = 0
+        total_reward_attacker = 0
         moves = 0
-        match_score = []
+        match_score_attacker = []
+        match_score_support = []
         last_enemy_move = "No action"
-        score.reset_quantity()
+        score.reset_quantities()
+        state_size_attacker = env.get_state_size_of_player('Maria')
+        state_size_support = env.get_state_size_of_player('Juana')
         while not done:
+            player_attacker = players[0]
+            player_support = players[1]
+
+            attacker_action = None
+            support_action = None
+
             #  Description of environment and Helper action #
             game_description_attacker = env.describe_game_state_attacker(last_enemy_move)
             #  prompt per l'attacker
@@ -185,6 +202,7 @@ def train_dqn(episodes, batch_size=32):
                                 f"Given the game state '{game_description_attacker}', what is the next action to take? " \
                                 "Write only the chosen action in square brackets and " \
                                 "explain your reasoning briefly, max 50 words. /no_think"
+            
             game_description_supporter = env.describe_game_state_supporter(last_enemy_move)
             # prompt per il supporter
             input_text_supporter = "You are a game asstitant for player." \
@@ -197,64 +215,184 @@ def train_dqn(episodes, batch_size=32):
                                 "Write only the chosen action in square brackets and " \
                                 "explain your reasoning briefly, max 50 words. /no_think"
 
+            # HELPER HELPS ATTACKER
             llm_response_attacker = get_llm_response(input_text_attacker)
-            llm_response = re.sub(r"<think>.*?</think>", "", llm_response, flags=re.DOTALL).strip()
-            print(f"LLM response: {llm_response}")
+            llm_response = re.sub(r"<think>.*?</think>", "", llm_response_attacker, flags=re.DOTALL).strip()
+            print(f"LLM response: {llm_response_attacker}")
 
             # Mapping LLM action to RL agent with action score calculation #
-            action = map_llm_action_to_attacker_action(llm_response)
+            attacker_action = map_llm_action_to_attacker_action(llm_response)
             #aggiungere il mapping per il supporter
 
-            if action != None:
-                match = re.search(r'\[(.*?)\]', llm_response)
-                match = match.group(1).strip().lower()
-                if match == "elixer":
-                    match = "elixir"
-                total_score = score.calculate_scores(players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
-                match_score.append(round(total_score.get(match), 2))
+            if attacker_action != None:
+                match_attacker = re.search(r'\[(.*?)\]', llm_response)
+                match_attacker = match_attacker.group(1).strip().lower()
+                if match_attacker == "elixer":
+                    match_attacker = "elixir"
+                if player_attacker.get_hp() > 0:
+                    attacker_scores = score.calculate_scores_attacker(
+                        player_attacker.get_hp(), 
+                        player_attacker.get_mp(), 
+                        enemies[0].get_hp()
+                    )
+                else:
+                    attacker_scores = {match_attacker: 0}
             else:
-                action = agent.act(state, env)
-                match = map_action_attack(action)
-                total_score = score.calculate_scores(players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
-                match_score.append(round(total_score.get(match), 2))
+                attacker_action = attacker_agent.act(state_attacker, env)
+                match_attacker = map_action_attack(attacker_action)
+                if player_attacker.get_hp() > 0:
+                    attacker_scores = score.calculate_scores_attacker(
+                        player_attacker.get_hp(), 
+                        player_attacker.get_mp(), 
+                        enemies[0].get_hp()
+                    )
+                else:
+                    attacker_scores = {match_attacker: 0}
+                allucination += 1 #TODO: separate allucinations for helper and attacker
+
+            # HELPER HELPS SUPPORT
+            llm_response_support = get_llm_response(input_text_supporter)
+            llm_response = re.sub(r"<think>.*?</think>", "", llm_response_support, flags=re.DOTALL).strip()
+            print(f"LLM response: {llm_response_support}")
+
+            # Mapping LLM action to RL agent with action score calculation #
+            support_action = map_llm_action_to_attacker_action(llm_response)
+            #aggiungere il mapping per il supporter
+
+            if support_action != None:
+                match_support = re.search(r'\[(.*?)\]', llm_response)
+                match_support = match_support.group(1).strip().lower()
+                if match_support == "elixer":
+                    match_support = "elixir"
+                if player_support.get_hp() > 0:
+                    support_scores = score.calculate_scores_support(
+                        player_support.get_hp(), 
+                        player_attacker.get_hp(),
+                        player_support.get_mp(), 
+                        enemies[0].get_hp()
+                    )
+                else:
+                    support_scores = {match_support: 0}
+            else:
+                support_action = supporter_agent.act(state_support, env)
+                match_support = map_action_attack(support_action)
+                if player_support.get_hp() > 0:
+                    support_scores = score.calculate_scores_support(
+                        player_support.get_hp(), 
+                        player_attacker.get_hp(),
+                        player_support.get_mp(), 
+                        enemies[0].get_hp()
+                    )
+                else:
+                    support_scores = {match_support: 0}
                 allucination += 1
 
+            match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
+            match_score_support.append(round(support_scores.get(match_support, 0), 2))
+
             # Execution of RL action #
-            next_state, reward, done, a_win, e_win, last_enemy_move = env.step(action)
-            score.updage_quantity(match, players[0].get_mp())
-            total_reward += reward
-            next_state = np.reshape(next_state, [1, env.state_size])
-            agent.remember(state, action, reward, next_state, done)
-            state = next_state
+            next_state, reward_attacker, reward_support, done, a_win, _, __ = env.step(attacker_action, support_action)
+            score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
+            score.update_quantity(match_support, player_support.get_mp(), 1)
+
+            total_reward_attacker += reward_attacker
+            total_reward_support += reward_support
+
+            next_state_attacker = np.reshape(next_state['Maria'], [1, state_size_attacker])
+            next_state_support = np.reshape(next_state['Juana'], [1, state_size_support])
+
+            attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
+            supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
+
+            state_attacker = next_state_attacker
+            state_support = next_state_support
+
             moves += 1
             # dovrebbe andare qui l'Helper (?)
 
-            if len(agent.memory) > batch_size:
-                agent.replay(batch_size, env)
+            if len(attacker_agent.memory) > batch_size:
+                attacker_agent.replay(batch_size, env, 0)
+            
+            if len(supporter_agent.memory) > batch_size:
+                supporter_agent.replay(batch_size, env, 1)
 
             if done:
-                print(f"Episode: {e}/{episodes}, Score: {total_reward}, Moves: {moves}, Epsilon: {agent.epsilon}")
+                result = "VICTORY" if a_win else "DEFEAT"
+                
+                survivors = []
+                if player_attacker.get_hp() > 0:
+                    survivors.append(f"Maria (HP: {player_attacker.get_hp()})")
+                if player_support.get_hp() > 0:
+                    survivors.append(f"Juana (HP: {player_support.get_hp()})")
+                
+                survivor_text = ", ".join(survivors) if survivors else "Nessuno"
+                
+                print(f"\n{'='*70}")
+                print(f"  {result}  |  Episode {e+1}/{episodes}")
+                print(f"{'='*70}")
+                print(f"  Attacker Reward: {total_reward_attacker:>6.0f}  |  Moves: {moves}")
+                print(f"  Support Reward:  {total_reward_support:>6.0f}  |  Epsilon: ATK={attacker_agent.epsilon:.3f}, SUP={supporter_agent.epsilon:.3f}")
+                print(f"  Sopravvissuti: {survivor_text}")
+                
                 if a_win:
-                    agent_wins.append(1)
-                    enemy_wins.append(0)
                     total_agent_wins += 1
                 else:
-                    agent_wins.append(0)
-                    enemy_wins.append(1)
+                    total_enemy_wins += 1
+                
+                win_rate = total_agent_wins / (e + 1)
+                print(f"  Win Rate: {total_agent_wins}/{e+1} ({100*win_rate:.1f}%)")
+                print(f"{'='*70}\n")
+                
+                break
+        print(f"Vittorie agente: {total_agent_wins}, vittorie nemico: {total_enemy_wins}")
 
-                success_rate.append(total_agent_wins / (e + 1))
-                print("Vittorie agente: ", agent_wins.count(1), " Vittorie nemico: ", enemy_wins.count(1))
-        rewards_per_episode.append(total_reward)
+        # Salva reward e mosse per l'episodio
+        rewards_per_episode.append({
+            'attacker': total_reward_attacker,
+            'support': total_reward_support,
+            'combined': total_reward_attacker + total_reward_support
+        })
         agent_moves_per_episode.append(moves)
-        action_scores.append(np.mean(match_score))
+        
+        action_scores.append({
+            'attacker': np.mean(match_score_attacker),
+            'support': np.mean(match_score_support),
+            'combined': (np.mean(match_score_attacker) + np.mean(match_score_support)) / 2
+        })
+    avg_reward_attacker = np.mean([r['attacker'] for r in rewards_per_episode])
+    avg_reward_support = np.mean([r['support'] for r in rewards_per_episode])
+    avg_reward_combined = np.mean([r['combined'] for r in rewards_per_episode])
+    avg_moves = np.mean(agent_moves_per_episode)
+    avg_score_attacker = np.mean([s['attacker'] for s in action_scores])
+    avg_score_support = np.mean([s['support'] for s in action_scores])
+    avg_score_combined = np.mean([s['combined'] for s in action_scores])
+    
+    print("\n=== TRAINING SUMMARY ===")
+    print(f"Average reward (Attacker): {avg_reward_attacker:.2f}")
+    print(f"Average reward (Support): {avg_reward_support:.2f}")
+    print(f"Average reward (Combined): {avg_reward_combined:.2f}")
+    print(f"Average moves: {avg_moves:.2f}")
+    print(f"Average score (Attacker): {avg_score_attacker:.4f}")
+    print(f"Average score (Support): {avg_score_support:.4f}")
+    print(f"Average score (Combined): {avg_score_combined:.4f}")
 
-    agent.save("") # save the agent model
-    print("Average rewards: ", np.mean(rewards_per_episode))
-    print("Average moves: ", np.mean(agent_moves_per_episode))
-    print("Average move score: ", np.mean(action_scores))
-    print("Hallucinations: ", allucination)
+
+    #if (e + 1) % 200 == 0:
+    #    save_path = f"model_dqn_episode_{e + 1}"
+    #    print(f"Saving model to {save_path}...")
+    #    agent.save(save_path)
+    
+    attacker_agent.save("MODELLO_NO_LLM_ATTACKER") # save the agent model
+    supporter_agent.save("MODELLO_NO_LLM_SUPPORT") # save the agent model
+
+    #append_csv("reward_per_episode.csv", rewards_per_episode, "Reward")
+    #append_csv("agent_wins.csv", agent_wins, "Wins")
+    #append_csv("enemy_wins.csv", enemy_wins, "Wins")
+    #append_csv("agent_moves.csv", agent_moves_per_episode, "Moves")
+    #append_csv("success_rate.csv", success_rate, "Rate")
 
     return rewards_per_episode, agent_wins, enemy_wins, agent_moves_per_episode, success_rate, action_scores
+
 
 
 def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_score):
@@ -314,7 +452,6 @@ def export_success_rate(success_rate):
 
 
 if __name__ == "__main__":
-    if __name__ == "__main__":
     # Spell offensivi (già esistenti)
     fire = Spell("Fire", 25, 600, "black")
     thunder = Spell("Thunder", 30, 700, "black")
@@ -336,7 +473,7 @@ if __name__ == "__main__":
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=10)
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=1)
     
     # Plot dei risultati
     plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores)
