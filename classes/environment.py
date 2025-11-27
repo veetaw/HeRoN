@@ -8,7 +8,14 @@ fire = Spell("Fire", 25, 600, "black")
 thunder = Spell("Thunder", 30, 700, "black")
 blizzard = Spell("Blizzard", 35, 800, "black")
 meteor = Spell("Meteor", 40, 1000, "black")
+# Spell curativi per ATTACKER
 cura = Spell("Cura", 32, 1500, "white")
+# Spell curativi per SUPPORT
+cura_support = Spell("Cura", 32, 1200, "white")  # Auto-cure
+cura_tot = Spell("Cura Tot", 30, 700, "white_tot")  # Cura entrambi
+splash = Spell("Splash", 18, 450, "white_tot")  # Cura entrambi (meno potente)
+cura_m = Spell("Cura M", 28, 1300, "white_m")  # Cura il mate
+cura_totm = Spell("Cura TotM", 36, 1700, "white_m")  # Cura di più il mate
 MIN_SPELL_COST =  25
 
 potion = Item("Potion", "potion", "Heals 50 HP", 50)
@@ -321,8 +328,8 @@ class BattleEnv:
         
         next_state = self.get_state()
         return next_state, reward_attacker, reward_support, self.done, a_win, None, None
-
-    def describe_game_state(self, last_enemy_move):
+#TODO rivedere le stats
+    def describe_game_state_attacker(self, last_enemy_move):
         """
         descrive lo stato del game per l'LLM, attualmente non va bene per due giocatori.
 
@@ -370,3 +377,52 @@ class BattleEnv:
         return game_description
 
 
+ def describe_game_state_supporter(self, last_enemy_move):
+        """
+        descrive lo stato del game per l'LLM, attualmente non va bene per due giocatori.
+
+        """
+        state_description = ""
+
+        for player in self.players:
+            state_description += f"Player has {player.get_hp()} Health Points (hp) and {player.get_mp()} Magic Points (mp). "
+
+        for enemy in self.enemies:
+            state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
+
+        actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
+
+        player = self.players[1]
+
+        if player.get_mp() >= fire.cost:
+            fire_spell = "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
+            actions_description += fire_spell
+        if player.get_mp() >= cura_support.cost:
+            cura_support_spell = "[cura support] It heals 500 player's hp and removes 32 player's mp; "
+            actions_description += cura_support_spell
+        if player.get_mp() >= cura_tot.cost:
+            cura_tot_spell = "[cura tot] Heals 700 HP from both players and removes 30 MP from the player; "
+            actions_description += cura_tot_spell
+        if player.get_mp() >= splash.cost:
+            splash_spell = "[splash] Heals 450 HP from both players and removes 18 MP from the player; "
+            actions_description += splash_spell
+        if player.get_mp() >= cura_m.cost:
+            cura_m_spell = "[cura m] heals 1300 mate's hp and removes 28 player's mp; "
+            actions_description += cura_m_spell
+        if player.get_mp() >= cura_totm.cost:
+            cura_totm_spell = "[cura totm] heals 1700 mate's hp and removes 36 player's mp; "
+            actions_description += cura_totm_spell
+        if player.items[0]["quantity"] > 0:
+            potion = f"[potion] heals 50 player's hp and there are {player.items[0]['quantity']}; "
+            actions_description += potion
+        if player.items[1]["quantity"] > 0:
+            grenade = f"[grenade] deals 500 enemy's hp and there are {player.items[1]['quantity']}; "
+            actions_description += grenade
+        if player.items[2]["quantity"] > 0:
+            elixer = f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
+            actions_description += elixer
+
+        last_move_description = f"Last enemy move was [{last_enemy_move}]."
+
+        game_description = state_description + actions_description + last_move_description
+        return game_description
