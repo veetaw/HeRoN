@@ -191,81 +191,73 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             attacker_action = None
             support_action = None
 
-            #  Description of environment and Helper action #
-            game_description_attacker = env.describe_game_state_attacker(last_enemy_move)
-            #  prompt per l'attacker
-            input_text_attacker = "You are a game asstitant for player." \
-                                "The battle involves with 2 players (attacker and supporter) and an enemy. Both player and enemy are characterised by:" \
-                                "HP (health point), MP (magic point), Attack points, Defence points, Available magic points " \
-                                "and Available items. " \
-                                "For spells, the use of MP is necessary, while items have limited availability. " \
-                                "Now you are the attacker, the player can have a maximum of 2600 HP and 120 MP, while the enemy 8000 HP and 701 MP. " \
-                                f"Given the game state '{game_description_attacker}', what is the next action to take? " \
-                                "Write only the chosen action in square brackets and " \
-                                "explain your reasoning briefly, max 50 words. /no_think"
-            
-            game_description_supporter = env.describe_game_state_supporter(last_enemy_move)
-            # prompt per il supporter
-            input_text_supporter = "You are a game asstitant for player." \
-                                "The battle involves with 2 players (attacker and supporter) and an enemy. Both player and enemy are characterised by:" \
-                                "HP (health point), MP (magic point), Attack points, Defence points, Available magic points " \
-                                "and Available items. " \
-                                "For spells, the use of MP is necessary, while items have limited availability. " \
-                                "Now you are the helper, the player can have a maximum of 2300 HP and 180 MP, your mate can have a maximum of 2600 HP and 120 MP, while the enemy 8000 HP and 701 MP. " \
-                                f"Given the game state '{game_description_supporter}', what is the next action to take? " \
-                                "Write only the chosen action in square brackets and " \
-                                "explain your reasoning briefly, max 50 words. /no_think"
+            if player_attacker.get_hp() > 0:
+                game_description_attacker = env.describe_game_state_attacker(last_enemy_move)
+                input_text_attacker = "You are a game asstitant for player." \
+                                    "The battle involves with 2 players (attacker and supporter) and an enemy. Both player and enemy are characterised by:" \
+                                    "HP (health point), MP (magic point), Attack points, Defence points, Available magic points " \
+                                    "and Available items. " \
+                                    "For spells, the use of MP is necessary, while items have limited availability. " \
+                                    "Now you are the attacker, the player can have a maximum of 2600 HP and 120 MP, while the enemy 8000 HP and 701 MP. " \
+                                    f"Given the game state '{game_description_attacker}', what is the next action to take? " \
+                                    "Write only the chosen action in square brackets and " \
+                                    "explain your reasoning briefly, max 50 words. /no_think"
+                
+                llm_response_attacker = get_llm_response(input_text_attacker)
+                llm_response = re.sub(r"<think>.*?</think>", "", llm_response_attacker, flags=re.DOTALL).strip()
+                print(f"[ATK] LLM response: {llm_response_attacker}")
 
-            # HELPER HELPS ATTACKER
-            llm_response_attacker = get_llm_response(input_text_attacker)
-            llm_response = re.sub(r"<think>.*?</think>", "", llm_response_attacker, flags=re.DOTALL).strip()
-            print(f"[ATK] LLM response: {llm_response_attacker}")
-
-            # Mapping LLM action to RL agent with action score calculation #
-            attacker_action = map_llm_action_to_attacker_action(llm_response)
-            #aggiungere il mapping per il supporter
-
-            if attacker_action != None:
-                match_attacker = re.search(r'\[(.*?)\]', llm_response)
-                match_attacker = match_attacker.group(1).strip().lower()
-                if match_attacker == "elixer":
-                    match_attacker = "elixir"
-                if player_attacker.get_hp() > 0:
+                attacker_action = map_llm_action_to_attacker_action(llm_response)
+    
+                if attacker_action != None:
+                    match_attacker = re.search(r'\[(.*?)\]', llm_response)
+                    match_attacker = match_attacker.group(1).strip().lower()
+                    if match_attacker == "elixer":
+                        match_attacker = "elixir"
                     attacker_scores = score.calculate_scores_attacker(
                         player_attacker.get_hp(), 
                         player_attacker.get_mp(), 
                         enemies[0].get_hp()
                     )
                 else:
-                    attacker_scores = {match_attacker: 0}
+                    attacker_action = attacker_agent.act(state_attacker, env, 0)
+                    match_attacker = map_action_attack(attacker_action)
+                    attacker_scores = score.calculate_scores_attacker(
+                        player_attacker.get_hp(), 
+                        player_attacker.get_mp(), 
+                        enemies[0].get_hp()
+                    )
+                    allucination += 1
             else:
-                attacker_action = attacker_agent.act(state_attacker, env, 0)
-                match_attacker = map_action_attack(attacker_action)
-                if player_attacker.get_hp() > 0:
-                    attacker_scores = score.calculate_scores_attacker(
-                        player_attacker.get_hp(), 
-                        player_attacker.get_mp(), 
-                        enemies[0].get_hp()
-                    )
-                else:
-                    attacker_scores = {match_attacker: 0}
-                allucination += 1 #TODO: separate allucinations for helper and attacker
+                attacker_action = None
+                match_attacker = "attack"
+                attacker_scores = {match_attacker: 0}
 
-            # HELPER HELPS SUPPORT
-            llm_response_support = get_llm_response(input_text_supporter)
-            llm_response = re.sub(r"<think>.*?</think>", "", llm_response_support, flags=re.DOTALL).strip()
-            print(f"[SUP] LLM response: {llm_response_support}")
+            if player_support.get_hp() > 0:
+                game_description_supporter = env.describe_game_state_supporter(last_enemy_move)
+                input_text_supporter = "You are a game asstitant for player." \
+                                    "The battle involves with 2 players (attacker and supporter) and an enemy. Both player and enemy are characterised by:" \
+                                    "HP (health point), MP (magic point), Attack points, Defence points, Available magic points " \
+                                    "and Available items. " \
+                                    "For spells, the use of MP is necessary, while items have limited availability. " \
+                                    "Now you are the SUPPORTER, the player can have a maximum of 2300 HP and 180 MP, your mate can have a maximum of 2600 HP and 120 MP, while the enemy 8000 HP and 701 MP. " \
+                                    "Since you are the supporter, you can both attack the enemy and cure either you or the mate or both by choosing wisely (only when necessary, you can also attack if the mate does not need curing) " \
+                                    f"Given the mate's game state: '{game_description_attacker}', and " \
+                                    f"your game state: '{game_description_supporter}', what is the next action to take? " \
+                                    "Write only the chosen action in square brackets and " \
+                                    "explain your reasoning briefly, max 50 words. /no_think"
 
-            # Mapping LLM action to RL agent with action score calculation #
-            support_action = map_llm_action_to_attacker_action(llm_response)
-            #aggiungere il mapping per il supporter
+                llm_response_support = get_llm_response(input_text_supporter)
+                llm_response = re.sub(r"<think>.*?</think>", "", llm_response_support, flags=re.DOTALL).strip()
+                print(f"[SUP] LLM response: {llm_response_support}")
 
-            if support_action != None:
-                match_support = re.search(r'\[(.*?)\]', llm_response)
-                match_support = match_support.group(1).strip().lower()
-                if match_support == "elixer":
-                    match_support = "elixir"
-                if player_support.get_hp() > 0:
+                support_action = map_llm_action_to_supporter_action(llm_response)
+
+                if support_action != None:
+                    match_support = re.search(r'\[(.*?)\]', llm_response)
+                    match_support = match_support.group(1).strip().lower()
+                    if match_support == "elixer":
+                        match_support = "elixir"
                     support_scores = score.calculate_scores_support(
                         player_support.get_hp(), 
                         player_attacker.get_hp(),
@@ -273,26 +265,35 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                         enemies[0].get_hp()
                     )
                 else:
-                    support_scores = {match_support: 0}
-            else:
-                support_action = supporter_agent.act(state_support, env, 1)
-                match_support = map_action_attack(support_action)
-                if player_support.get_hp() > 0:
+                    support_action = supporter_agent.act(state_support, env, 1)
+                    match_support = map_action_support(support_action)
                     support_scores = score.calculate_scores_support(
                         player_support.get_hp(), 
                         player_attacker.get_hp(),
                         player_support.get_mp(), 
                         enemies[0].get_hp()
                     )
-                else:
-                    support_scores = {match_support: 0}
-                allucination += 1
+                    allucination += 1
+            else:
+                support_action = None
+                match_support = "attack"
+                support_scores = {match_support: 0}
 
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
             match_score_support.append(round(support_scores.get(match_support, 0), 2))
 
-            # Execution of RL action #
-            next_state, reward_attacker, reward_support, done, a_win, _, __ = env.step(attacker_action, support_action)
+            next_state, reward_attacker, reward_support, done, a_win, last_enemy_move, __ = env.step(attacker_action, support_action)
+            print(f"\n[Move {moves:02d}] Ep {e+1}/{episodes}")
+            
+            status_atk = "ATK" if player_attacker.get_hp() > 0 else "DEAD"
+            status_sup = "SUP" if player_support.get_hp() > 0 else "DEAD"
+            
+            print(f"  [{status_atk}] {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
+            print(f"  [{status_sup}] {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
+            print(f"  Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
+
+            print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
+ 
             score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
             score.update_quantity(match_support, player_support.get_mp(), 1)
 

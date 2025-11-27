@@ -179,6 +179,7 @@ class BattleEnv:
         player = self.players[player_index]
         reward = 0
 
+
         if player.get_hp() <= 0:
             return 0
 
@@ -288,22 +289,60 @@ class BattleEnv:
         if not alive_players:
             return None
         
-        target = random.choice(alive_players)
-        damage = enemy.generate_damage()
-        target.take_damage(damage)
+        enemy_choice = 'attack'
         
-        print(f"Enemy {enemy.name} attacks {target.name} for {damage} dmg! (HP: {target.get_hp()}/{target.maxhp})")
+        # If the enemy has enough magic points, it can also choose magic
+        if enemy.get_mp() >= MIN_SPELL_COST:
+            enemy_choice = random.choice(['attack', 'magic'])
+        
+        if enemy_choice == 'attack':
+            target = random.choice(alive_players)
+            damage = enemy.generate_damage()
+            target.take_damage(damage)
+            print(f"Enemy {enemy.name} attacks {target.name} for {damage} dmg! (HP: {target.get_hp()}/{target.maxhp})")
+            
+        elif enemy_choice == 'magic':
+            spell, magic_dmg = enemy.choose_enemy_spell()
+            enemy_choice = spell.name
+            
+            if enemy.get_mp() >= spell.cost:
+                enemy.reduce_mp(spell.cost)
+                
+                if spell.type == "white":
+                    enemy.heal(magic_dmg)
+                    print(f"Enemy {enemy.name} casts {spell.name} and heals for {magic_dmg} HP! (HP: {enemy.get_hp()}/{enemy.maxhp})")
+                else:
+                    target = random.choice(alive_players)
+                    target.take_damage(magic_dmg)
+                    print(f"Enemy {enemy.name} casts {spell.name} on {target.name} for {magic_dmg} dmg! (HP: {target.get_hp()}/{target.maxhp})")
+        
+        return enemy_choice
+
+
         
     def step(self, attacker_action, support_action):
         reward_attacker = 0
         reward_support = 0
         
+        # TODO: sta cosa ha senso?
         if attacker_action is not None:
+            valid_attacker = self.get_valid_actions(ATTACKER_INDEX)
+
+            # fallback su ATTACK
+            if attacker_action not in valid_attacker:
+                attacker_action = 0
+
             reward_attacker = self.perform_action(ATTACKER_INDEX, attacker_action)
-        
+
         if support_action is not None:
+            valid_support = self.get_valid_actions(SUPPORT_INDEX)
+
+            # fallback su ATTACK
+            if support_action not in valid_support:
+                support_action = 0
+
             reward_support = self.perform_action(SUPPORT_INDEX, support_action)
-        
+                
         if self.players[ATTACKER_INDEX].get_hp() <= 0:
             reward_attacker -= 100
             reward_support -= 50
@@ -312,7 +351,7 @@ class BattleEnv:
             reward_support -= 100
             reward_attacker -= 30
         
-        self.enemy_turn()
+        enemy_action = self.enemy_turn()
         
         a_win = None
         
@@ -327,8 +366,9 @@ class BattleEnv:
             reward_support += 100
         
         next_state = self.get_state()
-        return next_state, reward_attacker, reward_support, self.done, a_win, None, None
-#TODO rivedere le stats
+        return next_state, reward_attacker, reward_support, self.done, a_win, enemy_action, None
+    
+
     def describe_game_state_attacker(self, last_enemy_move):
         """
         descrive lo stato del game per l'LLM, attualmente non va bene per due giocatori.
@@ -398,19 +438,19 @@ class BattleEnv:
             fire_spell = "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
             actions_description += fire_spell
         if player.get_mp() >= cura_support.cost:
-            cura_support_spell = "[cura support] It heals 500 player's hp and removes 32 player's mp; "
+            cura_support_spell = "[cura spell] It heals 500 player's hp and removes 32 player's mp; "
             actions_description += cura_support_spell
         if player.get_mp() >= cura_tot.cost:
-            cura_tot_spell = "[cura tot] Heals 700 HP from both players and removes 30 MP from the player; "
+            cura_tot_spell = "[cura_tot] Heals 700 HP from both players and removes 30 MP from the player; "
             actions_description += cura_tot_spell
         if player.get_mp() >= splash.cost:
             splash_spell = "[splash] Heals 450 HP from both players and removes 18 MP from the player; "
             actions_description += splash_spell
         if player.get_mp() >= cura_m.cost:
-            cura_m_spell = "[cura m] heals 1300 mate's hp and removes 28 player's mp; "
+            cura_m_spell = "[cura_m] heals 1300 mate's hp and removes 28 player's mp; "
             actions_description += cura_m_spell
         if player.get_mp() >= cura_totm.cost:
-            cura_totm_spell = "[cura totm] heals 1700 mate's hp and removes 36 player's mp; "
+            cura_totm_spell = "[cura_totm] heals 1700 mate's hp and removes 36 player's mp; "
             actions_description += cura_totm_spell
         if player.items[0]["quantity"] > 0:
             potion = f"[potion] heals 50 player's hp and there are {player.items[0]['quantity']}; "
