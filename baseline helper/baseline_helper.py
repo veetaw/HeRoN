@@ -165,6 +165,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     action_scores = []
     allucination = 0
     total_agent_wins = 0
+    total_enemy_wins = 0
 
     for e in range(episodes):
         state_global = env.reset()
