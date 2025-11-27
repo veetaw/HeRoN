@@ -239,7 +239,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 else:
                     attacker_scores = {match_attacker: 0}
             else:
-                attacker_action = attacker_agent.act(state_attacker, env)
+                attacker_action = attacker_agent.act(state_attacker, env, 0)
                 match_attacker = map_action_attack(attacker_action)
                 if player_attacker.get_hp() > 0:
                     attacker_scores = score.calculate_scores_attacker(
@@ -275,7 +275,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 else:
                     support_scores = {match_support: 0}
             else:
-                support_action = supporter_agent.act(state_support, env)
+                support_action = supporter_agent.act(state_support, env, 1)
                 match_support = map_action_attack(support_action)
                 if player_support.get_hp() > 0:
                     support_scores = score.calculate_scores_support(
@@ -396,14 +396,21 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
 
 
 
-def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_score):
+def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores):
     plt.figure(figsize=(8, 6))
-    plt.plot(rewards)
+    reward_attacker = [r['attacker'] for r in rewards]
+    reward_support = [r['support'] for r in rewards]
+    reward_combined = [r['combined'] for r in rewards]
+    
+    plt.plot(reward_attacker, label='Attacker Reward', color='red', alpha=0.7)
+    plt.plot(reward_support, label='Support Reward', color='blue', alpha=0.7)
+    plt.plot(reward_combined, label='Combined Reward', color='green', linewidth=2)
+    
     plt.title('Rewards per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Total Rewards')
-    plt.savefig("Reward_llama_1000.png")
-    #plt.show()
+    plt.legend()
+    plt.savefig("Train_reward_DQN.png")
 
     plt.figure(figsize=(8, 6))
     cumulative_agent_wins = np.cumsum(agent_wins)
@@ -411,20 +418,19 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
 
     plt.plot(cumulative_agent_wins, label="Agent Wins (Cumulative)", color='green')
     plt.plot(cumulative_enemy_wins, label="Enemy Wins (Cumulative)", color='red')
+
     plt.legend()
     plt.title('Cumulative Wins of Agent vs Enemy per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Cumulative Wins')
-    plt.savefig("Cumulative_Win_llama_1000.png")
-    #plt.show()
+    plt.savefig("Train_cumulative_Win_DQN.png")
 
     plt.figure(figsize=(8, 6))
     plt.plot(moves)
     plt.title('Number of Moves per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Moves')
-    plt.savefig("Moves_llama_1000.png")
-    #plt.show()
+    plt.savefig("Train_moves_DQN.png")
 
     plt.figure(figsize=(8, 6))
     plt.plot(success_rate, label="Success Rate", color='blue')
@@ -432,16 +438,23 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.xlabel('Episodes')
     plt.ylabel('Success Rate')
     plt.legend()
-    plt.savefig("Success_rate_llama_1000.png")
-    #plt.show()
+    plt.savefig("Train_success_rate_DQN.png")
 
     plt.figure(figsize=(8, 6))
-    plt.plot(match_score)
-    plt.title('Score moves per Episode')
+    attacker_scores = [s['attacker'] for s in action_scores]
+    support_scores = [s['support'] for s in action_scores]
+    combined_scores = [s['combined'] for s in action_scores]
+    
+    plt.plot(attacker_scores, label='Attacker Score', color='red', alpha=0.7)
+    plt.plot(support_scores, label='Support Score', color='blue', alpha=0.7)
+    plt.plot(combined_scores, label='Combined Score', color='green', linewidth=2)
+    
+    plt.title('Action Scores per Episode')
     plt.xlabel('Episodes')
-    plt.ylabel('Total Score')
-    plt.savefig("Score_llama_1000.png")
-    #plt.show()
+    plt.ylabel('Average Score')
+    plt.legend()
+    plt.savefig("Score_DQN_separated.png")
+
 
 
 def export_success_rate(success_rate):
@@ -449,7 +462,16 @@ def export_success_rate(success_rate):
         "Episode": list(range(1, len(success_rate) + 1)),
         "Success Rate": success_rate
     })
+
     df.to_csv('success_rate_model_llama_1000.csv', index=False)
+
+
+def append_csv(path, data, column_name):
+    df = pd.DataFrame({
+        "Episode": list(range(1, 1 + len(data))),
+        column_name: data
+    })
+    df.to_csv(path, index=False)
 
 
 if __name__ == "__main__":
