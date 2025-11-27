@@ -219,7 +219,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             # HELPER HELPS ATTACKER
             llm_response_attacker = get_llm_response(input_text_attacker)
             llm_response = re.sub(r"<think>.*?</think>", "", llm_response_attacker, flags=re.DOTALL).strip()
-            print(f"LLM response: {llm_response_attacker}")
+            print(f"[ATK] LLM response: {llm_response_attacker}")
 
             # Mapping LLM action to RL agent with action score calculation #
             attacker_action = map_llm_action_to_attacker_action(llm_response)
@@ -254,7 +254,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             # HELPER HELPS SUPPORT
             llm_response_support = get_llm_response(input_text_supporter)
             llm_response = re.sub(r"<think>.*?</think>", "", llm_response_support, flags=re.DOTALL).strip()
-            print(f"LLM response: {llm_response_support}")
+            print(f"[SUP] LLM response: {llm_response_support}")
 
             # Mapping LLM action to RL agent with action score calculation #
             support_action = map_llm_action_to_attacker_action(llm_response)
