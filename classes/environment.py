@@ -224,15 +224,16 @@ class BattleEnv:
                         player.heal(magic_dmg)
                         
                     elif dest == "m":
-                        if (mate.hp + magic_dmg) > mate.maxhp:
-                            reward -= 5
-                        else:
-                            if mate.hp < 0.3 * mate.maxhp:
-                                reward += 25
-                            else:
-                                reward += 15
+                        hp_before_mate = mate.hp
                         mate.heal(magic_dmg)
+                        overheal = max(0, (hp_before_mate + magic_dmg) - mate.maxhp)
                         
+                        if overheal > magic_dmg * 0.5:
+                            reward -= 5
+                        elif mate.hp < 0.3 * mate.maxhp:
+                            reward += 25
+                        else:
+                            reward += 15                        
                     elif dest == "tot":
                         hp_before_self = player.hp
                         hp_before_mate = mate.hp
@@ -279,9 +280,7 @@ class BattleEnv:
 
         return reward
 
-    def enemy_turn(self):
-        import random
-        
+    def enemy_turn(self):        
         enemy = self.enemies[0]
         
         if enemy.get_hp() <= 0:
@@ -384,7 +383,7 @@ class BattleEnv:
 
         for enemy in self.enemies:
             state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
-        if(self.players[0].get_hp()<=0):
+        if(player.get_hp()<=0):
             state_description += "Player is dead. Cannot perform any action. Return no_action. "
             return state_description
         actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
@@ -433,7 +432,7 @@ class BattleEnv:
 
         for enemy in self.enemies:
             state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
-        if(self.players[0].get_hp()<=0):
+        if(player.get_hp()<=0):
             state_description += "Player is dead. Cannot perform any action. Return no_action. "
             return state_description
         actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
@@ -443,7 +442,7 @@ class BattleEnv:
             fire_spell = "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
             actions_description += fire_spell
         if player.get_mp() >= cura_support.cost:
-            cura_support_spell = "[cura spell] It heals 500 player's hp and removes 32 player's mp; "
+            cura_support_spell = "[cura spell] It heals 1200 player's hp and removes 32 player's mp; "
             actions_description += cura_support_spell
         if player.get_mp() >= cura_tot.cost:
             cura_tot_spell = "[cura_tot] Heals 700 HP from both players and removes 30 MP from the player; "
