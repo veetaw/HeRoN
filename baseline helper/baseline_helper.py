@@ -64,53 +64,49 @@ else:
 
 
 def map_llm_action_to_attacker_action(llm_response):
-    match = re.search(r'\[(.*?)\]', llm_response)
-    if match:
-        action = match.group(1).strip().lower()
-        if action == "attack":
-            return 0
-        elif action == "fire spell":
-            return 1
-        elif action == "thunder spell":
-            return 2
-        elif action == "blizzard spell":
-            return 3
-        elif action == "meteor spell":
-            return 4
-        elif action == "cura spell":
-            return 5
-        elif action == "potion":
-            return 6
-        elif action == "grenade":
-            return 7
-        elif action == "elixir" or action == "elixer":
-            return 8
+    action = llm_response.strip().lower()
+    if action == "attack":
+        return 0
+    elif action == "fire spell":
+        return 1
+    elif action == "thunder spell":
+        return 2
+    elif action == "blizzard spell":
+        return 3
+    elif action == "meteor spell":
+        return 4
+    elif action == "cura spell":
+        return 5
+    elif action == "potion":
+        return 6
+    elif action == "grenade":
+        return 7
+    elif action == "elixir" or action == "elixer":
+        return 8
     return None
 
 def map_llm_action_to_supporter_action(llm_response):
-    match = re.search(r'\[(.*?)\]', llm_response)
-    if match:
-        action = match.group(1).strip().lower()
-        if action == "attack":
-            return 0
-        elif action == "fire spell":
-            return 1
-        elif action == "cura spell":
-            return 2
-        elif action == "cura_tot":
-            return 3
-        elif action == "splash":
-            return 4
-        elif action == "cura_m":
-            return 5
-        elif action == "cura_totm":
-            return 6
-        elif action == "potion":
-            return 7
-        elif action == "grenade":
-            return 8
-        elif action == "elixir" or action == "elixer":
-            return 9
+    action = llm_response.strip().lower()
+    if action == "attack":
+        return 0
+    elif action == "fire spell":
+        return 1
+    elif action == "cura spell":
+        return 2
+    elif action == "cura_tot":
+        return 3
+    elif action == "splash":
+        return 4
+    elif action == "cura_m":
+        return 5
+    elif action == "cura_totm":
+        return 6
+    elif action == "potion":
+        return 7
+    elif action == "grenade":
+        return 8
+    elif action == "elixir" or action == "elixer":
+        return 9
     return None
 
 # implementa map_llm_action_to_agent_action per il supporter
@@ -324,12 +320,12 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
 
                         REQUIRED OUTPUT (valid JSON only):
                         {{
-                        "attacker": "[ACTION]",
-                        "supporter": "[ACTION]",
+                        "attacker": "ACTION",
+                        "supporter": "ACTION",
                         "reason_action_attacker": "Max 40 words explaining why this action",
                         "reason_action_supporter": "Max 40 words explaining why this action"
                         }}
-                        note the parenthesis in the action, they're needed
+
                         Respond ONLY with the JSON object, no additional text."""
             if e==0 and moves==0:
                 print(f"\n[Prompt]\n{prompt}\n")
