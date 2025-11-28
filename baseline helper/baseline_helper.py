@@ -331,6 +331,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                         }}
 
                         Respond ONLY with the JSON object, no additional text."""
+            if e==0:
+                print(f"\n[Prompt]\n{prompt}\n")
             llm_response = get_llm_response(prompt)
             print(f"[BOTH] LLM response: {llm_response}")
             try:
