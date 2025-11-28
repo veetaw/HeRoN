@@ -13,6 +13,15 @@ import action_score as score
 
 import os
 
+GROQ_API_KEY = None
+
+try:
+    from google.colab import userdata
+    GROQ_API_KEY = userdata.get("GQ_KEY")
+except ImportError:
+    GROQ_API_KEY = os.getenv("GQ_KEY")
+
+
 if os.getenv("GQ_KEY") != None:
     from groq import Groq
 
