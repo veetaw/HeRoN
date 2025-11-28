@@ -10,32 +10,51 @@ import pandas as pd
 import re
 import action_score as score
 
-SERVER_API_HOST = "http://127.0.0.1:1234/v1"
 
-try:
-    import lmstudio as lms
-    lms.get_default_client(SERVER_API_HOST)
+import os
 
-    def get_llm_response(input_text):
-        with lms.Client() as client:
-            model = client.llm.model("") # Helper model
-            llm_response = model.respond(input_text)
+if os.getenv("GQ_KEY") != None:
+    from groq import Groq
 
-        llm_response = str(llm_response)
-        return llm_response
-
-except ImportError:
-    from openai import OpenAI
-    client = OpenAI(base_url=SERVER_API_HOST, api_key="lm-studio")
+    GROQ_API_KEY = os.getenv("GQ_KEY")
 
     def get_llm_response(input_text):
-        response_obj = client.chat.completions.create(
-            model="qwen/qwen3-vl-4b",
+        client = Groq(api_key=GROQ_API_KEY)
+        
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": input_text}],
             temperature=0.7,
             max_tokens=100
         )
-        return response_obj.choices[0].message.content
+        return response.choices[0].message.content
+else: 
+    SERVER_API_HOST = "http://127.0.0.1:1234/v1"
+
+    try:
+        import lmstudio as lms
+        lms.get_default_client(SERVER_API_HOST)
+
+        def get_llm_response(input_text):
+            with lms.Client() as client:
+                model = client.llm.model("") # Helper model
+                llm_response = model.respond(input_text)
+
+            llm_response = str(llm_response)
+            return llm_response
+
+    except ImportError:
+        from openai import OpenAI
+        client = OpenAI(base_url=SERVER_API_HOST, api_key="lm-studio")
+
+        def get_llm_response(input_text):
+            response_obj = client.chat.completions.create(
+                model="qwen/qwen3-vl-4b",
+                messages=[{"role": "user", "content": input_text}],
+                temperature=0.7,
+                max_tokens=100
+            )
+            return response_obj.choices[0].message.content
 
 
 def map_llm_action_to_attacker_action(llm_response):
