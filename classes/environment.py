@@ -234,17 +234,19 @@ class BattleEnv:
                         mate.heal(magic_dmg)
                         
                     elif dest == "tot":
-                        overheal_self = max(0, (player.hp + magic_dmg) - player.maxhp)
-                        player.heal(magic_dmg)
+                        hp_before_self = player.hp
+                        hp_before_mate = mate.hp
                         
-                        overheal_mate = max(0, (mate.hp + magic_dmg) - mate.maxhp)
+                        player.heal(magic_dmg)
                         mate.heal(magic_dmg)
+                        
+                        overheal_self = max(0, (hp_before_self + magic_dmg) - player.maxhp)
+                        overheal_mate = max(0, (hp_before_mate + magic_dmg) - mate.maxhp)
                         
                         if overheal_self > magic_dmg * 0.5 or overheal_mate > magic_dmg * 0.5:
                             reward -= 3
                         else:
                             reward += 12
-                    
                     else:
                         print(f"Warning: Unknown spell dest '{dest}', defaulting to self-heal")
                         player.heal(magic_dmg)
