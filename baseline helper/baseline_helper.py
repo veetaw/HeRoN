@@ -310,7 +310,6 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             state_support = next_state_support
 
             moves += 1
-            # dovrebbe andare qui l'Helper (?)
 
             if len(attacker_agent.memory) > batch_size:
                 attacker_agent.replay(batch_size, env, 0)

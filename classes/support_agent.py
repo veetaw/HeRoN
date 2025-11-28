@@ -66,6 +66,7 @@ class DQNSupportAgent:
         
         return np.argmax(masked_q_values)
 
+    # chiedere se va bene
     def replay(self, batch_size, env, player_index):
         """Versione migliorata che usa le valid_actions salvate"""
         import random

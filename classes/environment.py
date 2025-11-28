@@ -43,7 +43,7 @@ class BattleEnv:
                 'items': [{"item": item["item"], "quantity": item["quantity"]} for item in player.items]  # Copia items
             })
         
-        self.state_size = len(self.get_state())
+        self.state_size = len(self.get_state()) # deprecato, mnon piu necessario
         self.action_size = self.get_action_size(0)
         self.done = False
 
@@ -126,7 +126,7 @@ class BattleEnv:
         player = self.players[player_index]
         valid_actions = []
         
-        # ✅ Se il player è morto, nessuna azione è valida
+        # Se player morto
         if player.get_hp() <= 0:
             return []  # Nessuna azione possibile
         
@@ -136,7 +136,7 @@ class BattleEnv:
         # Spell (actions 1 to len(magic))
         for i, spell in enumerate(player.magic):
             action_index = i + 1
-            # ✅ Controlla se ha abbastanza MP
+            # se non ha mp necessari non posso aggiungere la spell
             if player.get_mp() >= spell.cost:
                 valid_actions.append(action_index)
         
@@ -144,7 +144,7 @@ class BattleEnv:
         item_start_index = len(player.magic) + 1
         for i, item_data in enumerate(player.items):
             action_index = item_start_index + i
-            # ✅ Controlla se ha quantità disponibile
+            # if not enought quantity can't add magic
             if item_data["quantity"] > 0:
                 valid_actions.append(action_index)
         
@@ -175,6 +175,7 @@ class BattleEnv:
 
         return self.get_state()
 
+    # CHIEDERE SE VANNO BENE I REWARD
     def perform_action(self, player_index, action):
         player = self.players[player_index]
         reward = 0

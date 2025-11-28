@@ -77,7 +77,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
 
     env = BattleEnv(players, enemies)
     #NPC
-    # al posto di env.state_size va messo len(env.get state (index)), idem per actiopn size
+    # dato che state è un dict, per avere lo state size non uso più env.state_size ma get_action_size
     attacker_agent = DQNAgent(
         env.get_state_size_of_player('Maria'), 
         env.get_action_size(0), 
@@ -147,6 +147,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             attacker_action = attacker_agent.act(state_attacker, env, 0)
             support_action = supporter_agent.act(state_support, env, 1)
             
+            # è null quando è morto
             if attacker_action is None:
                 attacker_action = 0
             
@@ -166,6 +167,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                     enemies[0].get_hp()
                 )
             else:
+                # se attacker è morto
                 attacker_scores = {match_attacker: 0}
             
             if player_support.get_hp() > 0:
@@ -176,11 +178,13 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                     enemies[0].get_hp()
                 )
             else:
+                #se support è morto
                 support_scores = {match_support: 0}
             
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
             match_score_support.append(round(support_scores.get(match_support, 0), 2))
             
+            # stampo info ogni 3 mosse e lap rima
             if moves % 3 == 0 or moves == 0:
                 status_atk = "DEAD" if player_attacker.get_hp() <= 0 else "ATK"
                 status_sup = "DEAD" if player_support.get_hp() <= 0 else "SUP"
@@ -194,6 +198,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             
             print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
             
+            # aggiorno quantità rimanenti e reward totali
+
             score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
             score.update_quantity(match_support, player_support.get_mp(), 1)
 

@@ -67,15 +67,14 @@ class DQNAgent:
         
         return np.argmax(masked_q_values)
 
+
+    # CHIEDERE SE VA BENE QUESTA FUNZIONE, SOPRATTUTTO CHIAMATA A FIT CON EPOCHS = 1
     def replay(self, batch_size, env, player_index):
-        """Versione migliorata che usa le valid_actions salvate"""
-        import random
-        import numpy as np
-        
+        """Versione migliorata che usa le valid_actions salvate"""        
         minibatch = random.sample(self.memory, batch_size)
         
         for experience in minibatch:
-            # Gestisci entrambi i formati (con/senza valid_actions)
+            # Gestisci entrambi i formati (con/senza valid_actions) (non dovrebbe essere più necessario)
             if len(experience) == 6:
                 state, action, reward, next_state, done, valid_actions = experience
             else:
@@ -96,8 +95,9 @@ class DQNAgent:
                     # Fallback: usa tutti i Q-values
                     max_q = np.max(q_values_next)
                 
-                target = reward + self.gamma * max_q
+                target = reward + self.gamma * max_q # funzione Q, nonc ambia
             
+            # aggiorno la rete
             target_f = self.model.predict(state, verbose=0)
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
