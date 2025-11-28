@@ -371,14 +371,14 @@ class BattleEnv:
     
 
     def describe_game_state_attacker(self, last_enemy_move):
+        player = self.players[0]
         """
         descrive lo stato del game per l'LLM, attualmente non va bene per due giocatori.
 
         """
         state_description = ""
 
-        for player in self.players:
-            state_description += f"Player has {player.get_hp()} Health Points (hp) and {player.get_mp()} Magic Points (mp). "
+        state_description += f"Attacker has {player.get_hp()} Health Points (hp) and {player.get_mp()} Magic Points (mp). "
 
         for enemy in self.enemies:
             state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
@@ -413,21 +413,21 @@ class BattleEnv:
             elixer = f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
             actions_description += elixer
 
-        last_move_description = "" if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
+        last_move_description = "" #if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
 
         game_description = state_description + actions_description + last_move_description
         return game_description
 
 
     def describe_game_state_supporter(self, last_enemy_move):
+        player = self.players[1]
         """
         descrive lo stato del game per l'LLM, attualmente non va bene per due giocatori.
 
         """
         state_description = ""
 
-        for player in self.players:
-            state_description += f"Player has {player.get_hp()} Health Points (hp) and {player.get_mp()} Magic Points (mp). "
+        state_description += f"Supporter has {player.get_hp()} Health Points (hp) and {player.get_mp()} Magic Points (mp). "
 
         for enemy in self.enemies:
             state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
@@ -436,7 +436,6 @@ class BattleEnv:
             return state_description
         actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
 
-        player = self.players[1]
 
         if player.get_mp() >= fire.cost:
             fire_spell = "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
@@ -466,7 +465,7 @@ class BattleEnv:
             elixer = f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
             actions_description += elixer
 
-        last_move_description = "" if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
+        last_move_description = "" #if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
 
         game_description = state_description + actions_description + last_move_description
         return game_description
