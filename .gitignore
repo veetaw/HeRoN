@@ -17,3 +17,4 @@ Train_*.png
 *success_rate*.csv
 *.csv
 *.png
+.DS_Store

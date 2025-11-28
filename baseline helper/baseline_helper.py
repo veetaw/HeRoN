@@ -147,7 +147,6 @@ def map_action_support(action):
     }
     return actions_map.get(action, 'attack')
 
-#aggiungere il secondo player supporter
 def train_dqn(episodes, batch_size=32, load_model_path=None):
     #environment settings
     attacker_spells = [fire, thunder, blizzard, meteor, cura]
@@ -216,6 +215,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             attacker_action = None
             support_action = None
 
+            """ Prompt separati per i due agenti
             if player_attacker.get_hp() > 0:
                 game_description_attacker = env.describe_game_state_attacker(last_enemy_move)
                 input_text_attacker = "You are a game asstitant for player." \
@@ -303,6 +303,83 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 support_action = None
                 match_support = "attack"
                 support_scores = {match_support: 0}
+             Prompt separati per i due agenti - END """
+            game_description_attacker = env.describe_game_state_attacker(None)
+            game_description_supporter = env.describe_game_state_supporter(None)
+            prompt =f"""You are a game assistant coordinating 2 players (attacker and supporter) in battle against an enemy.
+
+                        GAME SETUP:
+                        Supporter: max 2300 HP, 180 MP
+                        Attacker: max 2600 HP, 120 MP
+                        Enemy: 8000 HP, 701 MP
+
+                        CURRENT STATE:
+                        Attacker: {game_description_attacker}
+                        Supporter: {game_description_supporter}
+                        Enemy last move: {last_enemy_move}
+
+                        ROLES:
+                        Attacker: Focuses on dealing damage to enemy
+                        Supporter: Can attack OR heal (self/mate/both) based on necessity
+
+                        REQUIRED OUTPUT (valid JSON only):
+                        {{
+                        "attacker": "ACTION",
+                        "supporter": "ACTION",
+                        "reason_action_attacker": "Max 40 words explaining why this action",
+                        "reason_action_supporter": "Max 40 words explaining why this action"
+                        }}
+
+                        Respond ONLY with the JSON object, no additional text."""
+            llm_response = get_llm_response(prompt)
+            print(f"[BOTH] LLM response: {llm_response}")
+            try:
+                response_json = re.search(r'\{.*\}', llm_response, re.DOTALL).group(0)
+                response_dict = json.loads(response_json)
+
+                # Extract and map attacker action
+                attacker_action = map_llm_action_to_attacker_action(response_dict.get("attacker", ""))
+                if attacker_action is not None:
+                    if attacker_action != "no_action":                                        
+                        if attacker_action == "elixer":
+                            attacker_action = "elixir"
+                        attacker_scores = score.calculate_scores_attacker(
+                            player_attacker.get_hp(), 
+                            player_attacker.get_mp(), 
+                            enemies[0].get_hp()
+                        )
+                else:
+                    attacker_action = attacker_agent.act(state_attacker, env, 0)
+                    match_attacker = map_action_attack(attacker_action)
+                    attacker_scores = score.calculate_scores_attacker(
+                        player_attacker.get_hp(), 
+                        player_attacker.get_mp(), 
+                        enemies[0].get_hp()
+                    )
+                    allucination += 1
+
+                # Extract and map supporter action
+                support_action = map_llm_action_to_supporter_action(response_dict.get("supporter", ""))
+                if support_action is not None:
+                    if support_action != "no_action":
+                        if support_action == "elixer":
+                            support_action = "elixir"
+                        support_scores = score.calculate_scores_support(
+                            player_support.get_hp(), 
+                            player_attacker.get_hp(),
+                            player_support.get_mp(), 
+                            enemies[0].get_hp()
+                        )
+                else:
+                    support_action = supporter_agent.act(state_support, env, 1)
+                    match_support = map_action_support(support_action)
+                    support_scores = score.calculate_scores_support(
+                        player_support.get_hp(), 
+                        player_attacker.get_hp(),
+                        player_support.get_mp(), 
+                        enemies[0].get_hp()
+                    )
+                    allucination += 1
 
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
             match_score_support.append(round(support_scores.get(match_support, 0), 2))

@@ -382,11 +382,12 @@ class BattleEnv:
 
         for enemy in self.enemies:
             state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
-
+        if(self.players[0].get_hp()<=0):
+            state_description += "Player is dead. Cannot perform any action. Return no_action. "
+            return state_description
         actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
 
         player = self.players[0]
-
         if player.get_mp() >= fire.cost:
             fire_spell = "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
             actions_description += fire_spell
@@ -412,7 +413,7 @@ class BattleEnv:
             elixer = f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
             actions_description += elixer
 
-        last_move_description = f"Last enemy move was [{last_enemy_move}]."
+        last_move_description = "" if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
 
         game_description = state_description + actions_description + last_move_description
         return game_description
@@ -430,7 +431,9 @@ class BattleEnv:
 
         for enemy in self.enemies:
             state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
-
+        if(self.players[0].get_hp()<=0):
+            state_description += "Player is dead. Cannot perform any action. Return no_action. "
+            return state_description
         actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
 
         player = self.players[1]
@@ -463,7 +466,7 @@ class BattleEnv:
             elixer = f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
             actions_description += elixer
 
-        last_move_description = f"Last enemy move was [{last_enemy_move}]."
+        last_move_description = "" if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
 
         game_description = state_description + actions_description + last_move_description
         return game_description
