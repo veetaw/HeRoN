@@ -22,11 +22,8 @@ except ImportError:
     GROQ_API_KEY = os.getenv("GQ_KEY")
 
 
-if os.getenv("GQ_KEY") != None:
+if GROQ_API_KEY:
     from groq import Groq
-
-    GROQ_API_KEY = os.getenv("GQ_KEY")
-
     def get_llm_response(input_text):
         client = Groq(api_key=GROQ_API_KEY)
         
