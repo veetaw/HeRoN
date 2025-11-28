@@ -340,16 +340,19 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 response_dict = json.loads(response_json)
 
                 # Extract and map attacker action
-                attacker_action = map_llm_action_to_attacker_action(response_dict.get("attacker", ""))
+                llm_requested_attacker = response_dict.get("attacker", "").strip()
+                attacker_action = map_llm_action_to_attacker_action(llm_requested_attacker)
                 if attacker_action is not None:
                     if attacker_action != "no_action":                                        
                         if attacker_action == "elixer":
                             attacker_action = "elixir"
+                        match_attacker = map_action_attack(attacker_action)
                         attacker_scores = score.calculate_scores_attacker(
                             player_attacker.get_hp(), 
                             player_attacker.get_mp(), 
                             enemies[0].get_hp()
                         )
+                        print(f"AZIONE CHIESTA DALL'LLM PER Maria: {llm_requested_attacker}, AZIONE ESEGUITA DA Maria: {match_attacker}")
                 else:
                     attacker_action = attacker_agent.act(state_attacker, env, 0)
                     match_attacker = map_action_attack(attacker_action)
@@ -359,19 +362,23 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                         enemies[0].get_hp()
                     )
                     allucination += 1
+                    print(f"AZIONE CHIESTA DALL'LLM PER Maria: {llm_requested_attacker} (NON VALIDA), AZIONE ESEGUITA DA Maria: {match_attacker} (da DQN)")
 
                 # Extract and map supporter action
-                support_action = map_llm_action_to_supporter_action(response_dict.get("supporter", ""))
+                llm_requested_support = response_dict.get("supporter", "").strip()
+                support_action = map_llm_action_to_supporter_action(llm_requested_support)
                 if support_action is not None:
                     if support_action != "no_action":
                         if support_action == "elixer":
                             support_action = "elixir"
+                        match_support = map_action_support(support_action)
                         support_scores = score.calculate_scores_support(
                             player_support.get_hp(), 
                             player_attacker.get_hp(),
                             player_support.get_mp(), 
                             enemies[0].get_hp()
                         )
+                        print(f"AZIONE CHIESTA DALL'LLM PER Juana: {llm_requested_support}, AZIONE ESEGUITA DA Juana: {match_support}")
                 else:
                     support_action = supporter_agent.act(state_support, env, 1)
                     match_support = map_action_support(support_action)
@@ -382,6 +389,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                         enemies[0].get_hp()
                     )
                     allucination += 1
+                    print(f"AZIONE CHIESTA DALL'LLM PER Juana: {llm_requested_support} (NON VALIDA), AZIONE ESEGUITA DA Juana: {match_support} (da DQN)")
             except Exception as e:
                 print("Errore, ", e)
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
