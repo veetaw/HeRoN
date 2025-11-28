@@ -83,6 +83,8 @@ def map_llm_action_to_attacker_action(llm_response):
         return 7
     elif action == "elixir" or action == "elixer":
         return 8
+    elif action == "no_action":
+        return "no_action"
     return None
 
 def map_llm_action_to_supporter_action(llm_response):
@@ -107,6 +109,8 @@ def map_llm_action_to_supporter_action(llm_response):
         return 8
     elif action == "elixir" or action == "elixer":
         return 9
+    elif action == "no_action":
+        return "no_action"
     return None
 
 # implementa map_llm_action_to_agent_action per il supporter
@@ -339,7 +343,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 llm_requested_attacker = response_dict.get("attacker", "").strip()
                 attacker_action = map_llm_action_to_attacker_action(llm_requested_attacker)
                 if attacker_action is not None:
-                    if attacker_action != "no_action":                                        
+                    if attacker_action != "no_action":
                         if attacker_action == "elixer":
                             attacker_action = "elixir"
                         match_attacker = map_action_attack(attacker_action)
@@ -349,6 +353,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                             enemies[0].get_hp()
                         )
                         print(f"AZIONE CHIESTA DALL'LLM PER Maria: {llm_requested_attacker}, AZIONE ESEGUITA DA Maria: {match_attacker}")
+                    else:
+                        print("MARIA è MORTA, QUINDI NESSUNA AZIONE")
                 else:
                     attacker_action = attacker_agent.act(state_attacker, env, 0)
                     match_attacker = map_action_attack(attacker_action)
@@ -375,6 +381,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                             enemies[0].get_hp()
                         )
                         print(f"AZIONE CHIESTA DALL'LLM PER Juana: {llm_requested_support}, AZIONE ESEGUITA DA Juana: {match_support}")
+                    else:
+                        print("JUANA è MORTA, QUINDI NESSUNA AZIONE")
                 else:
                     support_action = supporter_agent.act(state_support, env, 1)
                     match_support = map_action_support(support_action)
