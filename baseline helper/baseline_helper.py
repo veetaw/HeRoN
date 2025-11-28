@@ -324,12 +324,12 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
 
                         REQUIRED OUTPUT (valid JSON only):
                         {{
-                        "attacker": "ACTION",
-                        "supporter": "ACTION",
+                        "attacker": "[ACTION]",
+                        "supporter": "[ACTION]",
                         "reason_action_attacker": "Max 40 words explaining why this action",
                         "reason_action_supporter": "Max 40 words explaining why this action"
                         }}
-
+                        note the parenthesis in the action, they're needed
                         Respond ONLY with the JSON object, no additional text."""
             if e==0 and moves==0:
                 print(f"\n[Prompt]\n{prompt}\n")
