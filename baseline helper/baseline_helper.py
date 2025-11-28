@@ -399,8 +399,51 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
             match_score_support.append(round(support_scores.get(match_support, 0), 2))
 
+            # Salva gli HP prima dell'azione
+            hp_before_enemy = enemies[0].get_hp()
+            hp_before_maria = player_attacker.get_hp()
+            hp_before_juana = player_support.get_hp()
+
             next_state, reward_attacker, reward_support, done, a_win, last_enemy_move, __ = env.step(attacker_action, support_action)
+            
+            # Calcola i danni/cure effettuati
+            hp_after_enemy = enemies[0].get_hp()
+            hp_after_maria = player_attacker.get_hp()
+            hp_after_juana = player_support.get_hp()
+            
+            damage_to_enemy_maria = hp_before_enemy - hp_after_enemy if hp_before_enemy > hp_after_enemy else 0
+            damage_to_enemy_juana = 0  # Verrà calcolato sotto se Juana attacca
+            
             print(f"\n[Move {moves:02d}] Ep {e+1}/{episodes}")
+            
+            # Log azione Maria
+            if player_attacker.get_hp() > 0 and attacker_action != "no_action":
+                if "attack" in match_attacker or "spell" in match_attacker or "grenade" in match_attacker:
+                    print(f"  Maria usa {match_attacker} su Enemy per {damage_to_enemy_maria} dmg, nuovi HP di Enemy: {hp_after_enemy}")
+                elif "cura" in match_attacker or "potion" in match_attacker:
+                    heal_maria = hp_after_maria - hp_before_maria
+                    print(f"  Maria usa {match_attacker} su se stessa per {heal_maria} HP, nuovi HP di Maria: {hp_after_maria}")
+                elif "elixir" in match_attacker:
+                    print(f"  Maria usa {match_attacker}, HP/MP completamente ripristinati")
+            
+            # Log azione Juana
+            if player_support.get_hp() > 0 and support_action != "no_action":
+                if "attack" in match_support or match_support == "fire spell" or "grenade" in match_support:
+                    # Se Juana ha attaccato, calcola il danno (HP enemy è già cambiato da Maria)
+                    # Dobbiamo stimare il danno di Juana
+                    print(f"  Juana usa {match_support} su Enemy, nuovi HP di Enemy: {hp_after_enemy}")
+                elif "cura" in match_support or "splash" in match_support or "potion" in match_support:
+                    heal_juana = hp_after_juana - hp_before_juana
+                    heal_maria_from_juana = hp_after_maria - hp_before_maria if hp_after_maria > hp_before_maria else 0
+                    
+                    if "tot" in match_support or "splash" in match_support:
+                        print(f"  Juana usa {match_support} su entrambi: Maria +{heal_maria_from_juana} HP, Juana +{heal_juana} HP")
+                    elif "_m" in match_support:
+                        print(f"  Juana usa {match_support} su Maria per {heal_maria_from_juana} HP, nuovi HP di Maria: {hp_after_maria}")
+                    else:
+                        print(f"  Juana usa {match_support} su se stessa per {heal_juana} HP, nuovi HP di Juana: {hp_after_juana}")
+                elif "elixir" in match_support:
+                    print(f"  Juana usa {match_support}, HP/MP di tutti completamente ripristinati")
             
             status_atk = "ATK" if player_attacker.get_hp() > 0 else "DEAD"
             status_sup = "SUP" if player_support.get_hp() > 0 else "DEAD"
