@@ -9,7 +9,7 @@ from classes.environment import BattleEnv
 import pandas as pd
 import re
 import action_score as score
-
+import json
 
 import os
 
@@ -380,7 +380,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                         enemies[0].get_hp()
                     )
                     allucination += 1
-
+            except Exception as e:
+                print("Errore, ", e)
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
             match_score_support.append(round(support_scores.get(match_support, 0), 2))
 
