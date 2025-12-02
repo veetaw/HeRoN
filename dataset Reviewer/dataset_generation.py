@@ -144,7 +144,7 @@ def generate_instructions(scenario, response):
     return json.dumps(instructions)
 
 
-def generate_dataset(n=100):
+def generate_dataset(n=4000):
     dataset = []
     for _ in range(n):
         scenario = generate_game_scenario()
