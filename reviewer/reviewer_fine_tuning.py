@@ -3,7 +3,7 @@ import pandas as pd
 from datasets import Dataset
 from transformers import TrainingArguments, Trainer, T5Tokenizer, T5ForConditionalGeneration
 
-df = pd.read_csv('') # insert dataset
+df = pd.read_csv('/Users/giuseppepiosorrentino/HeronBase/game_scenarios_dataset_4.csv') # insert dataset
 
 df['input'] = df['prompt'] + " " + df['response']
 
