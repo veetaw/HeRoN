@@ -92,12 +92,10 @@ def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=No
     print(f"📦 Batch Size: {batch_size} (ottimizzato per Multi-GPU)")
     print(f"🎯 Episodi: {episodes}\n")
 
-    qua vengono creati players, enemies e environment (a partire da players e enemies)
-
-    l'agent prende input state size, action size e prev modello se presente
-
-
-    """
+    # Environment settings
+    # Qua vengono creati players, enemies e environment (a partire da players e enemies)
+    # L'agent prende input state size, action size e prev modello se presente
+    
     #environment settings
     attacker_spells = [fire, thunder, blizzard, meteor, cura]
     
@@ -117,17 +115,18 @@ def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=No
     enemies = [enemy1]
 
     env = BattleEnv(players, enemies)
-    #NPC
-    # dato che state è un dict, per avere lo state size non uso più env.state_size ma get_action_size
+    
+    # Crea gli agenti DQN
+    # Dato che state è un dict, per avere lo state size non uso più env.state_size ma get_state_size_of_player
     attacker_agent = DQNAgent(
         env.get_state_size_of_player('Maria'), 
         env.get_action_size(0), 
-        load_model_path
+        load_attacker
     )
     supporter_agent = DQNSupportAgent(
         env.get_state_size_of_player('Juana'), 
         env.get_action_size(1), 
-        load_model_path
+        load_support
     )
 
     rewards_per_episode = []
