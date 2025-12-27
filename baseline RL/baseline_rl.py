@@ -209,8 +209,12 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             next_state_attacker = np.reshape(next_state['Maria'], [1, state_size_attacker])
             next_state_support = np.reshape(next_state['Juana'], [1, state_size_support])
             
-            attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
-            supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
+            # Calcola le valid_actions per il NEXT state (necessarie per il replay)
+            next_valid_attacker = env.get_valid_actions(0)
+            next_valid_support = env.get_valid_actions(1)
+            
+            attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done, next_valid_attacker)
+            supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done, next_valid_support)
             
             state_attacker = next_state_attacker
             state_support = next_state_support
@@ -251,6 +255,14 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 print(f"{'='*70}\n")
                 
                 break
+        
+        # EPSILON DECAY: diminuisce epsilon DOPO ogni episodio (non durante replay)
+        if attacker_agent.epsilon > attacker_agent.epsilon_min:
+            attacker_agent.epsilon *= attacker_agent.epsilon_decay
+        
+        if supporter_agent.epsilon > supporter_agent.epsilon_min:
+            supporter_agent.epsilon *= supporter_agent.epsilon_decay
+        
         print(f"Vittorie agente: {total_agent_wins}, vittorie nemico: {total_enemy_wins}")
 
         # Salva reward e mosse per l'episodio

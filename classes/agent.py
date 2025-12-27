@@ -102,8 +102,9 @@ class DQNAgent:
             target_f[0][action] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
         
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
+        # RIMOSSO: epsilon decay ora avviene per episodio, non per batch
+        # if self.epsilon > self.epsilon_min:
+        #     self.epsilon *= self.epsilon_decay
 
     def save(self, path_prefix):
         self.model.save(f"{path_prefix}.keras") # enter model path
