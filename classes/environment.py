@@ -64,7 +64,7 @@ class BattleEnv:
         num_items = len(player.items)
         state_size = 2 + num_spells + num_items  # HP + MP + spells + items
         
-        print(f"DEBUG: Player {player_name} - Spells: {num_spells}, Items: {num_items}, State size: {state_size}")
+        # print(f"DEBUG: Player {player_name} - Spells: {num_spells}, Items: {num_items}, State size: {state_size}")
         
         return state_size
 
@@ -301,7 +301,7 @@ class BattleEnv:
             target = random.choice(alive_players)
             damage = enemy.generate_damage()
             target.take_damage(damage)
-            print(f"Enemy {enemy.name} (HP: {enemy.get_hp()}) attacks {target.name} for {damage} dmg! (HP: {target.get_hp()}/{target.maxhp})")
+            # print(f"Enemy {enemy.name} (HP: {enemy.get_hp()}) attacks {target.name} for {damage} dmg! (HP: {target.get_hp()}/{target.maxhp})")
             
         elif enemy_choice == 'magic':
             spell, magic_dmg = enemy.choose_enemy_spell()
@@ -312,11 +312,11 @@ class BattleEnv:
                 
                 if spell.type == "white":
                     enemy.heal(magic_dmg)
-                    print(f"Enemy {enemy.name} casts {spell.name} and heals for {magic_dmg} HP! (HP: {enemy.get_hp()}/{enemy.maxhp})")
+                    # print(f"Enemy {enemy.name} casts {spell.name} and heals for {magic_dmg} HP! (HP: {enemy.get_hp()}/{enemy.maxhp})")
                 else:
                     target = random.choice(alive_players)
                     target.take_damage(magic_dmg)
-                    print(f"Enemy {enemy.name} casts {spell.name} on {target.name} for {magic_dmg} dmg! (HP: {target.get_hp()}/{target.maxhp})")
+                    # print(f"Enemy {enemy.name} casts {spell.name} on {target.name} for {magic_dmg} dmg! (HP: {target.get_hp()}/{target.maxhp})")
         
         return enemy_choice
 
