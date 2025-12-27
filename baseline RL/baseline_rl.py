@@ -274,6 +274,10 @@ def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=No
                 else:
                     total_enemy_wins += 1
                 
+                # Stampa sempre il risultato dell'episodio
+                win_rate = total_agent_wins / (e + 1)
+                print(f"Ep {e+1}/{episodes}: {result} | Win Rate: {total_agent_wins}/{e+1} ({100*win_rate:.1f}%) | Moves: {moves}")
+                
                 # OTTIMIZZAZIONE: Stampa dettagliata solo ogni 50 episodi
                 if (e + 1) % 50 == 0 or e == 0 or e == episodes - 1:
                     survivors = []
@@ -283,7 +287,6 @@ def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=No
                         survivors.append(f"Juana (HP: {player_support.get_hp()})")
                     
                     survivor_text = ", ".join(survivors) if survivors else "Nessuno"
-                    win_rate = total_agent_wins / (e + 1)
                     
                     print(f"\n{'='*70}")
                     print(f"  {result}  |  Episode {e+1}/{episodes}")
