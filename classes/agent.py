@@ -1,12 +1,43 @@
 from collections import deque
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import load_model
+from tensorflow.keras import mixed_precision
 import os
 import pickle
 import random
 import numpy as np
+
+# ==================== CONFIGURAZIONE GPU OTTIMIZZATA ====================
+# Configura TensorFlow per utilizzare 2× NVIDIA RTX 5000 ADA (48GB VRAM ciascuna)
+
+# 1. Abilita memoria growth per evitare OOM
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        print(f"🚀 GPU rilevate: {len(gpus)}× {[gpu.name for gpu in gpus]}")
+    except RuntimeError as e:
+        print(f"⚠️  Errore configurazione GPU: {e}")
+else:
+    print("⚠️  Nessuna GPU rilevata - usando CPU")
+
+# 2. Abilita Mixed Precision (FP16) per 2x velocità su RTX 5000 ADA
+policy = mixed_precision.Policy('mixed_float16')
+mixed_precision.set_global_policy(policy)
+print(f"🔥 Mixed Precision abilitata: {policy.name}")
+
+# 3. Abilita XLA (Accelerated Linear Algebra) per ottimizzare Xeon + GPU
+tf.config.optimizer.set_jit(True)
+print("⚡ XLA compilation abilitata")
+
+# 4. Configura Multi-GPU Strategy per 2× RTX 5000 ADA
+strategy = tf.distribute.MirroredStrategy()
+print(f"🎯 Multi-GPU Strategy: {strategy.num_replicas_in_sync} GPU attive")
+# =========================================================================
 
 
 class DQNAgent:

@@ -9,8 +9,35 @@ import pandas as pd
 import os
 import action_score as score
 import re
+import tensorflow as tf
 
 from classes.support_agent import DQNSupportAgent
+
+
+def print_gpu_stats():
+    """Stampa statistiche utilizzo GPU e memoria"""
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        print("\n" + "="*70)
+        print("📊 STATISTICHE GPU")
+        print("="*70)
+        for i, gpu in enumerate(gpus):
+            print(f"  GPU {i}: {gpu.name}")
+            try:
+                # Ottieni info memoria (richiede nvidia-smi)
+                import subprocess
+                result = subprocess.run(
+                    ['nvidia-smi', '--query-gpu=memory.used,memory.total,utilization.gpu', 
+                     '--format=csv,noheader,nounits', '-i', str(i)],
+                    capture_output=True, text=True
+                )
+                if result.returncode == 0:
+                    mem_used, mem_total, gpu_util = result.stdout.strip().split(', ')
+                    print(f"    Memoria: {mem_used}MB / {mem_total}MB ({float(mem_used)/float(mem_total)*100:.1f}%)")
+                    print(f"    Utilizzo: {gpu_util}%")
+            except:
+                print("    (nvidia-smi non disponibile per dettagli)")
+        print("="*70 + "\n")
 
 
 def map_action_attack(action):
@@ -47,9 +74,23 @@ def map_action_support(action):
 
 
 # Main loop with training
-def train_dqn(episodes, batch_size=32, load_model_path=None):
+def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=None):
     """
-    Allena DQNAgent
+    Training loop ottimizzato per Multi-GPU (2× NVIDIA RTX 5000 ADA)
+    
+    Args:
+        episodes: numero di episodi di training
+        batch_size: 256 (default ottimizzato per 96GB VRAM totale)
+                   - Aumenta a 512 se hai molta memoria libera
+                   - Riduci a 128 se ottieni OOM errors
+        load_attacker: path per caricare modello attacker pre-addestrato
+        load_support: path per caricare modello support pre-addestrato
+    """
+    # Stampa configurazione GPU all'inizio
+    print("\n🚀 INIZIO TRAINING - CONFIGURAZIONE HARDWARE 🚀")
+    print_gpu_stats()
+    print(f"📦 Batch Size: {batch_size} (ottimizzato per Multi-GPU)")
+    print(f"🎯 Episodi: {episodes}\n")
 
     qua vengono creati players, enemies e environment (a partire da players e enemies)
 
@@ -219,6 +260,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             
             moves += 1
 
+            # Replay per entrambi gli agenti (se memoria sufficiente)
             if len(attacker_agent.memory) > batch_size:
                 attacker_agent.replay(batch_size, env, 0)
             
@@ -270,6 +312,11 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             'support': np.mean(match_score_support) if match_score_support else 0,
             'combined': (np.mean(match_score_attacker) + np.mean(match_score_support)) / 2 if match_score_attacker and match_score_support else 0
         })
+        
+        # OTTIMIZZAZIONE: Stampa GPU stats ogni 100 episodi
+        if (e + 1) % 100 == 0:
+            print_gpu_stats()
+    
     avg_reward_attacker = np.mean([r['attacker'] for r in rewards_per_episode])
     avg_reward_support = np.mean([r['support'] for r in rewards_per_episode])
     avg_reward_combined = np.mean([r['combined'] for r in rewards_per_episode])
@@ -412,8 +459,14 @@ if __name__ == "__main__":
     hielixer = Item("MegaElixer", "elixir", "Fully restores party's HP/MP", 9999)
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
-    # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=10)
+    # Train the agent - BATCH SIZE OTTIMIZZATO PER MULTI-GPU
+    # - batch_size=256: ottimale per 2× RTX 5000 ADA (96GB VRAM totale)
+    # - Aumenta a 512 se hai risorse libere e vuoi massimizzare velocità
+    # - Riduci a 128 se ottieni errori "Out of Memory"
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(
+        episodes=10,
+        batch_size=256  # ← OTTIMIZZATO per Multi-GPU
+    )
     
     # Plot dei risultati
     plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores)

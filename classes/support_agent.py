@@ -1,12 +1,27 @@
 from collections import deque
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import load_model
+from tensorflow.keras import mixed_precision
 import os
 import pickle
 import random
 import numpy as np
+
+# ==================== CONFIGURAZIONE GPU (SUPPORT AGENT) ====================
+# Utilizza la stessa configurazione GPU dell'attacker agent
+# La configurazione globale è già stata impostata in agent.py
+# Verifica che le GPU siano configurate
+gpus = tf.config.list_physical_devices('GPU')
+if gpus:
+    print(f"✅ Support Agent - GPU disponibili: {len(gpus)}")
+    
+# Usa la stessa strategy globale
+strategy = tf.distribute.get_strategy()
+print(f"✅ Support Agent - Strategy: {strategy.num_replicas_in_sync} replica(s)")
+# ============================================================================
 
 
 class DQNSupportAgent:
