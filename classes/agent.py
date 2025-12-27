@@ -25,13 +25,17 @@ else:
     print("⚠️  Nessuna GPU rilevata - usando CPU")
 
 # 2. Abilita Mixed Precision (FP16) per 2x velocità su RTX 5000 ADA
-policy = mixed_precision.Policy('mixed_float16')
-mixed_precision.set_global_policy(policy)
-print(f"🔥 Mixed Precision abilitata: {policy.name}")
+# TEMPORANEAMENTE DISABILITATO per WSL2 - decommentare quando CUDA è configurato
+# policy = mixed_precision.Policy('mixed_float16')
+# mixed_precision.set_global_policy(policy)
+# print(f"🔥 Mixed Precision abilitata: {policy.name}")
+print("⚠️  Mixed Precision disabilitata (WSL2 compatibility mode)")
 
 # 3. Abilita XLA (Accelerated Linear Algebra) per ottimizzare Xeon + GPU
-tf.config.optimizer.set_jit(True)
-print("⚡ XLA compilation abilitata")
+# TEMPORANEAMENTE DISABILITATO per WSL2 - decommentare quando CUDA è configurato
+# tf.config.optimizer.set_jit(True)
+# print("⚡ XLA compilation abilitata")
+print("⚠️  XLA disabilitata (WSL2 compatibility mode)")
 
 # 4. Configura Multi-GPU Strategy per 2× RTX 5000 ADA
 strategy = tf.distribute.MirroredStrategy()
