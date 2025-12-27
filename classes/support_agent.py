@@ -1,4 +1,3 @@
-from collections import deque
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
@@ -28,7 +27,13 @@ class DQNSupportAgent:
     def __init__(self, state_size, action_size, load_model_path):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=2000)
+        
+        # OTTIMIZZAZIONE: NumPy circular buffer invece di deque per O(1) performance
+        self.max_memory = 2000
+        self.memory = np.empty(self.max_memory, dtype=object)
+        self.memory_index = 0
+        self.memory_size = 0
+        
         self.gamma = 0.95
         self.epsilon = 1.0
         self.epsilon_min = 0.01
@@ -55,15 +60,29 @@ class DQNSupportAgent:
         return model
 
     def load(self, path_prefix):
-        self.model = load_model(f"{path_prefix}.keras") # enter model path
-        memory_path = f"{path_prefix}_memory.pkl" # enter model path
+        self.model = load_model(f"{path_prefix}.keras")
+        memory_path = f"{path_prefix}_memory.pkl"
         if os.path.exists(memory_path):
             with open(memory_path, 'rb') as f:
-                self.memory = pickle.load(f)
+                saved_data = pickle.load(f)
+                # Gestisci sia vecchio formato (deque) che nuovo (circular buffer)
+                if isinstance(saved_data, dict):
+                    self.memory = saved_data['buffer']
+                    self.memory_index = saved_data['index']
+                    self.memory_size = saved_data['size']
+                else:
+                    # Converti vecchio formato deque a circular buffer
+                    old_memory = list(saved_data)
+                    self.memory_size = min(len(old_memory), self.max_memory)
+                    for i, item in enumerate(old_memory[-self.memory_size:]):
+                        self.memory[i] = item
+                    self.memory_index = self.memory_size % self.max_memory
 
     def remember(self, state, action, reward, next_state, done, valid_actions=None):
-        """Salva l'esperienza nella memoria (ora include valid_actions)"""
-        self.memory.append((state, action, reward, next_state, done, valid_actions))
+        """Salva l'esperienza nella memoria usando circular buffer - O(1)"""
+        self.memory[self.memory_index] = (state, action, reward, next_state, done, valid_actions)
+        self.memory_index = (self.memory_index + 1) % self.max_memory
+        self.memory_size = min(self.memory_size + 1, self.max_memory)
 
     def act(self, state, env, player_index):
         valid_actions = env.get_valid_actions(player_index)
@@ -81,11 +100,12 @@ class DQNSupportAgent:
         
         return np.argmax(masked_q_values)
 
-    # OTTIMIZZATO: Batch predict/fit per prestazioni 3-5x superiori
+    # OTTIMIZZATO: Batch predict/fit + NumPy circular buffer per massime prestazioni
     def replay(self, batch_size, env, player_index):
-        """Versione ottimizzata con batch predict/fit - riduce chiamate da N*2 a 2 totali"""
-        # Converti deque a lista per velocizzare random.sample (evita rallentamento dopo epoca 12+)
-        minibatch = random.sample(list(self.memory), batch_size)
+        """Versione ottimizzata con batch predict/fit e circular buffer - O(1) per tutto"""
+        # NumPy random choice su circular buffer - molto più veloce di random.sample su deque
+        indices = np.random.choice(self.memory_size, batch_size, replace=False)
+        minibatch = [self.memory[i] for i in indices]
         
         # Estrai batch di stati (invece di processarli uno alla volta)
         states = np.vstack([exp[0] for exp in minibatch])
@@ -131,10 +151,16 @@ class DQNSupportAgent:
             self.epsilon *= self.epsilon_decay
 
     def save(self, path_prefix):
-        self.model.save(f"{path_prefix}.keras") # enter model path
-        with open(f"{path_prefix}_memory.pkl", 'wb') as f: # enter model path
-            pickle.dump(self.memory, f)
-        with open(f"{path_prefix}_epsilon.txt", 'w') as f: # enter model path
+        self.model.save(f"{path_prefix}.keras")
+        # Salva circular buffer con metadata
+        memory_data = {
+            'buffer': self.memory,
+            'index': self.memory_index,
+            'size': self.memory_size
+        }
+        with open(f"{path_prefix}_memory.pkl", 'wb') as f:
+            pickle.dump(memory_data, f)
+        with open(f"{path_prefix}_epsilon.txt", 'w') as f:
             f.write(str(self.epsilon))
 
 '''

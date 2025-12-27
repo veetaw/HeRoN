@@ -260,10 +260,11 @@ def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=No
             moves += 1
 
             # Replay per entrambi gli agenti (se memoria sufficiente)
-            if len(attacker_agent.memory) > batch_size:
+            # Usa memory_size invece di len() per circular buffer
+            if attacker_agent.memory_size > batch_size:
                 attacker_agent.replay(batch_size, env, 0)
             
-            if len(supporter_agent.memory) > batch_size:
+            if supporter_agent.memory_size > batch_size:
                 supporter_agent.replay(batch_size, env, 1)
 
             if done:
