@@ -259,14 +259,6 @@ def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=No
             
             moves += 1
 
-            # Replay per entrambi gli agenti (se memoria sufficiente)
-            # Usa memory_size invece di len() per circular buffer
-            if attacker_agent.memory_size > batch_size:
-                attacker_agent.replay(batch_size, env, 0)
-            
-            if supporter_agent.memory_size > batch_size:
-                supporter_agent.replay(batch_size, env, 1)
-
             if done:
                 result = "VICTORY" if a_win else "DEFEAT"
                 
@@ -274,6 +266,16 @@ def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=No
                     total_agent_wins += 1
                 else:
                     total_enemy_wins += 1
+                
+                # OTTIMIZZAZIONE: Replay alla FINE dell'episodio invece che dopo ogni mossa
+                # Con batch_size=512, fare replay 100 volte/episodio è troppo lento!
+                # Facciamolo 3-5 volte a fine episodio per recuperare
+                num_replays = 5 if attacker_agent.memory_size >= batch_size else 0
+                for _ in range(num_replays):
+                    if attacker_agent.memory_size >= batch_size:
+                        attacker_agent.replay(batch_size, env, 0)
+                    if supporter_agent.memory_size >= batch_size:
+                        supporter_agent.replay(batch_size, env, 1)
                 
                 # Stampa sempre il risultato dell'episodio
                 win_rate = total_agent_wins / (e + 1)
