@@ -102,7 +102,8 @@ class DQNAgent:
     # OTTIMIZZATO: Batch predict/fit per prestazioni 3-5x superiori
     def replay(self, batch_size, env, player_index):
         """Versione ottimizzata con batch predict/fit - riduce chiamate da N*2 a 2 totali"""
-        minibatch = random.sample(self.memory, batch_size)
+        # Converti deque a lista per velocizzare random.sample (evita rallentamento dopo epoca 12+)
+        minibatch = random.sample(list(self.memory), batch_size)
         
         # Estrai batch di stati (invece di processarli uno alla volta)
         states = np.vstack([exp[0] for exp in minibatch])
