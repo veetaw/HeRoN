@@ -74,15 +74,15 @@ def map_action_support(action):
 
 
 # Main loop with training
-def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=None):
+def train_dqn(episodes=1000, batch_size=128, load_attacker=None, load_support=None):
     """
     Training loop ottimizzato per Multi-GPU (2× NVIDIA RTX 5000 ADA)
     
     Args:
         episodes: numero di episodi di training
-        batch_size: 256 (default ottimizzato per 96GB VRAM totale)
-                   - Aumenta a 512 se hai molta memoria libera
-                   - Riduci a 128 se ottieni OOM errors
+        batch_size: 128 (ridotto da 512 per miglior apprendimento)
+                   - batch_size più piccolo = più aggiornamenti = apprendimento migliore
+                   - 512 era troppo grande e causava overfitting
         load_attacker: path per caricare modello attacker pre-addestrato
         load_support: path per caricare modello support pre-addestrato
     """
@@ -268,18 +268,19 @@ def train_dqn(episodes=1000, batch_size=256, load_attacker=None, load_support=No
                     total_enemy_wins += 1
                 
                 # OTTIMIZZAZIONE: Replay alla FINE dell'episodio invece che dopo ogni mossa
-                # Con batch_size=512, fare replay 100 volte/episodio è troppo lento!
-                # Facciamolo 3-5 volte a fine episodio per recuperare
-                num_replays = 5 if attacker_agent.memory_size >= batch_size else 0
-                for _ in range(num_replays):
+                # Aumentato numero di replay per miglior apprendimento
+                num_replays = 10 if attacker_agent.memory_size >= batch_size else 0
+                for replay_idx in range(num_replays):
                     if attacker_agent.memory_size >= batch_size:
                         attacker_agent.replay(batch_size, env, 0)
                     if supporter_agent.memory_size >= batch_size:
                         supporter_agent.replay(batch_size, env, 1)
                 
-                # Stampa sempre il risultato dell'episodio
+                # Stampa sempre il risultato dell'episodio con info di debug
                 win_rate = total_agent_wins / (e + 1)
-                print(f"Ep {e+1}/{episodes}: {result} | Win Rate: {total_agent_wins}/{e+1} ({100*win_rate:.1f}%) | Moves: {moves}")
+                print(f"Ep {e+1}/{episodes}: {result} | WR: {total_agent_wins}/{e+1} ({100*win_rate:.1f}%) | "
+                      f"Moves: {moves} | Eps: {attacker_agent.epsilon:.3f} | Mem: {attacker_agent.memory_size}/{attacker_agent.max_memory} | "
+                      f"Replays: {num_replays}")
                 
                 # OTTIMIZZAZIONE: Stampa dettagliata solo ogni 50 episodi
                 if (e + 1) % 50 == 0 or e == 0 or e == episodes - 1:
@@ -464,13 +465,13 @@ if __name__ == "__main__":
     hielixer = Item("MegaElixer", "elixir", "Fully restores party's HP/MP", 9999)
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
-    # Train the agent - BATCH SIZE OTTIMIZZATO PER MULTI-GPU
-    # - batch_size=256: ottimale per 2× RTX 5000 ADA (96GB VRAM totale)
-    # - Aumenta a 512 se hai risorse libere e vuoi massimizzare velocità
-    # - Riduci a 128 se ottieni errori "Out of Memory"
+    # Train the agent - BATCH SIZE OTTIMIZZATO
+    # - batch_size=128: bilanciato per apprendimento efficace
+    # - Batch più piccoli = più aggiornamenti = apprendimento migliore
+    # - 512 era troppo grande e causava overfitting
     rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(
         episodes=10,
-        batch_size=256  # ← OTTIMIZZATO per Multi-GPU
+        batch_size=128  # ← RIDOTTO da 512 per miglior apprendimento
     )
     
     # Plot dei risultati

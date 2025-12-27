@@ -57,7 +57,7 @@ class DQNAgent:
         self.gamma = 0.95
         self.epsilon = 1.0
         self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 0.992  # Accelerato da 0.995 per apprendere più velocemente
         self.learning_rate = 0.001
         
         if load_model_path:
