@@ -188,7 +188,7 @@ class BattleEnv:
             dmg = player.generate_damage()
             enemy = self.enemies[0]
             enemy.take_damage(dmg)
-            reward += 25
+            reward += 10
 
         # vedo se index azione è tra 0 e len magic, allora è una spell
         elif action > 0 and action <= len(player.magic) and player_index == ATTACKER_INDEX:
@@ -197,11 +197,27 @@ class BattleEnv:
                 magic_dmg = spell.generate_damage()
                 player.reduce_mp(spell.cost)
                 if spell.type == "white":
+                    # Cura - reward in base a quanto era necessaria
+                    hp_ratio = player.hp / player.maxhp
+                    if hp_ratio < 0.3:
+                        reward += 40  # Cura critica molto premiata
+                    elif hp_ratio < 0.6:
+                        reward += 20  # Cura utile
+                    else:
+                        reward -= 5   # Cura non necessaria
                     player.heal(magic_dmg)
                 else:
                     enemy = self.enemies[0]
                     enemy.take_damage(magic_dmg)
-                reward += 15
+                    # Reward proporzionale al danno (spell forti premiate di più)
+                    if spell.name == "Meteor":
+                        reward += 30
+                    elif spell.name == "Blizzard":
+                        reward += 25
+                    elif spell.name == "Thunder":
+                        reward += 22
+                    else:  # Fire
+                        reward += 20
 
         elif action > 0 and action <= len(player.magic) and player_index == SUPPORT_INDEX:
             spell = player.magic[action - 1]
@@ -217,46 +233,54 @@ class BattleEnv:
                         dest = ""
                     
                     if dest == "" or dest is None:
-                        if (player.hp + magic_dmg) > player.maxhp:
-                            reward -= 5
+                        # Auto-cura support
+                        hp_ratio = player.hp / player.maxhp
+                        if hp_ratio < 0.3:
+                            reward += 30
+                        elif hp_ratio < 0.6:
+                            reward += 15
                         else:
-                            reward += 10
+                            reward -= 5  # Spreco
                         player.heal(magic_dmg)
                         
                     elif dest == "m":
+                        # Cura il mate 
+                        mate_hp_ratio = mate.hp / mate.maxhp
                         hp_before_mate = mate.hp
                         mate.heal(magic_dmg)
-                        overheal = max(0, (hp_before_mate + magic_dmg) - mate.maxhp)
                         
-                        if overheal > magic_dmg * 0.5:
-                            reward -= 5
-                        elif mate.hp < 0.3 * mate.maxhp:
-                            reward += 25
+                        if mate_hp_ratio < 0.3:
+                            reward += 40  # Salvare il mate è priorità massima
+                        elif mate_hp_ratio < 0.6:
+                            reward += 30
                         else:
-                            reward += 15                        
+                            reward -= 5  # Overheal inutile
+                            
                     elif dest == "tot":
-                        hp_before_self = player.hp
-                        hp_before_mate = mate.hp
+                        # Cura entrambi
+                        self_hp_ratio = player.hp / player.maxhp
+                        mate_hp_ratio = mate.hp / mate.maxhp
                         
                         player.heal(magic_dmg)
                         mate.heal(magic_dmg)
                         
-                        overheal_self = max(0, (hp_before_self + magic_dmg) - player.maxhp)
-                        overheal_mate = max(0, (hp_before_mate + magic_dmg) - mate.maxhp)
-                        
-                        if overheal_self > magic_dmg * 0.5 or overheal_mate > magic_dmg * 0.5:
-                            reward -= 3
+                        # Premiata se almeno uno dei due ne aveva bisogno
+                        if self_hp_ratio < 0.5 or mate_hp_ratio < 0.5:
+                            reward += 25
+                        elif self_hp_ratio < 0.7 and mate_hp_ratio < 0.7:
+                            reward += 15
                         else:
-                            reward += 12
+                            reward -= 3  # Spreco parziale
                     else:
                         print(f"Warning: Unknown spell dest '{dest}', defaulting to self-heal")
                         player.heal(magic_dmg)
                         reward += 5
 
                 else:
+                    # Spell offensiva del support
                     enemy = self.enemies[0]
                     enemy.take_damage(magic_dmg)
-                    reward += 10
+                    reward += 15  
 
         elif action > len(player.magic):
             item_index = action - len(player.magic) - 1
@@ -346,12 +370,12 @@ class BattleEnv:
             reward_support = self.perform_action(SUPPORT_INDEX, support_action)
                 
         if self.players[ATTACKER_INDEX].get_hp() <= 0:
-            reward_attacker -= 100
-            reward_support -= 50
+            reward_attacker -= 150
+            reward_support -= 75
         
         if self.players[SUPPORT_INDEX].get_hp() <= 0:
-            reward_support -= 100
-            reward_attacker -= 30
+            reward_support -= 150
+            reward_attacker -= 75
         
         enemy_action = self.enemy_turn()
         
@@ -364,8 +388,8 @@ class BattleEnv:
         elif all(enemy.get_hp() <= 0 for enemy in self.enemies):
             self.done = True
             a_win = True
-            reward_attacker += 100
-            reward_support += 100
+            reward_attacker += 150
+            reward_support += 150
         
         next_state = self.get_state()
         return next_state, reward_attacker, reward_support, self.done, a_win, enemy_action, None
