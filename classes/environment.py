@@ -345,7 +345,7 @@ class BattleEnv:
         return enemy_choice
 
 
-        def step(self, attacker_action, support_action):
+    def step(self, attacker_action, support_action):
         reward_attacker = 0
         reward_support = 0
         

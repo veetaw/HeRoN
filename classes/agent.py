@@ -49,7 +49,7 @@ class DQNAgent:
         self.action_size = action_size
         
         # OTTIMIZZAZIONE: NumPy circular buffer invece di deque per O(1) performance
-        self.max_memory = 2000
+        self.max_memory = 6000
         self.memory = np.empty(self.max_memory, dtype=object)
         self.memory_index = 0
         self.memory_size = 0
