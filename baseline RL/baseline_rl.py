@@ -48,15 +48,6 @@ def map_action_support(action):
 
 # Main loop with training
 def train_dqn(episodes, batch_size=32, load_model_path=None):
-    """
-    Allena DQNAgent
-
-    qua vengono creati players, enemies e environment (a partire da players e enemies)
-
-    l'agent prende input state size, action size e prev modello se presente
-
-
-    """
     #environment settings
     attacker_spells = [fire, thunder, blizzard, meteor, cura]
     
@@ -76,8 +67,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     enemies = [enemy1]
 
     env = BattleEnv(players, enemies)
-    #NPC
-    # dato che state è un dict, per avere lo state size non uso più env.state_size ma get_action_size
+
     attacker_agent = DQNAgent(
         env.get_state_size_of_player('Maria'), 
         env.get_action_size(0), 
@@ -96,23 +86,10 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     success_rate = []
     action_scores = []
 
-    ''' TODO: FARE IL CARICAMENTO DEI PROGRESSI CHE è STATO COMMENTATO
-    # Load existing progress
-    rewards_per_episode = load_csv_series("reward_per_episode.csv", "Reward")
-    agent_wins = load_csv_series("agent_wins.csv", "Wins")
-    enemy_wins = load_csv_series("enemy_wins.csv", "Wins")
-    agent_moves_per_episode = load_csv_series("agent_moves.csv", "Moves")
-    success_rate = load_csv_series("success_rate.csv", "Rate")
-    '''
-
     total_agent_wins = 0
     total_enemy_wins = 0
 
-    """
-    in ogni episodio (partita) viene resettato lo state e poi viene fatto il reshape per renderlo una matrice 1 x state_size
-    """
     for e in range(episodes):
-        # TODO: non facciamo più update_quantity, da fare
 
         state_global = env.reset()
         state_attacker = state_global['Maria']
@@ -130,19 +107,6 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
         state_size_attacker = env.get_state_size_of_player('Maria')
         state_size_support = env.get_state_size_of_player('Juana')
 
-        """
-        nel game loop viene eseguita la funzione act sull'agent (vedere agent.DQNAgent.act) che ritorna l'azione da eseguire
-        l'azione viene mappata in testo per il gioco
-        poi vengono calcolati i punteggi normalizzati e salvati in match_score
-
-        viene effettuato lo step nell'env (vedere environment.BattleEnv.step) che ritorna next_state, reward, done, a_win, e_win, enemy_choise
-        vengono successivamente aggiornati i conteggi delle azioni ancora rimanenti (tipo gli item etc)
-        viene fatto il reshape del next_state
-        l'agent memorizza l'esperienza (state, action, reward, next_state, done) nel suo replay memory
-        se la memoria è più grande del batch size viene effettuato il replay (vedere agent.DQNAgent.replay)
-
-        alla fine vengono stampate le info dell'episodio e aggiornate le statistiche di vittorie/sconfitte
-        """
         while not done:
             attacker_action = attacker_agent.act(state_attacker, env, 0)
             support_action = supporter_agent.act(state_support, env, 1)
@@ -167,7 +131,6 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                     enemies[0].get_hp()
                 )
             else:
-                # se attacker è morto
                 attacker_scores = {match_attacker: 0}
             
             if player_support.get_hp() > 0:
@@ -178,28 +141,24 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                     enemies[0].get_hp()
                 )
             else:
-                #se support è morto
                 support_scores = {match_support: 0}
             
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
             match_score_support.append(round(support_scores.get(match_support, 0), 2))
             
-            # stampo info ogni 3 mosse e lap rima
             if moves % 3 == 0 or moves == 0:
                 status_atk = "DEAD" if player_attacker.get_hp() <= 0 else "ATK"
                 status_sup = "DEAD" if player_support.get_hp() <= 0 else "SUP"
                 
                 print(f"\n[Move {moves:02d}] Ep {e+1}/{episodes}")
-                print(f"  [{status_atk}] {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
-                print(f"  [{status_sup}] {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
-                print(f"  Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
+                #print(f"  [{status_atk}] {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
+                #print(f"  [{status_sup}] {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
+                #print(f"  Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
 
             next_state, reward_attacker, reward_support, done, a_win, _, __ = env.step(attacker_action, support_action)
             
-            print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
+            #print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
             
-            # aggiorno quantità rimanenti e reward totali
-
             score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
             score.update_quantity(match_support, player_support.get_mp(), 1)
 
@@ -209,7 +168,6 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             next_state_attacker = np.reshape(next_state['Maria'], [1, state_size_attacker])
             next_state_support = np.reshape(next_state['Juana'], [1, state_size_support])
             
-            # Calcola le valid_actions per il NEXT state (necessarie per il replay)
             next_valid_attacker = env.get_valid_actions(0)
             next_valid_support = env.get_valid_actions(1)
             
@@ -256,7 +214,6 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 
                 break
         
-        # EPSILON DECAY: diminuisce epsilon DOPO ogni episodio (non durante replay)
         if attacker_agent.epsilon > attacker_agent.epsilon_min:
             attacker_agent.epsilon *= attacker_agent.epsilon_decay
         
@@ -265,13 +222,15 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
         
         print(f"Vittorie agente: {total_agent_wins}, vittorie nemico: {total_enemy_wins}")
 
-        # Salva reward e mosse per l'episodio
         rewards_per_episode.append({
             'attacker': total_reward_attacker,
             'support': total_reward_support,
             'combined': total_reward_attacker + total_reward_support
         })
         agent_moves_per_episode.append(moves)
+        agent_wins.append(1 if a_win else 0)
+        enemy_wins.append(0 if a_win else 1)
+        success_rate.append(total_agent_wins / (e + 1))
         
         action_scores.append({
             'attacker': np.mean(match_score_attacker),
@@ -295,20 +254,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     print(f"Average score (Support): {avg_score_support:.4f}")
     print(f"Average score (Combined): {avg_score_combined:.4f}")
 
-
-    #if (e + 1) % 200 == 0:
-    #    save_path = f"model_dqn_episode_{e + 1}"
-    #    print(f"Saving model to {save_path}...")
-    #    agent.save(save_path)
-    
-    attacker_agent.save("MODELLO_NO_LLM_ATTACKER") # save the agent model
-    supporter_agent.save("MODELLO_NO_LLM_SUPPORT") # save the agent model
-
-    #append_csv("reward_per_episode.csv", rewards_per_episode, "Reward")
-    #append_csv("agent_wins.csv", agent_wins, "Wins")
-    #append_csv("enemy_wins.csv", enemy_wins, "Wins")
-    #append_csv("agent_moves.csv", agent_moves_per_episode, "Moves")
-    #append_csv("success_rate.csv", success_rate, "Rate")
+    attacker_agent.save("MODELLO_NO_LLM_ATTACKER")
+    supporter_agent.save("MODELLO_NO_LLM_SUPPORT")
 
     return rewards_per_episode, agent_wins, enemy_wins, agent_moves_per_episode, success_rate, action_scores
 

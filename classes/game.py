@@ -40,7 +40,7 @@ class Person:
         self.hp += dmg
         if self.hp > self.maxhp:
             self.hp = self.maxhp
-        print(f"{self.name} curato di {dmg} HP → HP: {self.hp}/{self.maxhp}")
+        #print(f"{self.name} curato di {dmg} HP → HP: {self.hp}/{self.maxhp}")
 
     def get_hp(self):
         return self.hp

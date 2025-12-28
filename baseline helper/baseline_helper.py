@@ -448,11 +448,11 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             status_atk = "ATK" if player_attacker.get_hp() > 0 else "DEAD"
             status_sup = "SUP" if player_support.get_hp() > 0 else "DEAD"
             
-            print(f"  [{status_atk}] {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
-            print(f"  [{status_sup}] {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
-            print(f"  Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
+            #print(f"  [{status_atk}] {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
+            #print(f"  [{status_sup}] {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
+            #print(f"  Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
 
-            print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
+            #print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
  
             score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
             score.update_quantity(match_support, player_support.get_mp(), 1)

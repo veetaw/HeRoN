@@ -53,7 +53,7 @@ def update_quantity(action_name, current_mp, player_index=0):
     # Questo è utile solo se vuoi tenere traccia degli MP anche nel dizionario
     # Ma normalmente gli MP vengono gestiti dall'oggetto Person
     
-    print(f"[Player {player_index}] Updated {action_name}: quantity={action['quantity']}, MP={current_mp}")
+    #print(f"[Player {player_index}] Updated {action_name}: quantity={action['quantity']}, MP={current_mp}")
 
 
 def reset_quantities():
