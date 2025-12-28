@@ -108,8 +108,8 @@ def train_dqn(episodes=1000, batch_size=128, load_attacker=None, load_support=No
         {"item": hielixer, "quantity": 1}
     ]
     player1 = Person("Maria", 2600, 120, 300, 34, attacker_spells, player_items)
-    player2 = Person("Juana", 2300, 180, 100, 50, support_spells, player_items)
-    enemy1 = Person("Antonio", 7000, 201, 525, 25, [fire, cura], [])
+    player2 = Person("Juana", 2400, 180, 100, 50, support_spells, player_items)
+    enemy1 = Person("Antonio", 6000, 180, 525, 25, [fire, cura], [])
 
     players = [player1, player2]
     enemies = [enemy1]

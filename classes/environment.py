@@ -345,12 +345,14 @@ class BattleEnv:
         return enemy_choice
 
 
-        
-    def step(self, attacker_action, support_action):
+        def step(self, attacker_action, support_action):
         reward_attacker = 0
         reward_support = 0
         
-        # TODO: sta cosa ha senso?
+        # Salva stato HP PRIMA delle azioni per sapere se muoiono QUESTO turno
+        attacker_was_alive = self.players[ATTACKER_INDEX].get_hp() > 0
+        support_was_alive = self.players[SUPPORT_INDEX].get_hp() > 0
+        
         if attacker_action is not None:
             valid_attacker = self.get_valid_actions(ATTACKER_INDEX)
 
@@ -368,19 +370,22 @@ class BattleEnv:
                 support_action = 0
 
             reward_support = self.perform_action(SUPPORT_INDEX, support_action)
-                
-        if self.players[ATTACKER_INDEX].get_hp() <= 0:
-            reward_attacker -= 150
-            reward_support -= 75
         
-        if self.players[SUPPORT_INDEX].get_hp() <= 0:
-            reward_support -= 150
-            reward_attacker -= 75
-        
+        # Turno del nemico
         enemy_action = self.enemy_turn()
+        
+        # Punizione morte SOLO se è morto QUESTO turno (dopo azione nemico)
+        if self.players[ATTACKER_INDEX].get_hp() <= 0 and attacker_was_alive:
+            reward_attacker -= 150
+            reward_support -= 75  # Support ha fallito nel curarlo
+        
+        if self.players[SUPPORT_INDEX].get_hp() <= 0 and support_was_alive:
+            reward_support -= 150
+            reward_attacker -= 50
         
         a_win = None
         
+        # Check fine partita
         if self.players[ATTACKER_INDEX].get_hp() <= 0 and self.players[SUPPORT_INDEX].get_hp() <= 0:
             self.done = True
             a_win = False
