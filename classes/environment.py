@@ -2,29 +2,13 @@ import numpy as np
 import random
 from classes.magic import Spell
 from classes.inventory import Item
-
-# Spells and items setup
-fire = Spell("Fire", 25, 600, "black")
-thunder = Spell("Thunder", 30, 700, "black")
-blizzard = Spell("Blizzard", 35, 800, "black")
-meteor = Spell("Meteor", 40, 1000, "black")
-# Spell curativi per ATTACKER
-cura = Spell("Cura", 32, 1500, "white")
-# Spell curativi per SUPPORT
-cura_support = Spell("Cura", 32, 1200, "white")  # Auto-cure
-cura_tot = Spell("Cura Tot", 30, 700, "white_tot")  # Cura entrambi
-splash = Spell("Splash", 18, 450, "white_tot")  # Cura entrambi (meno potente)
-cura_m = Spell("Cura M", 28, 1300, "white_m")  # Cura il mate
-cura_totm = Spell("Cura TotM", 36, 1700, "white_m")  # Cura di più il mate
+from classes.games import (fire, thunder, blizzard, meteor, cura,
+                           cura_support, cura_tot, splash, cura_m, cura_totm,
+                           grenade, potion, hielixer,)
 MIN_SPELL_COST =  25
-
-potion = Item("Potion", "potion", "Heals 50 HP", 50)
-hielixer = Item("MegaElixer", "elixir", "Fully restores party's HP/MP", 9999)
-grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
 ATTACKER_INDEX = 0
 SUPPORT_INDEX = 1
-
 
 # Environment setup
 class BattleEnv:
@@ -235,26 +219,42 @@ class BattleEnv:
                     if dest == "" or dest is None:
                         # Auto-cura support
                         hp_ratio = player.hp / player.maxhp
-                        if hp_ratio < 0.3:
-                            reward += 30
-                        elif hp_ratio < 0.6:
-                            reward += 15
+                        mate_hp_ratio = mate.hp / mate.maxhp
+                        
+                        # Penalità se cura se stesso quando il mate sta peggio
+                        if mate_hp_ratio < 0.4 and hp_ratio > 0.5:
+                            reward -= 15  # Egoista! Il mate ha bisogno
+                        elif hp_ratio < 0.25:
+                            reward += 40  # Critico, giusto curarsi
+                        elif hp_ratio < 0.5:
+                            reward += 20
+                        elif hp_ratio < 0.7:
+                            reward += 5
                         else:
-                            reward -= 5  # Spreco
+                            reward -= 10  # Spreco
                         player.heal(magic_dmg)
                         
                     elif dest == "m":
-                        # Cura il mate - MOLTO IMPORTANTE per il support
+                        # Cura il mate - PRIORITÀ MASSIMA del support
                         mate_hp_ratio = mate.hp / mate.maxhp
-                        hp_before_mate = mate.hp
+                        heal_efficiency = min(magic_dmg, mate.maxhp - mate.hp) / magic_dmg
+                        
                         mate.heal(magic_dmg)
                         
-                        if mate_hp_ratio < 0.3:
-                            reward += 50  # Salvare il mate è priorità massima
-                        elif mate_hp_ratio < 0.6:
-                            reward += 30
+                        # Soglie più alte: curare PRIMA che sia critico
+                        if mate_hp_ratio < 0.25:
+                            reward += 60  # Salvare il mate è priorità massima
+                        elif mate_hp_ratio < 0.5:
+                            reward += 45  # Cura importante
+                        elif mate_hp_ratio < 0.7:
+                            reward += 25  # Cura preventiva buona
+                        elif mate_hp_ratio < 0.85:
+                            reward += 5   # Leggero top-up
                         else:
-                            reward -= 5  # Overheal inutile
+                            reward -= 8   # Overheal inutile
+                        
+                        # Bonus efficienza (poca cura sprecata)
+                        reward += int(10 * heal_efficiency)
                             
                     elif dest == "tot":
                         # Cura entrambi
@@ -264,23 +264,33 @@ class BattleEnv:
                         player.heal(magic_dmg)
                         mate.heal(magic_dmg)
                         
-                        # Premiata se almeno uno dei due ne aveva bisogno
-                        if self_hp_ratio < 0.5 or mate_hp_ratio < 0.5:
-                            reward += 25
-                        elif self_hp_ratio < 0.7 and mate_hp_ratio < 0.7:
+                        # Premiata se entrambi ne beneficiano
+                        if self_hp_ratio < 0.5 and mate_hp_ratio < 0.5:
+                            reward += 50  # Ottima scelta, entrambi bassi
+                        elif self_hp_ratio < 0.6 or mate_hp_ratio < 0.6:
+                            reward += 30
+                        elif self_hp_ratio < 0.8 and mate_hp_ratio < 0.8:
                             reward += 15
                         else:
-                            reward -= 3  # Spreco parziale
+                            reward -= 5  # Spreco
                     else:
                         print(f"Warning: Unknown spell dest '{dest}', defaulting to self-heal")
                         player.heal(magic_dmg)
                         reward += 5
 
                 else:
-                    # Spell offensiva del support
+                    # Spell offensiva del support - RIDOTTO
                     enemy = self.enemies[0]
+                    mate_hp_ratio = mate.hp / mate.maxhp
                     enemy.take_damage(magic_dmg)
-                    reward += 15  # Support che attacca va bene ma meno premiato
+                    
+                    # Penalità se attacca mentre il mate soffre
+                    if mate_hp_ratio < 0.4:
+                        reward -= 20  # Doveva curare, non attaccare!
+                    elif mate_hp_ratio < 0.6:
+                        reward += 0   # Neutro, borderline
+                    else:
+                        reward += 8   # OK attaccare se mate sta bene
 
         elif action > len(player.magic):
             item_index = action - len(player.magic) - 1

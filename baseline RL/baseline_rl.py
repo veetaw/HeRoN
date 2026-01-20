@@ -9,59 +9,15 @@ import pandas as pd
 import os
 import action_score as score
 import re
-
+from classes.games import *
 from classes.support_agent import DQNSupportAgent
+import json
 
-
-def map_action_attack(action):
-    """Mappa l'indice azione al nome per ATTACKER"""
-    actions_map = {
-        0: 'attack',
-        1: 'fire spell',
-        2: 'thunder spell',
-        3: 'blizzard spell',
-        4: 'meteor spell',
-        5: 'cura spell',
-        6: 'potion',
-        7: 'grenade',
-        8: 'elixir'
-    }
-    return actions_map.get(action, 'attack')
-
-
-def map_action_support(action):
-    """Mappa l'indice azione al nome per SUPPORT"""
-    actions_map = {
-        0: 'attack',
-        1: 'fire spell',
-        2: 'cura spell',     # Auto-cure (white)
-        3: 'cura_tot',       # Cura entrambi (white_tot)
-        4: 'splash',         # Cura entrambi meno (white_tot)
-        5: 'cura_m',         # Cura mate (white_m)
-        6: 'cura_totm',      # Cura mate tanto (white_m)
-        7: 'potion',
-        8: 'grenade',
-        9: 'elixir'
-    }
-    return actions_map.get(action, 'attack')
+OUTPUT_DIRECTORY = "test1_results_test"
 
 
 # Main loop with training
-def train_dqn(episodes, batch_size=32, load_model_path=None):
-    #environment settings
-    attacker_spells = [fire, thunder, blizzard, meteor, cura]
-    
-    # SUPPORT spells (offensivi base + cure variegate)
-    support_spells = [fire, cura_support, cura_tot, splash, cura_m, cura_totm]
-
-    player_items = [
-        {"item": potion, "quantity": 3}, 
-        {"item": grenade, "quantity": 2},
-        {"item": hielixer, "quantity": 1}
-    ]
-    player1 = Person("Maria", 2600, 120, 300, 34, attacker_spells, player_items)
-    player2 = Person("Juana", 2300, 180, 100, 50, support_spells, player_items)
-    enemy1 = Person("Antonio", 6500, 220, 525, 25, [fire, cura], [])
+def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
 
     players = [player1, player2]
     enemies = [enemy1]
@@ -69,14 +25,14 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     env = BattleEnv(players, enemies)
 
     attacker_agent = DQNAgent(
-        env.get_state_size_of_player('Maria'), 
+        env.get_state_size_of_player(PLAYER_1_NAME), 
         env.get_action_size(0), 
-        load_model_path
+        attacker_path
     )
     supporter_agent = DQNSupportAgent(
-        env.get_state_size_of_player('Juana'), 
+        env.get_state_size_of_player(PLAYER_2_NAME), 
         env.get_action_size(1), 
-        load_model_path
+        support_path
     )
 
     rewards_per_episode = []
@@ -92,10 +48,10 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     for e in range(episodes):
 
         state_global = env.reset()
-        state_attacker = state_global['Maria']
-        state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player('Maria')])
-        state_support = state_global['Juana']
-        state_support = np.reshape(state_support, [1, env.get_state_size_of_player('Juana')])
+        state_attacker = state_global[PLAYER_1_NAME]
+        state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player(PLAYER_1_NAME)])
+        state_support = state_global[PLAYER_2_NAME]
+        state_support = np.reshape(state_support, [1, env.get_state_size_of_player(PLAYER_2_NAME)])
 
         done = False
         total_reward_support = 0
@@ -104,8 +60,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
         match_score_attacker = []
         match_score_support = []
         score.reset_quantities()
-        state_size_attacker = env.get_state_size_of_player('Maria')
-        state_size_support = env.get_state_size_of_player('Juana')
+        state_size_attacker = env.get_state_size_of_player(PLAYER_1_NAME)
+        state_size_support = env.get_state_size_of_player(PLAYER_2_NAME)
 
         while not done:
             attacker_action = attacker_agent.act(state_attacker, env, 0)
@@ -165,8 +121,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             total_reward_attacker += reward_attacker
             total_reward_support += reward_support
             
-            next_state_attacker = np.reshape(next_state['Maria'], [1, state_size_attacker])
-            next_state_support = np.reshape(next_state['Juana'], [1, state_size_support])
+            next_state_attacker = np.reshape(next_state[PLAYER_1_NAME], [1, state_size_attacker])
+            next_state_support = np.reshape(next_state[PLAYER_2_NAME], [1, state_size_support])
             
             next_valid_attacker = env.get_valid_actions(0)
             next_valid_support = env.get_valid_actions(1)
@@ -190,9 +146,9 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 
                 survivors = []
                 if player_attacker.get_hp() > 0:
-                    survivors.append(f"Maria (HP: {player_attacker.get_hp()})")
+                    survivors.append(f"{PLAYER_1_NAME} (HP: {player_attacker.get_hp()})")
                 if player_support.get_hp() > 0:
-                    survivors.append(f"Juana (HP: {player_support.get_hp()})")
+                    survivors.append(f"{PLAYER_2_NAME} (HP: {player_support.get_hp()})")
                 
                 survivor_text = ", ".join(survivors) if survivors else "Nessuno"
                 
@@ -254,72 +210,110 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
     print(f"Average score (Support): {avg_score_support:.4f}")
     print(f"Average score (Combined): {avg_score_combined:.4f}")
 
-    attacker_agent.save("MODELLO_NO_LLM_ATTACKER")
-    supporter_agent.save("MODELLO_NO_LLM_SUPPORT")
+    attacker_agent.save(OUTPUT_DIRECTORY + "/MODELLO_NO_LLM_ATTACKER")
+    supporter_agent.save(OUTPUT_DIRECTORY + "/MODELLO_NO_LLM_SUPPORT")
 
     return rewards_per_episode, agent_wins, enemy_wins, agent_moves_per_episode, success_rate, action_scores
 
 
-# Plotting function
-def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores):
-    plt.figure(figsize=(8, 6))
+def plot_training(
+    rewards,
+    agent_wins,
+    enemy_wins,
+    moves,
+    success_rate,
+    action_scores,
+    output_dir=OUTPUT_DIRECTORY
+):
+    """
+    Plots training statistics and saves raw data to JSON.
+
+    Args:
+        rewards (list[dict])
+        agent_wins (list[int])
+        enemy_wins (list[int])
+        moves (list[int])
+        success_rate (list[float])
+        action_scores (list[dict])
+        output_dir (str): directory where plots and json will be saved
+    """
+    os.makedirs(output_dir, exist_ok=True)
     reward_attacker = [r['attacker'] for r in rewards]
     reward_support = [r['support'] for r in rewards]
     reward_combined = [r['combined'] for r in rewards]
-    
+    plt.figure(figsize=(8, 6))
     plt.plot(reward_attacker, label='Attacker Reward', color='red', alpha=0.7)
     plt.plot(reward_support, label='Support Reward', color='blue', alpha=0.7)
     plt.plot(reward_combined, label='Combined Reward', color='green', linewidth=2)
-    
+
     plt.title('Rewards per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Total Rewards')
     plt.legend()
-    plt.savefig("Train_reward_DQN.png")
-
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Train_reward_DQN.png"))
+    plt.close()
+    cumulative_agent_wins = np.cumsum(agent_wins).tolist()
+    cumulative_enemy_wins = np.cumsum(enemy_wins).tolist()
     plt.figure(figsize=(8, 6))
-    cumulative_agent_wins = np.cumsum(agent_wins)
-    cumulative_enemy_wins = np.cumsum(enemy_wins)
-
     plt.plot(cumulative_agent_wins, label="Agent Wins (Cumulative)", color='green')
     plt.plot(cumulative_enemy_wins, label="Enemy Wins (Cumulative)", color='red')
-
     plt.legend()
     plt.title('Cumulative Wins of Agent vs Enemy per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Cumulative Wins')
-    plt.savefig("Train_cumulative_Win_DQN.png")
-
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Train_cumulative_Win_DQN.png"))
+    plt.close()
     plt.figure(figsize=(8, 6))
     plt.plot(moves)
     plt.title('Number of Moves per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Moves')
-    plt.savefig("Train_moves_DQN.png")
-
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Train_moves_DQN.png"))
+    plt.close()
     plt.figure(figsize=(8, 6))
     plt.plot(success_rate, label="Success Rate", color='blue')
     plt.title('Success Rate per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Success Rate')
     plt.legend()
-    plt.savefig("Train_success_rate_DQN.png")
-
-    plt.figure(figsize=(8, 6))
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Train_success_rate_DQN.png"))
+    plt.close()
     attacker_scores = [s['attacker'] for s in action_scores]
     support_scores = [s['support'] for s in action_scores]
     combined_scores = [s['combined'] for s in action_scores]
-    
+
+    plt.figure(figsize=(8, 6))
     plt.plot(attacker_scores, label='Attacker Score', color='red', alpha=0.7)
     plt.plot(support_scores, label='Support Score', color='blue', alpha=0.7)
     plt.plot(combined_scores, label='Combined Score', color='green', linewidth=2)
-    
+
     plt.title('Action Scores per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Average Score')
     plt.legend()
-    plt.savefig("Score_DQN_separated.png")
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Score_DQN_separated.png"))
+    plt.close()
+    raw_data = {
+        "rewards": rewards,
+        "agent_wins": agent_wins,
+        "enemy_wins": enemy_wins,
+        "moves": moves,
+        "success_rate": success_rate,
+        "action_scores": action_scores,
+        "cumulative_agent_wins": cumulative_agent_wins,
+        "cumulative_enemy_wins": cumulative_enemy_wins
+    }
 
+    json_path = os.path.join(output_dir, "training_data.json")
+    with open(json_path, "w") as f:
+        json.dump(raw_data, f, indent=4)
+
+    print(f"Plots and raw data saved in: {output_dir}")
 
 
 def export_success_rate(success_rate):
@@ -347,28 +341,14 @@ def load_csv_series(filename, column):
 
 
 if __name__ == "__main__":
-    # Spell offensivi (già esistenti)
-    fire = Spell("Fire", 25, 600, "black")
-    thunder = Spell("Thunder", 30, 700, "black")
-    blizzard = Spell("Blizzard", 35, 800, "black")
-    meteor = Spell("Meteor", 40, 1000, "black")
-
-    # Spell curativi per ATTACKER
-    cura = Spell("Cura", 32, 1500, "white")
-
-    # Spell curativi per SUPPORT
-    cura_support = Spell("Cura", 32, 1200, "white")  # Auto-cure
-    cura_tot = Spell("Cura Tot", 30, 700, "white_tot")  # Cura entrambi
-    splash = Spell("Splash", 18, 450, "white_tot")  # Cura entrambi (meno potente)
-    cura_m = Spell("Cura M", 28, 1300, "white_m")  # Cura il mate
-    cura_totm = Spell("Cura TotM", 36, 1700, "white_m")  # Cura di più il mate
-
-    potion = Item("Potion", "potion", "Heals 50 HP", 50)
-    hielixer = Item("MegaElixer", "elixir", "Fully restores party's HP/MP", 9999)
-    grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
-
+    if not os.path.exists(OUTPUT_DIRECTORY):
+        os.makedirs(OUTPUT_DIRECTORY)
+    print(OUTPUT_DIRECTORY)
+    attacker_path =  "/Users/giuseppepiosorrentino/HeronBase/test1_results/MODELLO_NO_LLM_ATTACKER" # Percorso del modello da caricare, se esistente
+    support_path =   "/Users/giuseppepiosorrentino/HeronBase/test1_results/MODELLO_NO_LLM_SUPPORT"  # Percorso del modello da caricare, se esistente
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=10)
+
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=2, attacker_path=attacker_path, support_path=support_path)
     
     # Plot dei risultati
     plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores)
@@ -378,11 +358,11 @@ if __name__ == "__main__":
     
     print("\nTraining completato!")
     print("Grafici salvati:")
-    print("   - Train_reward_DQN.png")
-    print("   - Train_cumulative_Win_DQN.png")
-    print("   - Train_moves_DQN.png")
-    print("   - Train_success_rate_DQN.png")
-    print("   - Score_DQN_separated.png")
+    print("   - " + OUTPUT_DIRECTORY + "/Train_reward_DQN.png")
+    print("   - " + OUTPUT_DIRECTORY + "/Train_cumulative_Win_DQN.png")
+    print("   - " + OUTPUT_DIRECTORY + "/Train_moves_DQN.png")
+    print("   - " + OUTPUT_DIRECTORY + "/Train_success_rate_DQN.png")
+    print("   - " + OUTPUT_DIRECTORY + "/Score_DQN_separated.png")
     print("Modelli salvati:")
-    print("   - MODELLO_NO_LLM_ATTACKER.h5")
-    print("   - MODELLO_NO_LLM_SUPPORT.h5")
+    print("   - " + OUTPUT_DIRECTORY + "/MODELLO_NO_LLM_ATTACKER.h5")
+    print("   - " + OUTPUT_DIRECTORY + "/MODELLO_NO_LLM_SUPPORT.h5")
