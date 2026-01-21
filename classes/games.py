@@ -3,9 +3,23 @@ from classes.magic import Spell
 from classes.inventory import Item
 
 PLAYER_1_NAME = "Giocatore1"
+PLAYER_1_HEALTH = 2600
+PLAYER_1_MP = 120
+PLAYER_1_ATK = 300
+PLAYER_1_DIF = 34
+
+
 PLAYER_2_NAME = "Giocatore2"
+PLAYER_2_HEALTH = 2300
+PLAYER_2_MP = 180
+PLAYER_2_ATK = 100
+PLAYER_2_DIF = 50
 
 ENEMY_NAME = "Nemico"
+ENEMY_HEALTH = 6500
+ENEMY_MP = 220
+ENEMY_ATK = 525
+ENEMY_DIF = 25
 
 fire = Spell("Fire", 25, 600, "black")
 thunder = Spell("Thunder", 30, 700, "black")
@@ -36,9 +50,59 @@ player_items = [
         {"item": hielixer, "quantity": 1}
     ]
 
-player1 = Person(PLAYER_1_NAME, 2600, 120, 300, 34, attacker_spells, player_items)
-player2 = Person(PLAYER_2_NAME, 2300, 180, 100, 50, support_spells, player_items)
-enemy1 = Person(ENEMY_NAME, 6500, 220, 525, 25, [fire, cura], [])
+player1 = Person(PLAYER_1_NAME, PLAYER_1_HEALTH, PLAYER_1_MP, PLAYER_1_ATK, PLAYER_1_DIF, attacker_spells, player_items)
+player2 = Person(PLAYER_2_NAME, PLAYER_2_HEALTH, PLAYER_2_MP, PLAYER_2_ATK, PLAYER_2_DIF, support_spells, player_items)
+enemy1 = Person(ENEMY_NAME, ENEMY_HEALTH, ENEMY_MP, ENEMY_ATK, ENEMY_DIF, [fire, cura], [])
+
+def map_llm_action_to_attacker_action(llm_response):
+    action = llm_response.strip().lower()
+    if action == "attack":
+        return 0
+    elif action == "fire spell":
+        return 1
+    elif action == "thunder spell":
+        return 2
+    elif action == "blizzard spell":
+        return 3
+    elif action == "meteor spell":
+        return 4
+    elif action == "cura spell":
+        return 5
+    elif action == "potion":
+        return 6
+    elif action == "grenade":
+        return 7
+    elif action == "elixir" or action == "elixer":
+        return 8
+    elif action == "no_action":
+        return "no_action"
+    return None
+
+def map_llm_action_to_supporter_action(llm_response):
+    action = llm_response.strip().lower()
+    if action == "attack":
+        return 0
+    elif action == "fire spell":
+        return 1
+    elif action == "cura spell":
+        return 2
+    elif action == "cura_tot":
+        return 3
+    elif action == "splash":
+        return 4
+    elif action == "cura_m":
+        return 5
+    elif action == "cura_totm":
+        return 6
+    elif action == "potion":
+        return 7
+    elif action == "grenade":
+        return 8
+    elif action == "elixir" or action == "elixer":
+        return 9
+    elif action == "no_action":
+        return "no_action"
+    return None
 
 def map_action_attack(action):
     """Mappa l'indice azione al nome per ATTACKER"""
@@ -71,3 +135,4 @@ def map_action_support(action):
         9: 'elixir'
     }
     return actions_map.get(action, 'attack')
+

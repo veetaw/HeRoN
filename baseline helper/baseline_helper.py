@@ -10,8 +10,10 @@ import pandas as pd
 import re
 import action_score as score
 import json
+from classes.games import *
 
 import os
+
 
 GROQ_API_KEY = None
 
@@ -62,125 +64,25 @@ else:
             )
             return response_obj.choices[0].message.content
 
+OUTPUT_DIRECTORY = "test2_resultsHelperB_test"
 
-def map_llm_action_to_attacker_action(llm_response):
-    action = llm_response.strip().lower()
-    if action == "attack":
-        return 0
-    elif action == "fire spell":
-        return 1
-    elif action == "thunder spell":
-        return 2
-    elif action == "blizzard spell":
-        return 3
-    elif action == "meteor spell":
-        return 4
-    elif action == "cura spell":
-        return 5
-    elif action == "potion":
-        return 6
-    elif action == "grenade":
-        return 7
-    elif action == "elixir" or action == "elixer":
-        return 8
-    elif action == "no_action":
-        return "no_action"
-    return None
-
-def map_llm_action_to_supporter_action(llm_response):
-    action = llm_response.strip().lower()
-    if action == "attack":
-        return 0
-    elif action == "fire spell":
-        return 1
-    elif action == "cura spell":
-        return 2
-    elif action == "cura_tot":
-        return 3
-    elif action == "splash":
-        return 4
-    elif action == "cura_m":
-        return 5
-    elif action == "cura_totm":
-        return 6
-    elif action == "potion":
-        return 7
-    elif action == "grenade":
-        return 8
-    elif action == "elixir" or action == "elixer":
-        return 9
-    elif action == "no_action":
-        return "no_action"
-    return None
-
-# implementa map_llm_action_to_agent_action per il supporter
-def map_action_attack(action):
-    """Mappa l'indice azione al nome per ATTACKER"""
-    actions_map = {
-        0: 'attack',
-        1: 'fire spell',
-        2: 'thunder spell',
-        3: 'blizzard spell',
-        4: 'meteor spell',
-        5: 'cura spell',
-        6: 'potion',
-        7: 'grenade',
-        8: 'elixir'
-    }
-    return actions_map.get(action, 'attack')
-
-#aggiungere la nuova map action del supporter
-
-def map_action_support(action):
-    """Mappa l'indice azione al nome per SUPPORT"""
-    actions_map = {
-        0: 'attack',
-        1: 'fire spell',
-        2: 'cura spell',     # Auto-cure (white)
-        3: 'cura_tot',       # Cura entrambi (white_tot)
-        4: 'splash',         # Cura entrambi meno (white_tot)
-        5: 'cura_m',         # Cura mate (white_m)
-        6: 'cura_totm',      # Cura mate tanto (white_m)
-        7: 'potion',
-        8: 'grenade',
-        9: 'elixir'
-    }
-    return actions_map.get(action, 'attack')
-
-def train_dqn(episodes, batch_size=32, load_model_path=None):
-    #environment settings
-    attacker_spells = [fire, thunder, blizzard, meteor, cura]
-    
-    # SUPPORT spells (offensivi base + cure variegate)
-    support_spells = [fire, cura_support, cura_tot, splash, cura_m, cura_totm]
-
-    player_items = [
-        {"item": potion, "quantity": 3}, 
-        {"item": grenade, "quantity": 2},
-        {"item": hielixer, "quantity": 1}
-    ]
-    player1 = Person("Maria", 2600, 120, 300, 34, attacker_spells, player_items)
-    player2 = Person("Juana", 2300, 180, 100, 50, support_spells, player_items)
-    enemy1 = Person("Antonio", 8000, 701, 525, 25, [fire, cura], [])
+def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
 
     players = [player1, player2]
     enemies = [enemy1]
 
     env = BattleEnv(players, enemies)
-    #NPC
-    # al posto di env.state_size va messo len(env.get state (index)), idem per actiopn size
+
     attacker_agent = DQNAgent(
-        env.get_state_size_of_player('Maria'), 
+        env.get_state_size_of_player(PLAYER_1_NAME), 
         env.get_action_size(0), 
-        load_model_path
+        attacker_path
     )
     supporter_agent = DQNSupportAgent(
-        env.get_state_size_of_player('Juana'), 
+        env.get_state_size_of_player(PLAYER_2_NAME), 
         env.get_action_size(1), 
-        load_model_path
+        support_path
     )
-
-
     rewards_per_episode = []
     agent_wins = []
     enemy_wins = []
@@ -193,10 +95,10 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
 
     for e in range(episodes):
         state_global = env.reset()
-        state_attacker = state_global['Maria']
-        state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player('Maria')])
-        state_support = state_global['Juana']
-        state_support = np.reshape(state_support, [1, env.get_state_size_of_player('Juana')])
+        state_attacker = state_global[PLAYER_1_NAME]
+        state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player(PLAYER_1_NAME)])
+        state_support = state_global[PLAYER_2_NAME]
+        state_support = np.reshape(state_support, [1, env.get_state_size_of_player(PLAYER_2_NAME)])
 
         done = False
         total_reward_support = 0
@@ -206,112 +108,22 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
         match_score_support = []
         last_enemy_move = "No action"
         score.reset_quantities()
-        state_size_attacker = env.get_state_size_of_player('Maria')
-        state_size_support = env.get_state_size_of_player('Juana')
+        state_size_attacker = env.get_state_size_of_player(PLAYER_1_NAME)
+        state_size_support = env.get_state_size_of_player(PLAYER_2_NAME)
         while not done:
             player_attacker = players[0]
             player_support = players[1]
 
             attacker_action = None
             support_action = None
-
-            """ Prompt separati per i due agenti
-            if player_attacker.get_hp() > 0:
-                game_description_attacker = env.describe_game_state_attacker(last_enemy_move)
-                input_text_attacker = "You are a game asstitant for player." \
-                                    "The battle involves with 2 players (attacker and supporter) and an enemy. Both player and enemy are characterised by:" \
-                                    "HP (health point), MP (magic point), Attack points, Defence points, Available magic points " \
-                                    "and Available items. " \
-                                    "For spells, the use of MP is necessary, while items have limited availability. " \
-                                    "Now you are the attacker, the player can have a maximum of 2600 HP and 120 MP, while the enemy 8000 HP and 701 MP. " \
-                                    f"Given the game state '{game_description_attacker}', what is the next action to take? " \
-                                    "Write only the chosen action in square brackets and " \
-                                    "explain your reasoning briefly, max 50 words. /no_think"
-                
-                llm_response_attacker = get_llm_response(input_text_attacker)
-                llm_response = re.sub(r"<think>.*?</think>", "", llm_response_attacker, flags=re.DOTALL).strip()
-                print(f"[ATK] LLM response: {llm_response_attacker}")
-
-                attacker_action = map_llm_action_to_attacker_action(llm_response)
-    
-                if attacker_action != None:
-                    match_attacker = re.search(r'\[(.*?)\]', llm_response)
-                    match_attacker = match_attacker.group(1).strip().lower()
-                    if match_attacker == "elixer":
-                        match_attacker = "elixir"
-                    attacker_scores = score.calculate_scores_attacker(
-                        player_attacker.get_hp(), 
-                        player_attacker.get_mp(), 
-                        enemies[0].get_hp()
-                    )
-                else:
-                    attacker_action = attacker_agent.act(state_attacker, env, 0)
-                    match_attacker = map_action_attack(attacker_action)
-                    attacker_scores = score.calculate_scores_attacker(
-                        player_attacker.get_hp(), 
-                        player_attacker.get_mp(), 
-                        enemies[0].get_hp()
-                    )
-                    allucination += 1
-            else:
-                attacker_action = None
-                match_attacker = "attack"
-                attacker_scores = {match_attacker: 0}
-
-            if player_support.get_hp() > 0:
-                game_description_supporter = env.describe_game_state_supporter(last_enemy_move)
-                input_text_supporter = "You are a game asstitant for player." \
-                                    "The battle involves with 2 players (attacker and supporter) and an enemy. Both player and enemy are characterised by:" \
-                                    "HP (health point), MP (magic point), Attack points, Defence points, Available magic points " \
-                                    "and Available items. " \
-                                    "For spells, the use of MP is necessary, while items have limited availability. " \
-                                    "Now you are the SUPPORTER, the player can have a maximum of 2300 HP and 180 MP, your mate can have a maximum of 2600 HP and 120 MP, while the enemy 8000 HP and 701 MP. " \
-                                    "Since you are the supporter, you can both attack the enemy and cure either you or the mate or both by choosing wisely (only when necessary, you can also attack if the mate does not need curing) " \
-                                    f"Given the mate's game state: '{game_description_attacker}', and " \
-                                    f"your game state: '{game_description_supporter}', what is the next action to take? " \
-                                    "Write only the chosen action in square brackets and " \
-                                    "explain your reasoning briefly, max 50 words. /no_think"
-
-                llm_response_support = get_llm_response(input_text_supporter)
-                llm_response = re.sub(r"<think>.*?</think>", "", llm_response_support, flags=re.DOTALL).strip()
-                print(f"[SUP] LLM response: {llm_response_support}")
-
-                support_action = map_llm_action_to_supporter_action(llm_response)
-
-                if support_action != None:
-                    match_support = re.search(r'\[(.*?)\]', llm_response)
-                    match_support = match_support.group(1).strip().lower()
-                    if match_support == "elixer":
-                        match_support = "elixir"
-                    support_scores = score.calculate_scores_support(
-                        player_support.get_hp(), 
-                        player_attacker.get_hp(),
-                        player_support.get_mp(), 
-                        enemies[0].get_hp()
-                    )
-                else:
-                    support_action = supporter_agent.act(state_support, env, 1)
-                    match_support = map_action_support(support_action)
-                    support_scores = score.calculate_scores_support(
-                        player_support.get_hp(), 
-                        player_attacker.get_hp(),
-                        player_support.get_mp(), 
-                        enemies[0].get_hp()
-                    )
-                    allucination += 1
-            else:
-                support_action = None
-                match_support = "attack"
-                support_scores = {match_support: 0}
-             Prompt separati per i due agenti - END """
             game_description_attacker = env.describe_game_state_attacker(None)
             game_description_supporter = env.describe_game_state_supporter(None)
             prompt =f"""You are a game assistant coordinating 2 players (attacker and supporter) in battle against an enemy.
 
                         GAME SETUP:
-                        Supporter: max 2300 HP, 180 MP
-                        Attacker: max 2600 HP, 120 MP
-                        Enemy: 8000 HP, 701 MP
+                        Supporter: max {PLAYER_2_HEALTH} HP, max {PLAYER_2_MP} MP
+                        Attacker: max {PLAYER_1_HEALTH} HP, max {PLAYER_1_MP} MP
+                        Enemy: max {ENEMY_HEALTH} HP, max {ENEMY_MP}  MP
 
                         CURRENT STATE:
                         Attacker: {game_description_attacker}
@@ -352,9 +164,9 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                             player_attacker.get_mp(), 
                             enemies[0].get_hp()
                         )
-                        print(f"AZIONE CHIESTA DALL'LLM PER Maria: {llm_requested_attacker}, AZIONE ESEGUITA DA Maria: {match_attacker}")
+                        print(f"AZIONE CHIESTA DALL'LLM PER {PLAYER_1_NAME}: {llm_requested_attacker}, AZIONE ESEGUITA DA {PLAYER_1_NAME}: {match_attacker}")
                     else:
-                        print("MARIA è MORTA, QUINDI NESSUNA AZIONE")
+                        print(f"{PLAYER_1_NAME} è MORTA, QUINDI NESSUNA AZIONE")
                 else:
                     attacker_action = attacker_agent.act(state_attacker, env, 0)
                     match_attacker = map_action_attack(attacker_action)
@@ -364,7 +176,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                         enemies[0].get_hp()
                     )
                     allucination += 1
-                    print(f"AZIONE CHIESTA DALL'LLM PER Maria: {llm_requested_attacker} (NON VALIDA), AZIONE ESEGUITA DA Maria: {match_attacker} (da DQN)")
+                    print(f"AZIONE CHIESTA DALL'LLM PER {PLAYER_1_NAME}: {llm_requested_attacker} (NON VALIDA), AZIONE ESEGUITA DA {PLAYER_1_NAME}: {match_attacker} (da DQN)")
 
                 # Extract and map supporter action
                 llm_requested_support = response_dict.get("supporter", "").strip()
@@ -380,9 +192,9 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                             player_support.get_mp(), 
                             enemies[0].get_hp()
                         )
-                        print(f"AZIONE CHIESTA DALL'LLM PER Juana: {llm_requested_support}, AZIONE ESEGUITA DA Juana: {match_support}")
+                        print(f"AZIONE CHIESTA DALL'LLM PER {PLAYER_2_NAME}: {llm_requested_support}, AZIONE ESEGUITA DA {PLAYER_2_NAME}: {match_support}")
                     else:
-                        print("JUANA è MORTA, QUINDI NESSUNA AZIONE")
+                        print(f"{PLAYER_2_NAME} è MORTA, QUINDI NESSUNA AZIONE")
                 else:
                     support_action = supporter_agent.act(state_support, env, 1)
                     match_support = map_action_support(support_action)
@@ -393,7 +205,7 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                         enemies[0].get_hp()
                     )
                     allucination += 1
-                    print(f"AZIONE CHIESTA DALL'LLM PER Juana: {llm_requested_support} (NON VALIDA), AZIONE ESEGUITA DA Juana: {match_support} (da DQN)")
+                    print(f"AZIONE CHIESTA DALL'LLM PER {PLAYER_2_NAME}: {llm_requested_support} (NON VALIDA), AZIONE ESEGUITA DA {PLAYER_2_NAME}: {match_support} (da DQN)")
             except Exception as e:
                 print("Errore, ", e)
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
@@ -401,49 +213,49 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
 
             # Salva gli HP prima dell'azione
             hp_before_enemy = enemies[0].get_hp()
-            hp_before_maria = player_attacker.get_hp()
-            hp_before_juana = player_support.get_hp()
+            hp_before_p1 = player_attacker.get_hp()
+            hp_before_p2 = player_support.get_hp()
 
             next_state, reward_attacker, reward_support, done, a_win, last_enemy_move, __ = env.step(attacker_action, support_action)
             
             # Calcola i danni/cure effettuati
             hp_after_enemy = enemies[0].get_hp()
-            hp_after_maria = player_attacker.get_hp()
-            hp_after_juana = player_support.get_hp()
+            hp_after_p1 = player_attacker.get_hp()
+            hp_after_p2 = player_support.get_hp()
             
-            damage_to_enemy_maria = hp_before_enemy - hp_after_enemy if hp_before_enemy > hp_after_enemy else 0
-            damage_to_enemy_juana = 0  # Verrà calcolato sotto se Juana attacca
+            damage_to_enemy_p1 = hp_before_enemy - hp_after_enemy if hp_before_enemy > hp_after_enemy else 0
+            damage_to_enemy_p2 = 0  # Verrà calcolato sotto se {PLAYER_2_NAME} attacca
             
             print(f"\n[Move {moves:02d}] Ep {e+1}/{episodes}")
             
-            # Log azione Maria
+            # Log azione {PLAYER_1_NAME}
             if player_attacker.get_hp() > 0 and attacker_action != "no_action":
                 if "attack" in match_attacker or "spell" in match_attacker or "grenade" in match_attacker:
-                    print(f"  Maria usa {match_attacker} su Enemy per {damage_to_enemy_maria} dmg, nuovi HP di Enemy: {hp_after_enemy}")
+                    print(f"  {PLAYER_1_NAME} usa {match_attacker} su Enemy per {damage_to_enemy_p1} dmg, nuovi HP di Enemy: {hp_after_enemy}")
                 elif "cura" in match_attacker or "potion" in match_attacker:
-                    heal_maria = hp_after_maria - hp_before_maria
-                    print(f"  Maria usa {match_attacker} su se stessa per {heal_maria} HP, nuovi HP di Maria: {hp_after_maria}")
+                    heal_p1 = hp_after_p1 - hp_before_p1
+                    print(f"  {PLAYER_1_NAME} usa {match_attacker} su se stessa per {heal_p1} HP, nuovi HP di {PLAYER_1_NAME}: {hp_after_p1}")
                 elif "elixir" in match_attacker:
-                    print(f"  Maria usa {match_attacker}, HP/MP completamente ripristinati")
+                    print(f"  {PLAYER_1_NAME} usa {match_attacker}, HP/MP completamente ripristinati")
             
-            # Log azione Juana
+            # Log azione {PLAYER_2_NAME}
             if player_support.get_hp() > 0 and support_action != "no_action":
                 if "attack" in match_support or match_support == "fire spell" or "grenade" in match_support:
-                    # Se Juana ha attaccato, calcola il danno (HP enemy è già cambiato da Maria)
-                    # Dobbiamo stimare il danno di Juana
-                    print(f"  Juana usa {match_support} su Enemy, nuovi HP di Enemy: {hp_after_enemy}")
+                    # Se {PLAYER_2_NAME} ha attaccato, calcola il danno (HP enemy è già cambiato da {PLAYER_1_NAME})
+                    # Dobbiamo stimare il danno di {PLAYER_2_NAME}
+                    print(f"  {PLAYER_2_NAME} usa {match_support} su Enemy, nuovi HP di Enemy: {hp_after_enemy}")
                 elif "cura" in match_support or "splash" in match_support or "potion" in match_support:
-                    heal_juana = hp_after_juana - hp_before_juana
-                    heal_maria_from_juana = hp_after_maria - hp_before_maria if hp_after_maria > hp_before_maria else 0
+                    heal_p2 = hp_after_p2 - hp_before_p2
+                    heal_p1_from_p2 = hp_after_p1 - hp_before_p1 if hp_after_p1 > hp_before_p1 else 0
                     
                     if "tot" in match_support or "splash" in match_support:
-                        print(f"  Juana usa {match_support} su entrambi: Maria +{heal_maria_from_juana} HP, Juana +{heal_juana} HP")
+                        print(f"  {PLAYER_2_NAME} usa {match_support} su entrambi: {PLAYER_1_NAME} +{heal_p1_from_p2} HP, {PLAYER_2_NAME} +{heal_p2} HP")
                     elif "_m" in match_support:
-                        print(f"  Juana usa {match_support} su Maria per {heal_maria_from_juana} HP, nuovi HP di Maria: {hp_after_maria}")
+                        print(f"  {PLAYER_2_NAME} usa {match_support} su {PLAYER_1_NAME} per {heal_p1_from_p2} HP, nuovi HP di {PLAYER_1_NAME}: {hp_after_p1}")
                     else:
-                        print(f"  Juana usa {match_support} su se stessa per {heal_juana} HP, nuovi HP di Juana: {hp_after_juana}")
+                        print(f"  {PLAYER_2_NAME} usa {match_support} su se stessa per {heal_p2} HP, nuovi HP di {PLAYER_2_NAME}: {hp_after_p2}")
                 elif "elixir" in match_support:
-                    print(f"  Juana usa {match_support}, HP/MP di tutti completamente ripristinati")
+                    print(f"  {PLAYER_2_NAME} usa {match_support}, HP/MP di tutti completamente ripristinati")
             
             status_atk = "ATK" if player_attacker.get_hp() > 0 else "DEAD"
             status_sup = "SUP" if player_support.get_hp() > 0 else "DEAD"
@@ -460,8 +272,8 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
             total_reward_attacker += reward_attacker
             total_reward_support += reward_support
 
-            next_state_attacker = np.reshape(next_state['Maria'], [1, state_size_attacker])
-            next_state_support = np.reshape(next_state['Juana'], [1, state_size_support])
+            next_state_attacker = np.reshape(next_state[PLAYER_1_NAME], [1, state_size_attacker])
+            next_state_support = np.reshape(next_state[PLAYER_2_NAME], [1, state_size_support])
 
             attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
             supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
@@ -482,9 +294,9 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
                 
                 survivors = []
                 if player_attacker.get_hp() > 0:
-                    survivors.append(f"Maria (HP: {player_attacker.get_hp()})")
+                    survivors.append(f"{PLAYER_1_NAME} (HP: {player_attacker.get_hp()})")
                 if player_support.get_hp() > 0:
-                    survivors.append(f"Juana (HP: {player_support.get_hp()})")
+                    survivors.append(f"{PLAYER_2_NAME} (HP: {player_support.get_hp()})")
                 
                 survivor_text = ", ".join(survivors) if survivors else "Nessuno"
                 
@@ -556,64 +368,104 @@ def train_dqn(episodes, batch_size=32, load_model_path=None):
 
 
 
-def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores):
-    plt.figure(figsize=(8, 6))
+def plot_training(
+    rewards,
+    agent_wins,
+    enemy_wins,
+    moves,
+    success_rate,
+    action_scores,
+    output_dir=OUTPUT_DIRECTORY
+):
+    """
+    Plots training statistics and saves raw data to JSON.
+
+    Args:
+        rewards (list[dict])
+        agent_wins (list[int])
+        enemy_wins (list[int])
+        moves (list[int])
+        success_rate (list[float])
+        action_scores (list[dict])
+        output_dir (str): directory where plots and json will be saved
+    """
+    os.makedirs(output_dir, exist_ok=True)
     reward_attacker = [r['attacker'] for r in rewards]
     reward_support = [r['support'] for r in rewards]
     reward_combined = [r['combined'] for r in rewards]
-    
+    plt.figure(figsize=(8, 6))
     plt.plot(reward_attacker, label='Attacker Reward', color='red', alpha=0.7)
     plt.plot(reward_support, label='Support Reward', color='blue', alpha=0.7)
     plt.plot(reward_combined, label='Combined Reward', color='green', linewidth=2)
-    
+
     plt.title('Rewards per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Total Rewards')
     plt.legend()
-    plt.savefig("Train_reward_DQN.png")
-
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Train_reward_DQN.png"))
+    plt.close()
+    cumulative_agent_wins = np.cumsum(agent_wins).tolist()
+    cumulative_enemy_wins = np.cumsum(enemy_wins).tolist()
     plt.figure(figsize=(8, 6))
-    cumulative_agent_wins = np.cumsum(agent_wins)
-    cumulative_enemy_wins = np.cumsum(enemy_wins)
-
     plt.plot(cumulative_agent_wins, label="Agent Wins (Cumulative)", color='green')
     plt.plot(cumulative_enemy_wins, label="Enemy Wins (Cumulative)", color='red')
-
     plt.legend()
     plt.title('Cumulative Wins of Agent vs Enemy per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Cumulative Wins')
-    plt.savefig("Train_cumulative_Win_DQN.png")
-
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Train_cumulative_Win_DQN.png"))
+    plt.close()
     plt.figure(figsize=(8, 6))
     plt.plot(moves)
     plt.title('Number of Moves per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Moves')
-    plt.savefig("Train_moves_DQN.png")
-
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Train_moves_DQN.png"))
+    plt.close()
     plt.figure(figsize=(8, 6))
     plt.plot(success_rate, label="Success Rate", color='blue')
     plt.title('Success Rate per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Success Rate')
     plt.legend()
-    plt.savefig("Train_success_rate_DQN.png")
-
-    plt.figure(figsize=(8, 6))
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Train_success_rate_DQN.png"))
+    plt.close()
     attacker_scores = [s['attacker'] for s in action_scores]
     support_scores = [s['support'] for s in action_scores]
     combined_scores = [s['combined'] for s in action_scores]
-    
+
+    plt.figure(figsize=(8, 6))
     plt.plot(attacker_scores, label='Attacker Score', color='red', alpha=0.7)
     plt.plot(support_scores, label='Support Score', color='blue', alpha=0.7)
     plt.plot(combined_scores, label='Combined Score', color='green', linewidth=2)
-    
+
     plt.title('Action Scores per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Average Score')
     plt.legend()
-    plt.savefig("Score_DQN_separated.png")
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, "Score_DQN_separated.png"))
+    plt.close()
+    raw_data = {
+        "rewards": rewards,
+        "agent_wins": agent_wins,
+        "enemy_wins": enemy_wins,
+        "moves": moves,
+        "success_rate": success_rate,
+        "action_scores": action_scores,
+        "cumulative_agent_wins": cumulative_agent_wins,
+        "cumulative_enemy_wins": cumulative_enemy_wins
+    }
+
+    json_path = os.path.join(output_dir, "training_data.json")
+    with open(json_path, "w") as f:
+        json.dump(raw_data, f, indent=4)
+
+    print(f"Plots and raw data saved in: {output_dir}")
 
 
 
@@ -635,25 +487,7 @@ def append_csv(path, data, column_name):
 
 
 if __name__ == "__main__":
-    # Spell offensivi (già esistenti)
-    fire = Spell("Fire", 25, 600, "black")
-    thunder = Spell("Thunder", 30, 700, "black")
-    blizzard = Spell("Blizzard", 35, 800, "black")
-    meteor = Spell("Meteor", 40, 1000, "black")
 
-    # Spell curativi per ATTACKER
-    cura = Spell("Cura", 32, 1500, "white")
-
-    # Spell curativi per SUPPORT
-    cura_support = Spell("Cura", 32, 1200, "white")  # Auto-cure
-    cura_tot = Spell("Cura Tot", 30, 700, "white_tot")  # Cura entrambi
-    splash = Spell("Splash", 18, 450, "white_tot")  # Cura entrambi (meno potente)
-    cura_m = Spell("Cura M", 28, 1300, "white_m")  # Cura il mate
-    cura_totm = Spell("Cura TotM", 36, 1700, "white_m")  # Cura di più il mate
-
-    potion = Item("Potion", "potion", "Heals 50 HP", 50)
-    hielixer = Item("MegaElixer", "elixir", "Fully restores party's HP/MP", 9999)
-    grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
     # Train the agent
     rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=1)
