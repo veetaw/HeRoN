@@ -93,7 +93,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
     total_agent_wins = 0
     total_enemy_wins = 0
 
-    for e in range(episodes):
+    for ep in range(episodes):
         state_global = env.reset()
         state_attacker = state_global[PLAYER_1_NAME]
         state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player(PLAYER_1_NAME)])
@@ -237,7 +237,7 @@ Respond ONLY with the JSON object, no additional text."""
                 survivor_text = ", ".join(survivors) if survivors else "Nessuno"
                 
                 print(f"\n{'='*70}")
-                print(f"  {result}  |  Episode {e+1}/{episodes}")
+                print(f"  {result}  |  Episode {ep+1}/{episodes}")
                 print(f"{'='*70}")
                 print(f"  Attacker Reward: {total_reward_attacker:>6.0f}  |  Moves: {moves}")
                 print(f"  Support Reward:  {total_reward_support:>6.0f}  |  Epsilon: ATK={attacker_agent.epsilon:.3f}, SUP={supporter_agent.epsilon:.3f}")
@@ -248,8 +248,8 @@ Respond ONLY with the JSON object, no additional text."""
                 else:
                     total_enemy_wins += 1
                 
-                win_rate = total_agent_wins / (e + 1)
-                print(f"  Win Rate: {total_agent_wins}/{e+1} ({100*win_rate:.1f}%)")
+                win_rate = total_agent_wins / (ep + 1)
+                print(f"  Win Rate: {total_agent_wins}/{ep+1} ({100*win_rate:.1f}%)")
                 print(f"{'='*70}\n")
                 
                 break
@@ -264,7 +264,7 @@ Respond ONLY with the JSON object, no additional text."""
         agent_moves_per_episode.append(moves)
         agent_wins.append(1 if a_win else 0)
         enemy_wins.append(0 if a_win else 1)
-        success_rate.append(total_agent_wins / (e + 1))
+        success_rate.append(total_agent_wins / (ep + 1))
 
         action_scores.append({
             'attacker': np.mean(match_score_attacker),
