@@ -15,54 +15,18 @@ from classes.games import *
 import os
 
 
-GROQ_API_KEY = None
+SERVER_API_HOST = "http://127.0.0.1:1234/v1"
+from openai import OpenAI
+client = OpenAI(base_url=SERVER_API_HOST, api_key="lm-studio")
 
-try:
-    from google.colab import userdata
-    GROQ_API_KEY = userdata.get("GQ_KEY")
-except ImportError:
-    GROQ_API_KEY = os.getenv("GQ_KEY")
-
-
-if GROQ_API_KEY:
-    from groq import Groq
-    def get_llm_response(input_text):
-        client = Groq(api_key=GROQ_API_KEY)
-        
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": input_text}],
-            temperature=0.7,
-            max_tokens=100
-        )
-        return response.choices[0].message.content
-else: 
-    SERVER_API_HOST = "http://127.0.0.1:1234/v1"
-
-    try:
-        import lmstudio as lms
-        lms.get_default_client(SERVER_API_HOST)
-
-        def get_llm_response(input_text):
-            with lms.Client() as client:
-                model = client.llm.model("") # Helper model
-                llm_response = model.respond(input_text)
-
-            llm_response = str(llm_response)
-            return llm_response
-
-    except ImportError:
-        from openai import OpenAI
-        client = OpenAI(base_url=SERVER_API_HOST, api_key="lm-studio")
-
-        def get_llm_response(input_text):
-            response_obj = client.chat.completions.create(
-                model="qwen/qwen3-vl-4b",
-                messages=[{"role": "user", "content": input_text}],
-                temperature=0.7,
-                max_tokens=100
-            )
-            return response_obj.choices[0].message.content
+def get_llm_response(input_text):
+    response_obj = client.chat.completions.create(
+        model="qwen/qwen3-vl-4b",
+        messages=[{"role": "user", "content": input_text}],
+        temperature=0.7,
+        max_tokens=100
+    )
+    return response_obj.choices[0].message.content
 
 OUTPUT_DIRECTORY = "test2_resultsHelperB_test"
 
@@ -170,7 +134,6 @@ Respond ONLY with the JSON object, no additional text."""
                     )
                     allucination += 1
 
-                # Extract and map supporter action
                 llm_requested_support = response_dict.get("supporter", "").strip()
                 support_action = map_llm_action_to_supporter_action(llm_requested_support)
                 if support_action is not None:
@@ -194,84 +157,85 @@ Respond ONLY with the JSON object, no additional text."""
                         enemies[0].get_hp()
                     )
                     allucination += 1
+                match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
+                match_score_support.append(round(support_scores.get(match_support, 0), 2))
+
+                next_state, reward_attacker, reward_support, done, a_win, last_enemy_move, __ = env.step(attacker_action, support_action)
+                                                    
+                    
+                score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
+                score.update_quantity(match_support, player_support.get_mp(), 1)
+
+                total_reward_attacker += reward_attacker
+                total_reward_support += reward_support
+
+                next_state_attacker = np.reshape(next_state[PLAYER_1_NAME], [1, state_size_attacker])
+                next_state_support = np.reshape(next_state[PLAYER_2_NAME], [1, state_size_support])
+
+                attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
+                supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
+
+                state_attacker = next_state_attacker
+                state_support = next_state_support
+
+                moves += 1
+
+                if len(attacker_agent.memory) > batch_size:
+                    attacker_agent.replay(batch_size, env, 0)
+                
+                if len(supporter_agent.memory) > batch_size:
+                    supporter_agent.replay(batch_size, env, 1)
+
+                if done:
+                    result = "VICTORY" if a_win else "DEFEAT"
+                    
+                    survivors = []
+                    if player_attacker.get_hp() > 0:
+                        survivors.append(f"{PLAYER_1_NAME} (HP: {player_attacker.get_hp()})")
+                    if player_support.get_hp() > 0:
+                        survivors.append(f"{PLAYER_2_NAME} (HP: {player_support.get_hp()})")
+                    
+                    survivor_text = ", ".join(survivors) if survivors else "Nessuno"
+                    
+                    print(f"\n{'='*70}")
+                    print(f"  {result}  |  Episode {ep+1}/{episodes}")
+                    print(f"{'='*70}")
+                    print(f"  Attacker Reward: {total_reward_attacker:>6.0f}  |  Moves: {moves}")
+                    print(f"  Support Reward:  {total_reward_support:>6.0f}  |  Epsilon: ATK={attacker_agent.epsilon:.3f}, SUP={supporter_agent.epsilon:.3f}")
+                    print(f"  Sopravvissuti: {survivor_text}")
+                    
+                    if a_win:
+                        total_agent_wins += 1
+                    else:
+                        total_enemy_wins += 1
+                    
+                    win_rate = total_agent_wins / (ep + 1)
+                    print(f"  Win Rate: {total_agent_wins}/{ep+1} ({100*win_rate:.1f}%)")
+                    print(f"{'='*70}\n")
+                    
+                    break
+                print(f"Vittorie agente: {total_agent_wins}, vittorie nemico: {total_enemy_wins}")
+
+                # Salva reward e mosse per l'episodio
+                rewards_per_episode.append({
+                    'attacker': total_reward_attacker,
+                    'support': total_reward_support,
+                    'combined': total_reward_attacker + total_reward_support
+                })
+                agent_moves_per_episode.append(moves)
+                agent_wins.append(1 if a_win else 0)
+                enemy_wins.append(0 if a_win else 1)
+                success_rate.append(total_agent_wins / (ep + 1))
+
+                action_scores.append({
+                    'attacker': np.mean(match_score_attacker),
+                    'support': np.mean(match_score_support),
+                    'combined': (np.mean(match_score_attacker) + np.mean(match_score_support)) / 2
+                })
+
             except Exception as e:
                 print("risposta: \"", llm_response, "\"")
                 print("Errore, ", e)
-            match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
-            match_score_support.append(round(support_scores.get(match_support, 0), 2))
-
-            next_state, reward_attacker, reward_support, done, a_win, last_enemy_move, __ = env.step(attacker_action, support_action)
-                                                
-             
-            score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
-            score.update_quantity(match_support, player_support.get_mp(), 1)
-
-            total_reward_attacker += reward_attacker
-            total_reward_support += reward_support
-
-            next_state_attacker = np.reshape(next_state[PLAYER_1_NAME], [1, state_size_attacker])
-            next_state_support = np.reshape(next_state[PLAYER_2_NAME], [1, state_size_support])
-
-            attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
-            supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
-
-            state_attacker = next_state_attacker
-            state_support = next_state_support
-
-            moves += 1
-
-            if len(attacker_agent.memory) > batch_size:
-                attacker_agent.replay(batch_size, env, 0)
-            
-            if len(supporter_agent.memory) > batch_size:
-                supporter_agent.replay(batch_size, env, 1)
-
-            if done:
-                result = "VICTORY" if a_win else "DEFEAT"
-                
-                survivors = []
-                if player_attacker.get_hp() > 0:
-                    survivors.append(f"{PLAYER_1_NAME} (HP: {player_attacker.get_hp()})")
-                if player_support.get_hp() > 0:
-                    survivors.append(f"{PLAYER_2_NAME} (HP: {player_support.get_hp()})")
-                
-                survivor_text = ", ".join(survivors) if survivors else "Nessuno"
-                
-                print(f"\n{'='*70}")
-                print(f"  {result}  |  Episode {ep+1}/{episodes}")
-                print(f"{'='*70}")
-                print(f"  Attacker Reward: {total_reward_attacker:>6.0f}  |  Moves: {moves}")
-                print(f"  Support Reward:  {total_reward_support:>6.0f}  |  Epsilon: ATK={attacker_agent.epsilon:.3f}, SUP={supporter_agent.epsilon:.3f}")
-                print(f"  Sopravvissuti: {survivor_text}")
-                
-                if a_win:
-                    total_agent_wins += 1
-                else:
-                    total_enemy_wins += 1
-                
-                win_rate = total_agent_wins / (ep + 1)
-                print(f"  Win Rate: {total_agent_wins}/{ep+1} ({100*win_rate:.1f}%)")
-                print(f"{'='*70}\n")
-                
-                break
-        print(f"Vittorie agente: {total_agent_wins}, vittorie nemico: {total_enemy_wins}")
-
-        # Salva reward e mosse per l'episodio
-        rewards_per_episode.append({
-            'attacker': total_reward_attacker,
-            'support': total_reward_support,
-            'combined': total_reward_attacker + total_reward_support
-        })
-        agent_moves_per_episode.append(moves)
-        agent_wins.append(1 if a_win else 0)
-        enemy_wins.append(0 if a_win else 1)
-        success_rate.append(total_agent_wins / (ep + 1))
-
-        action_scores.append({
-            'attacker': np.mean(match_score_attacker),
-            'support': np.mean(match_score_support),
-            'combined': (np.mean(match_score_attacker) + np.mean(match_score_support)) / 2
-        })
     avg_reward_attacker = np.mean([r['attacker'] for r in rewards_per_episode])
     avg_reward_support = np.mean([r['support'] for r in rewards_per_episode])
     avg_reward_combined = np.mean([r['combined'] for r in rewards_per_episode])
