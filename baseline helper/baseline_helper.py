@@ -83,33 +83,33 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
             game_description_attacker = env.describe_game_state_attacker(None)
             game_description_supporter = env.describe_game_state_supporter(None)
             prompt = f"""You are a game assistant coordinating 2 players (attacker and supporter) in battle against an enemy.
-
-GAME SETUP:
-- Supporter: max {PLAYER_2_HEALTH} HP, max {PLAYER_2_MP} MP
-- Attacker: max {PLAYER_1_HEALTH} HP, max {PLAYER_1_MP} MP
-- Enemy: max {ENEMY_HEALTH} HP, max {ENEMY_MP} MP
-
-CURRENT STATE:
-- Attacker: {game_description_attacker}
-- Supporter: {game_description_supporter}
-- Enemy last move: {last_enemy_move}
-
-ROLES:
-- Attacker: Focuses on dealing damage to enemy
-- Supporter: Can attack OR heal (self/mate/both) based on necessity
-
-REQUIRED OUTPUT (valid JSON only):
-{{
-    "attacker": "ACTION",
-    "supporter": "ACTION",
-}}
-
-Respond ONLY with the JSON object, no additional text."""
             
-#ignore reason:     
-#   "reason_action_attacker": "Max 40 words explaining why this action",
-#   "reason_action_supporter": "Max 40 words explaining why this action"
-#since it is not needed for the prompt
+            GAME SETUP:
+            - Supporter: max {PLAYER_2_HEALTH} HP, max {PLAYER_2_MP} MP
+            - Attacker: max {PLAYER_1_HEALTH} HP, max {PLAYER_1_MP} MP
+            - Enemy: max {ENEMY_HEALTH} HP, max {ENEMY_MP} MP
+
+            CURRENT STATE:
+            - Attacker: {game_description_attacker}
+            - Supporter: {game_description_supporter}
+            - Enemy last move: {last_enemy_move}
+
+            ROLES:
+            - Attacker: Focuses on dealing damage to enemy
+            - Supporter: Can attack OR heal (self/mate/both) based on necessity
+
+            REQUIRED OUTPUT (valid JSON only):
+            {{
+                "attacker": "ACTION",
+                "supporter": "ACTION",
+            }}
+
+            Respond ONLY with the JSON object, no additional text."""
+                        
+            #ignore reason:     
+            #   "reason_action_attacker": "Max 40 words explaining why this action",
+            #   "reason_action_supporter": "Max 40 words explaining why this action"
+            #since it is not needed for the prompt
             llm_response = get_llm_response(prompt)
             try:
                 try:
@@ -131,7 +131,7 @@ Respond ONLY with the JSON object, no additional text."""
     
                 attacker_action = map_llm_action_to_attacker_action(llm_requested_attacker)
                 if attacker_action is not None:
-                    if attacker_action != "no_action":
+                    if attacker_action != -1:
                         if attacker_action == "elixer":
                             attacker_action = "elixir"
                         match_attacker = map_action_attack(attacker_action)
@@ -152,7 +152,7 @@ Respond ONLY with the JSON object, no additional text."""
 
                 support_action = map_llm_action_to_supporter_action(llm_requested_support)
                 if support_action is not None:
-                    if support_action != "no_action":
+                    if support_action != -1:
                         if support_action == "elixer":
                             support_action = "elixir"
                         match_support = map_action_support(support_action)

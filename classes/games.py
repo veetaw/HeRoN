@@ -75,7 +75,7 @@ def map_llm_action_to_attacker_action(llm_response):
     elif action == "elixir" or action == "elixer":
         return 8
     elif action == "no_action":
-        return "no_action"
+        return -1
     return None
 
 def map_llm_action_to_supporter_action(llm_response):
@@ -101,7 +101,7 @@ def map_llm_action_to_supporter_action(llm_response):
     elif action == "elixir" or action == "elixer":
         return 9
     elif action == "no_action":
-        return "no_action"
+        return -1
     return None
 
 def map_action_attack(action):
