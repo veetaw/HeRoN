@@ -195,6 +195,7 @@ Respond ONLY with the JSON object, no additional text."""
                     )
                     allucination += 1
             except Exception as e:
+                print("risposta: \"", llm_response, "\"")
                 print("Errore, ", e)
             match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
             match_score_support.append(round(support_scores.get(match_support, 0), 2))
