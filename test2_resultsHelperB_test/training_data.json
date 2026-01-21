@@ -1,0 +1,35 @@
+{
+    "rewards": [
+        {
+            "attacker": -100,
+            "support": -135,
+            "combined": -235
+        }
+    ],
+    "agent_wins": [
+        0
+    ],
+    "enemy_wins": [
+        1
+    ],
+    "moves": [
+        10
+    ],
+    "success_rate": [
+        0.0
+    ],
+    "action_scores": [
+        {
+            "attacker": 0.0,
+            "support": 0.0,
+            "combined": 0.0
+        }
+    ],
+    "cumulative_agent_wins": [
+        0
+    ],
+    "cumulative_enemy_wins": [
+        1
+    ],
+    "hallucinations": 0
+}

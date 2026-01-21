@@ -107,6 +107,7 @@ def map_llm_action_to_supporter_action(llm_response):
 def map_action_attack(action):
     """Mappa l'indice azione al nome per ATTACKER"""
     actions_map = {
+        -1: 'no_action',
         0: 'attack',
         1: 'fire spell',
         2: 'thunder spell',
@@ -123,6 +124,7 @@ def map_action_attack(action):
 def map_action_support(action):
     """Mappa l'indice azione al nome per SUPPORT"""
     actions_map = {
+        -1: 'no_action',
         0: 'attack',
         1: 'fire spell',
         2: 'cura spell',     # Auto-cure (white)

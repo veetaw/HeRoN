@@ -111,6 +111,14 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
             #   "reason_action_supporter": "Max 40 words explaining why this action"
             #since it is not needed for the prompt
             llm_response = get_llm_response(prompt)
+
+            attacker_action = None
+            support_action = None
+            match_attacker = None
+            match_support = None
+            attacker_scores = {}
+            support_scores = {}
+            
             try:
                 try:
                     response_json = re.search(r'\{.*\}', llm_response, re.DOTALL).group(0)
@@ -127,9 +135,9 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
                     else:
                         llm_requested_attacker = "no_action"
                         llm_requested_support = "no_action"
-                        raise ValueError("Could not extract actions from LLM response")
     
                 attacker_action = map_llm_action_to_attacker_action(llm_requested_attacker)
+
                 if attacker_action is not None:
                     if attacker_action != -1:
                         if attacker_action == "elixer":
@@ -172,37 +180,42 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
                         enemies[0].get_hp()
                     )
                     allucination += 1
+
+                match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
+                match_score_support.append(round(support_scores.get(match_support, 0), 2))
+
+                next_state, reward_attacker, reward_support, done, a_win, last_enemy_move, __ = env.step(attacker_action, support_action)
+
+                if match_attacker is not None and match_attacker != "no_action":
+                    score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
+                if match_support is not None and match_support != "no_action":
+                    score.update_quantity(match_support, player_support.get_mp(), 1)
+
+                total_reward_attacker += reward_attacker
+                total_reward_support += reward_support
+
+                next_state_attacker = np.reshape(next_state[PLAYER_1_NAME], [1, state_size_attacker])
+                next_state_support = np.reshape(next_state[PLAYER_2_NAME], [1, state_size_support])
+
+                if attacker_action is not None and attacker_action != -1:
+                    attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
+                if support_action is not None and support_action != -1:
+                    supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
+
+                state_attacker = next_state_attacker
+                state_support = next_state_support
+
+                moves += 1
+
+                if len(attacker_agent.memory) > batch_size:
+                    attacker_agent.replay(batch_size, env, 0)
+                
+                if len(supporter_agent.memory) > batch_size:
+                    supporter_agent.replay(batch_size, env, 1)
+
             except Exception as e:
                 print("risposta: \"", llm_response, "\"")
                 print("Errore, ", e)
-            match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
-            match_score_support.append(round(support_scores.get(match_support, 0), 2))
-
-            next_state, reward_attacker, reward_support, done, a_win, last_enemy_move, __ = env.step(attacker_action, support_action)
-                                                
-             
-            score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
-            score.update_quantity(match_support, player_support.get_mp(), 1)
-
-            total_reward_attacker += reward_attacker
-            total_reward_support += reward_support
-
-            next_state_attacker = np.reshape(next_state[PLAYER_1_NAME], [1, state_size_attacker])
-            next_state_support = np.reshape(next_state[PLAYER_2_NAME], [1, state_size_support])
-
-            attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
-            supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
-
-            state_attacker = next_state_attacker
-            state_support = next_state_support
-
-            moves += 1
-
-            if len(attacker_agent.memory) > batch_size:
-                attacker_agent.replay(batch_size, env, 0)
-            
-            if len(supporter_agent.memory) > batch_size:
-                supporter_agent.replay(batch_size, env, 1)
 
             if done:
                 result = "VICTORY" if a_win else "DEFEAT"
