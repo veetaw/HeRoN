@@ -102,17 +102,33 @@ REQUIRED OUTPUT (valid JSON only):
 {{
     "attacker": "ACTION",
     "supporter": "ACTION",
-    "reason_action_attacker": "Max 40 words explaining why this action",
-    "reason_action_supporter": "Max 40 words explaining why this action"
 }}
 
 Respond ONLY with the JSON object, no additional text."""
+            
+#ignore reason:     
+#   "reason_action_attacker": "Max 40 words explaining why this action",
+#   "reason_action_supporter": "Max 40 words explaining why this action"
+#since it is not needed for the prompt
             llm_response = get_llm_response(prompt)
             try:
-                response_json = re.search(r'\{.*\}', llm_response, re.DOTALL).group(0)
-                response_dict = json.loads(response_json)
-
-                llm_requested_attacker = response_dict.get("attacker", "").strip()
+                try:
+                    response_json = re.search(r'\{.*\}', llm_response, re.DOTALL).group(0)
+                    response_dict = json.loads(response_json)
+                    llm_requested_attacker = response_dict.get("attacker", "").strip()
+                    llm_requested_support = response_dict.get("supporter", "").strip()
+                except:
+                    attacker_match = re.search(r'"attacker"\s*:\s*"([^"]*)"', llm_response)
+                    supporter_match = re.search(r'"supporter"\s*:\s*"([^"]*)"', llm_response)
+                    
+                    if attacker_match and supporter_match:
+                        llm_requested_attacker = attacker_match.group(1).strip()
+                        llm_requested_support = supporter_match.group(1).strip()
+                    else:
+                        llm_requested_attacker = "no_action"
+                        llm_requested_support = "no_action"
+                        raise ValueError("Could not extract actions from LLM response")
+    
                 attacker_action = map_llm_action_to_attacker_action(llm_requested_attacker)
                 if attacker_action is not None:
                     if attacker_action != "no_action":
@@ -134,7 +150,6 @@ Respond ONLY with the JSON object, no additional text."""
                     )
                     allucination += 1
 
-                llm_requested_support = response_dict.get("supporter", "").strip()
                 support_action = map_llm_action_to_supporter_action(llm_requested_support)
                 if support_action is not None:
                     if support_action != "no_action":
