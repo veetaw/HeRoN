@@ -58,15 +58,15 @@ def map_llm_action_to_attacker_action(llm_response):
     action = llm_response.strip().lower()
     if action == "attack":
         return 0
-    elif action == "fire spell":
+    elif action == "fire spell" or action == "fire_spell":
         return 1
-    elif action == "thunder spell":
+    elif action == "thunder spell" or action == "thunder_spell":
         return 2
-    elif action == "blizzard spell":
+    elif action == "blizzard spell" or action == "blizzard_spell":
         return 3
-    elif action == "meteor spell":
+    elif action == "meteor spell" or action == "meteor_spell":
         return 4
-    elif action == "cura spell":
+    elif action == "cura spell" or action == "cura_spell":
         return 5
     elif action == "potion":
         return 6
@@ -84,15 +84,15 @@ def map_llm_action_to_supporter_action(llm_response):
         return 0
     elif action == "fire spell":
         return 1
-    elif action == "cura spell":
+    elif action == "cura spell" or action == "cura_spell":
         return 2
-    elif action == "cura_tot":
+    elif action == "cura_tot" or action == "cura tot":
         return 3
     elif action == "splash":
         return 4
-    elif action == "cura_m":
+    elif action == "cura_m" or action == "cura m":
         return 5
-    elif action == "cura_totm":
+    elif action == "cura_totm" or action == "cura totm":
         return 6
     elif action == "potion":
         return 7

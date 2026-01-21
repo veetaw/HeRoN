@@ -225,18 +225,6 @@ def plot_training(
     action_scores,
     output_dir=OUTPUT_DIRECTORY
 ):
-    """
-    Plots training statistics and saves raw data to JSON.
-
-    Args:
-        rewards (list[dict])
-        agent_wins (list[int])
-        enemy_wins (list[int])
-        moves (list[int])
-        success_rate (list[float])
-        action_scores (list[dict])
-        output_dir (str): directory where plots and json will be saved
-    """
     os.makedirs(output_dir, exist_ok=True)
     reward_attacker = [r['attacker'] for r in rewards]
     reward_support = [r['support'] for r in rewards]
