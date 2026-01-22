@@ -17,10 +17,10 @@ from transformers import AutoTokenizer, T5ForConditionalGeneration
 import torch
 import os
 
-from classes.support_agent import DQNSupportAgent
 from classes.games import *
 
-# Reviewer model
+from classes.support_agent import DQNSupportAgent
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # REVIEWER POST PPO
@@ -96,6 +96,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
     agent_moves_per_episode = []
     success_rate = []
     action_scores = []
+    mean_suggestion = []
     allucination = 0
     total_agent_wins = 0
     total_enemy_wins = 0
@@ -119,7 +120,6 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
 
         score.reset_quantities()
 
-        suggestion = 0
 
         state_size_attacker = env.get_state_size_of_player(PLAYER_1_NAME)
         state_size_support = env.get_state_size_of_player(PLAYER_2_NAME)
@@ -128,8 +128,6 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
             player_attacker = players[0]
             player_support = players[1]
 
-            p = np.random.choice([True,False])
-
             # Inizializza le variabili PRIMA del blocco if
             attacker_action = None
             support_action = None
@@ -137,9 +135,8 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
             match_support = None
             attacker_scores = {}
             support_scores = {}
-            
             # quando deve esplorare e quando no
-            if p  and  ep < 180:
+            if moves < 5 and ep < 180:
                 # Description of environment and Helper action #
                 suggestion += 1
                 game_description_attacker = env.describe_game_state_attacker(last_enemy_move)
@@ -370,7 +367,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
         agent_wins.append(1 if a_win else 0)
         enemy_wins.append(0 if a_win else 1)
         success_rate.append(total_agent_wins / (ep + 1))
-
+        mean_suggestion.append(suggestion)
         action_scores.append({
             'attacker': np.mean(match_score_attacker),
             'support': np.mean(match_score_support),
@@ -392,6 +389,10 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
     print(f"Average score (Attacker): {avg_score_attacker:.4f}")
     print(f"Average score (Support): {avg_score_support:.4f}")
     print(f"Average score (Combined): {avg_score_combined:.4f}")
+    print("Number of suggestions per game: ", np.mean(mean_suggestion))
+    print("Hallucinations: ", allucination)
+
+
 
     
     attacker_agent.save(OUTPUT_DIRECTORY + "/MODELLO_HELPER_B_ATTACKER")

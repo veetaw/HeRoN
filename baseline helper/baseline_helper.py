@@ -102,10 +102,12 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
             {{
                 "attacker": "ACTION",
                 "supporter": "ACTION",
+               "reason_action_attacker": "Max 40 words explaining why this action",
+               "reason_action_supporter": "Max 40 words explaining why this action"
             }}
 
             Respond ONLY with the JSON object, no additional text."""
-                        
+
             #ignore reason:     
             #   "reason_action_attacker": "Max 40 words explaining why this action",
             #   "reason_action_supporter": "Max 40 words explaining why this action"

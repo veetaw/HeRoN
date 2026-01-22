@@ -16,10 +16,10 @@ from classes.instructor_agent import InstructorAgent
 from transformers import AutoTokenizer, T5ForConditionalGeneration
 import torch
 import os
+from classes.games import *
 
 from classes.support_agent import DQNSupportAgent
 
-# TODO:
 # Reviewer model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -77,12 +77,12 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
     # NPC
 
     attacker_agent = DQNAgent(
-        env.get_state_size_of_player(PLAYER_1_Name),
+        env.get_state_size_of_player(PLAYER_1_NAME),
         env.get_action_size(0),
         attacker_path
     )
     supporter_agent = DQNSupportAgent(
-        env.get_state_size_of_player(PLAYER_2_Name),
+        env.get_state_size_of_player(PLAYER_2_NAME),
         env.get_action_size(1),
         support_path
     )
@@ -101,12 +101,12 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
     total_agent_wins = 0
     total_enemy_wins = 0
 
-    for episode in range(episodes):
+    for ep in range(episodes):
         state_global = env.reset()
-        state_attacker = state_global[PLAYER_1_Name]
-        state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player(PLAYER_1_Name)])
-        state_support = state_global[PLAYER_2_Name]
-        state_support = np.reshape(state_support, [1, env.get_state_size_of_player(PLAYER_2_Name)])
+        state_attacker = state_global[PLAYER_1_NAME]
+        state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player(PLAYER_1_NAME)])
+        state_support = state_global[PLAYER_2_NAME]
+        state_support = np.reshape(state_support, [1, env.get_state_size_of_player(PLAYER_2_NAME)])
 
         done = False
         total_reward_support = 0
@@ -124,8 +124,8 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
         decay = 0.1  # 0.2
         suggestion = 0
 
-        state_size_attacker = env.get_state_size_of_player(PLAYER_1_Name)
-        state_size_support = env.get_state_size_of_player(PLAYER_2_Name)
+        state_size_attacker = env.get_state_size_of_player(PLAYER_1_NAME)
+        state_size_support = env.get_state_size_of_player(PLAYER_2_NAME)
 
         while not done:
             player_attacker = players[0]
@@ -142,7 +142,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
             support_scores = {}
             print("PORCODIOOOOO CAMBIA DOPO")
             # quando deve esplorare e quando no
-            if p > threshold or episode < 1:
+            if p > threshold or ep < 1:
                 # Description of environment and Helper action #
                 suggestion += 1
                 game_description_attacker = env.describe_game_state_attacker(last_enemy_move)
@@ -215,6 +215,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
                             )
                             #print(f"npc 1 esegue {match_attacker}")
                         else:
+                            pass
                             #print("MARIA è MORTA, QUINDI NESSUNA AZIONE")
                     else:
                         attacker_action = attacker_agent.act(state_attacker, env, 0)
@@ -244,6 +245,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
                             )
                            # print(f"npc 2 esegue: {match_support}")
                         else:
+                            pass
                             #print("JUANA è MORTA, QUINDI NESSUNA AZIONE")
                     else:
                         support_action = supporter_agent.act(state_support, env, 1)
@@ -316,7 +318,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
 
             if match_attacker is not None and match_attacker != "no_action":
                 attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done)
-             if match_support is not None and match_support != "no_action":
+            if match_support is not None and match_support != "no_action":
                 supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done)
 
             state_attacker = next_state_attacker
