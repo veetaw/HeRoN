@@ -134,6 +134,27 @@ class BattleEnv:
         
         return valid_actions
 
+    def get_compact_state(self):
+        attacker = self.players[ATTACKER_INDEX]
+        supporter = self.players[SUPPORT_INDEX]
+        enemy = self.enemies[0] if len(self.enemies) > 0 else None
+        
+        state_str = f"Attacker HP: {attacker.get_hp()}, MP: {attacker.get_mp()}. "
+        state_str += f"Supporter HP: {supporter.get_hp()}, MP: {supporter.get_mp()}. "
+        
+        if enemy:
+            state_str += f"Enemy HP: {enemy.get_hp()}, MP: {enemy.get_mp()}. "
+        else:
+            state_str += "Enemy HP: 0, MP: 0. "
+        
+        attacker_items = {item["item"].name: item["quantity"] for item in attacker.items if item['quantity'] > 0}
+        state_str += f"Attacker items: {attacker_items}. "
+        
+        supporter_items = {item["item"].name: item["quantity"] for item in supporter.items if item['quantity'] > 0}
+        state_str += f"Supporter items: {supporter_items}. "
+        
+        return state_str
+
     def reset(self):
         """Reset del gioco ripristinando HP/MP e gli spell/items originali"""
         self.done = False

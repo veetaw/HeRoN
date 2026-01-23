@@ -176,9 +176,10 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
 
                 # risposta del reviewer
                 game_description = (
-            env.get_compact_state() +
-            f"Last enemy move: {last_enemy_move}."
-        )
+                    env.get_compact_state() +
+                    f"Last enemy move: {last_enemy_move}."
+                )
+                print("GAME DESCRIPTION PER REVIEWER: ", game_description)
                 response = instructor_agent.generate_suggestion(game_description, str(parse_llm_json(llm_response)))
                 revise = f"""Given the attacker's game state: '{game_description_attacker}'
                             and the supporter's game state: '{game_description_supporter}'.
