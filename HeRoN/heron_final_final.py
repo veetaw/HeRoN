@@ -506,8 +506,8 @@ def export_success_rate(success_rate):
 
 if __name__ == "__main__":
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=2)
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores, hallucinations = train_dqn(episodes=2)
 
     # Plot dei risultati
-    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores)
+    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores, hallucinations)
     export_success_rate(success_rate)
