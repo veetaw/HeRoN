@@ -25,7 +25,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # REVIEWER POST PPO
 MODEL_PATH = "C:\\Users\\daisl\\PycharmProjects\\HeRoN\\result_ppo"   # o il path assoluto
-OUTPUT_DIRECTORY = "Heron_Final_test"
+OUTPUT_DIRECTORY = "Heron_random_test"
 tokenizer_instruction = AutoTokenizer.from_pretrained(MODEL_PATH)
 model_instruction = T5ForConditionalGeneration.from_pretrained(
     MODEL_PATH
@@ -139,7 +139,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
             support_scores = {}
             
             # quando deve esplorare e quando no
-            if p  and  ep < 180:
+            if p and ep < 180:
                 # Description of environment and Helper action #
                 suggestion += 1
                 game_description_attacker = env.describe_game_state_attacker(last_enemy_move)
@@ -501,9 +501,14 @@ def export_success_rate(success_rate):
 
 
 if __name__ == "__main__":
+    if not os.path.exists(OUTPUT_DIRECTORY):
+        os.makedirs(OUTPUT_DIRECTORY)
+    print(OUTPUT_DIRECTORY)
+
+
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=2)
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores, hallucinations = train_dqn(episodes=2)
 
     # Plot dei risultati
-    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores)
+    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores, hallucinations)
     export_success_rate(success_rate)

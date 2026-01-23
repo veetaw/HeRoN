@@ -506,6 +506,11 @@ def export_success_rate(success_rate):
 
 
 if __name__ == "__main__":
+    if not os.path.exists(OUTPUT_DIRECTORY):
+        os.makedirs(OUTPUT_DIRECTORY)
+    print(OUTPUT_DIRECTORY)
+
+
     # Train the agent
     rewards, agent_wins, enemy_wins, moves, success_rate, action_scores, hallucinations = train_dqn(episodes=2)
 

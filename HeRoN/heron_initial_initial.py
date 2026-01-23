@@ -100,6 +100,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
     allucination = 0
     total_agent_wins = 0
     total_enemy_wins = 0
+    suggestion = 0
 
     for ep in range(episodes):
         state_global = env.reset()
@@ -502,9 +503,14 @@ def export_success_rate(success_rate):
 
 
 if __name__ == "__main__":
+    if not os.path.exists(OUTPUT_DIRECTORY):
+        os.makedirs(OUTPUT_DIRECTORY)
+    print(OUTPUT_DIRECTORY)
+
+
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=2)
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores, hallucinations = train_dqn(episodes=2)
 
     # Plot dei risultati
-    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores)
+    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores, hallucinations)
     export_success_rate(success_rate)
