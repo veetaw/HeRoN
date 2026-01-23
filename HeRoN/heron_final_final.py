@@ -52,20 +52,18 @@ def get_llm_response(input_text):
 
 
 def parse_llm_json(llm_text):
+    patterns = {
+            "attacker": r'"attacker"\s*:\s*"([^"]+)"',
+            "supporter": r'"supporter"\s*:\s*"([^"]+)"',
+        }
 
-    # Trova il primo '{' e l'ultimo '}' nel testo
-    start = llm_text.find('{')
-    end = llm_text.rfind('}')
+    result = {}
 
-    if start == -1 or end == -1 or start > end:
-        return None  # Nessun JSON trovato
+    for key, pattern in patterns.items():
+        match = re.search(pattern, llm_text, re.DOTALL)
+        result[key] = match.group(1).strip() if match else None
 
-    json_str = llm_text[start:end + 1]
-
-    try:
-        return json.loads(json_str)
-    except json.JSONDecodeError:
-        return None
+    return result
 
 def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
     # environment settings
