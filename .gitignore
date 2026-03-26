@@ -18,3 +18,5 @@ Train_*.png
 *.csv
 *.png
 .DS_Store
+
+old_results/
