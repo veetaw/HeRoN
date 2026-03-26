@@ -39,6 +39,7 @@ def map_llm_action_to_agent_action(llm_response):
             return 8
     return None
 
+
 def map_action(action):
     if action == 0:
         return "attack"
@@ -61,9 +62,8 @@ def map_action(action):
     return None
 
 
-
 def train_dqn(episodes, batch_size=32):
-    #environment settings
+    # environment settings
     player_spells = [fire, thunder, blizzard, meteor, cura]
     player_items = [{"item": potion, "quantity": 3}, {"item": grenade, "quantity": 2},
                     {"item": hielixer, "quantity": 1}]
@@ -74,9 +74,8 @@ def train_dqn(episodes, batch_size=32):
     enemies = [enemy1]
 
     env = BattleEnv(players, enemies)
-    #NPC
+    # NPC
     agent = DQNAgent(env.state_size, env.action_size, None)
-
 
     rewards_per_episode = []
     agent_wins = []
@@ -115,7 +114,6 @@ def train_dqn(episodes, batch_size=32):
                              "Write only the chosen action in square brackets and " \
                              "explain your reasoning briefly, max 50 words. /no_think"
 
-
                 response_obj = client.chat.completions.create(
                     model="lmstudio-community/llama-3.3-70b-instruct",
                     messages=[{"role": "user", "content": input_text}],
@@ -123,10 +121,11 @@ def train_dqn(episodes, batch_size=32):
                     max_tokens=100
                 )
                 llm_response = response_obj.choices[0].message.content
-                llm_response = re.sub(r"<think>.*?</think>", "", llm_response, flags=re.DOTALL).strip()
+                llm_response = re.sub(
+                    r"<think>.*?</think>", "", llm_response, flags=re.DOTALL).strip()
                 print(f"LLM response: {llm_response}")
 
-                #Mapping LLM action to RL agent with action score calculation#
+                # Mapping LLM action to RL agent with action score calculation#
                 action = map_llm_action_to_agent_action(llm_response)
 
                 if action != None:
@@ -134,22 +133,26 @@ def train_dqn(episodes, batch_size=32):
                     match = match.group(1).strip().lower()
                     if match == "elixer":
                         match = "elixir"
-                    total_score = score.calculate_scores(players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
+                    total_score = score.calculate_scores(
+                        players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
                     match_score.append(round(total_score.get(match), 2))
                 else:
                     action = agent.act(state, env)
                     match = map_action(action)
-                    total_score = score.calculate_scores(players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
+                    total_score = score.calculate_scores(
+                        players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
                     match_score.append(round(total_score.get(match), 2))
                     allucination += 1
             else:
                 action = agent.act(state, env)
                 match = map_action(action)
-                total_score = score.calculate_scores(players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
+                total_score = score.calculate_scores(
+                    players[0].get_hp(), players[0].get_mp(), enemies[0].get_hp())
                 match_score.append(round(total_score.get(match), 2))
 
             # Execution of RL action #
-            next_state, reward, done, a_win, e_win, last_enemy_move = env.step(action)
+            next_state, reward, done, a_win, e_win, last_enemy_move = env.step(
+                action)
             score.updage_quantity(match, players[0].get_mp())
             total_reward += reward
             next_state = np.reshape(next_state, [1, env.state_size])
@@ -160,7 +163,8 @@ def train_dqn(episodes, batch_size=32):
                 agent.replay(batch_size, env)
 
             if done:
-                print(f"Episode: {e}/{episodes}, Score: {total_reward}, Moves: {moves}, Epsilon: {agent.epsilon}")
+                print(
+                    f"Episode: {e}/{episodes}, Score: {total_reward}, Moves: {moves}, Epsilon: {agent.epsilon}")
                 if a_win:
                     agent_wins.append(1)
                     enemy_wins.append(0)
@@ -170,13 +174,14 @@ def train_dqn(episodes, batch_size=32):
                     enemy_wins.append(1)
 
                 success_rate.append(total_agent_wins / (e + 1))
-                print("Vittorie agente: ", agent_wins.count(1), " Vittorie nemico: ", enemy_wins.count(1))
+                print("Vittorie agente: ", agent_wins.count(1),
+                      " Vittorie nemico: ", enemy_wins.count(1))
         rewards_per_episode.append(total_reward)
         agent_moves_per_episode.append(moves)
         action_scores.append(np.mean(match_score))
         mean_suggestion.append(suggestion)
 
-    agent.save("") # save the agent model
+    agent.save("")  # save the agent model
     print("Average rewards: ", np.mean(rewards_per_episode))
     print("Average moves: ", np.mean(agent_moves_per_episode))
     print("Average move score: ", np.mean(action_scores))
@@ -193,20 +198,22 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.xlabel('Episodes')
     plt.ylabel('Total Rewards')
     plt.savefig("Reward_llama_1000.png")
-    #plt.show()
+    # plt.show()
 
     plt.figure(figsize=(8, 6))
     cumulative_agent_wins = np.cumsum(agent_wins)
     cumulative_enemy_wins = np.cumsum(enemy_wins)
 
-    plt.plot(cumulative_agent_wins, label="Agent Wins (Cumulative)", color='green')
-    plt.plot(cumulative_enemy_wins, label="Enemy Wins (Cumulative)", color='red')
+    plt.plot(cumulative_agent_wins,
+             label="Agent Wins (Cumulative)", color='green')
+    plt.plot(cumulative_enemy_wins,
+             label="Enemy Wins (Cumulative)", color='red')
     plt.legend()
     plt.title('Cumulative Wins of Agent vs Enemy per Episode')
     plt.xlabel('Episodes')
     plt.ylabel('Cumulative Wins')
     plt.savefig("Cumulative_Win_llama_1000.png")
-    #plt.show()
+    # plt.show()
 
     plt.figure(figsize=(8, 6))
     plt.plot(moves)
@@ -214,7 +221,7 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.xlabel('Episodes')
     plt.ylabel('Moves')
     plt.savefig("Moves_llama_1000.png")
-    #plt.show()
+    # plt.show()
 
     plt.figure(figsize=(8, 6))
     plt.plot(success_rate, label="Success Rate", color='blue')
@@ -223,7 +230,7 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.ylabel('Success Rate')
     plt.legend()
     plt.savefig("Success_rate_llama_1000.png")
-    #plt.show()
+    # plt.show()
 
     plt.figure(figsize=(8, 6))
     plt.plot(match_score)
@@ -231,7 +238,7 @@ def plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, match_sc
     plt.xlabel('Episodes')
     plt.ylabel('Total Score')
     plt.savefig("Score_llama_1000.png")
-    #plt.show()
+    # plt.show()
 
 
 def export_success_rate(success_rate):
@@ -251,11 +258,14 @@ if __name__ == "__main__":
     cura = Spell("Cura", 32, 1500, "white")
 
     potion = Item("Potion", "potion", "Heals 50 HP", 50)
-    hielixer = Item("MegaElixer", "elixer", "Fully restores party's HP/MP", 9999)
+    hielixer = Item("MegaElixer", "elixer",
+                    "Fully restores party's HP/MP", 9999)
     grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
 
     # Train the agent
-    rewards, agent_wins, enemy_wins, moves, success_rate, action_score = train_dqn(episodes=1000)
-    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_score)
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_score = train_dqn(
+        episodes=1000)
+    plot_training(rewards, agent_wins, enemy_wins,
+                  moves, success_rate, action_score)
 
     export_success_rate(success_rate)
