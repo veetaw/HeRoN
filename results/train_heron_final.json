@@ -1,0 +1,4819 @@
+{
+    "rewards": [
+        {
+            "attacker": 302,
+            "support": 88,
+            "combined": 390
+        },
+        {
+            "attacker": -63,
+            "support": -197,
+            "combined": -260
+        },
+        {
+            "attacker": 425,
+            "support": 237,
+            "combined": 662
+        },
+        {
+            "attacker": 30,
+            "support": -55,
+            "combined": -25
+        },
+        {
+            "attacker": 365,
+            "support": 184,
+            "combined": 549
+        },
+        {
+            "attacker": 335,
+            "support": 73,
+            "combined": 408
+        },
+        {
+            "attacker": 337,
+            "support": 247,
+            "combined": 584
+        },
+        {
+            "attacker": 52,
+            "support": -27,
+            "combined": 25
+        },
+        {
+            "attacker": 205,
+            "support": 249,
+            "combined": 454
+        },
+        {
+            "attacker": -15,
+            "support": -137,
+            "combined": -152
+        },
+        {
+            "attacker": 380,
+            "support": 247,
+            "combined": 627
+        },
+        {
+            "attacker": 305,
+            "support": 192,
+            "combined": 497
+        },
+        {
+            "attacker": 315,
+            "support": 241,
+            "combined": 556
+        },
+        {
+            "attacker": 182,
+            "support": -101,
+            "combined": 81
+        },
+        {
+            "attacker": 322,
+            "support": 218,
+            "combined": 540
+        },
+        {
+            "attacker": 25,
+            "support": -105,
+            "combined": -80
+        },
+        {
+            "attacker": 355,
+            "support": 270,
+            "combined": 625
+        },
+        {
+            "attacker": 295,
+            "support": 198,
+            "combined": 493
+        },
+        {
+            "attacker": 332,
+            "support": 326,
+            "combined": 658
+        },
+        {
+            "attacker": 362,
+            "support": 380,
+            "combined": 742
+        },
+        {
+            "attacker": 275,
+            "support": 172,
+            "combined": 447
+        },
+        {
+            "attacker": 67,
+            "support": -27,
+            "combined": 40
+        },
+        {
+            "attacker": 292,
+            "support": 199,
+            "combined": 491
+        },
+        {
+            "attacker": -40,
+            "support": -140,
+            "combined": -180
+        },
+        {
+            "attacker": 332,
+            "support": 227,
+            "combined": 559
+        },
+        {
+            "attacker": 320,
+            "support": 186,
+            "combined": 506
+        },
+        {
+            "attacker": 29,
+            "support": -195,
+            "combined": -166
+        },
+        {
+            "attacker": 362,
+            "support": 219,
+            "combined": 581
+        },
+        {
+            "attacker": 322,
+            "support": 269,
+            "combined": 591
+        },
+        {
+            "attacker": 350,
+            "support": 223,
+            "combined": 573
+        },
+        {
+            "attacker": 40,
+            "support": -130,
+            "combined": -90
+        },
+        {
+            "attacker": 434,
+            "support": 230,
+            "combined": 664
+        },
+        {
+            "attacker": 282,
+            "support": 73,
+            "combined": 355
+        },
+        {
+            "attacker": -35,
+            "support": -93,
+            "combined": -128
+        },
+        {
+            "attacker": 365,
+            "support": 280,
+            "combined": 645
+        },
+        {
+            "attacker": 362,
+            "support": 171,
+            "combined": 533
+        },
+        {
+            "attacker": 174,
+            "support": 90,
+            "combined": 264
+        },
+        {
+            "attacker": 372,
+            "support": 272,
+            "combined": 644
+        },
+        {
+            "attacker": -23,
+            "support": -213,
+            "combined": -236
+        },
+        {
+            "attacker": 245,
+            "support": 197,
+            "combined": 442
+        },
+        {
+            "attacker": 310,
+            "support": 276,
+            "combined": 586
+        },
+        {
+            "attacker": 377,
+            "support": 244,
+            "combined": 621
+        },
+        {
+            "attacker": 200,
+            "support": 7,
+            "combined": 207
+        },
+        {
+            "attacker": 365,
+            "support": 237,
+            "combined": 602
+        },
+        {
+            "attacker": -25,
+            "support": -158,
+            "combined": -183
+        },
+        {
+            "attacker": 270,
+            "support": 265,
+            "combined": 535
+        },
+        {
+            "attacker": 310,
+            "support": 195,
+            "combined": 505
+        },
+        {
+            "attacker": 427,
+            "support": 269,
+            "combined": 696
+        },
+        {
+            "attacker": 300,
+            "support": 245,
+            "combined": 545
+        },
+        {
+            "attacker": 280,
+            "support": 186,
+            "combined": 466
+        },
+        {
+            "attacker": 335,
+            "support": 134,
+            "combined": 469
+        },
+        {
+            "attacker": 291,
+            "support": 263,
+            "combined": 554
+        },
+        {
+            "attacker": 70,
+            "support": -66,
+            "combined": 4
+        },
+        {
+            "attacker": 50,
+            "support": -97,
+            "combined": -47
+        },
+        {
+            "attacker": 305,
+            "support": 225,
+            "combined": 530
+        },
+        {
+            "attacker": -30,
+            "support": -184,
+            "combined": -214
+        },
+        {
+            "attacker": 320,
+            "support": 264,
+            "combined": 584
+        },
+        {
+            "attacker": 305,
+            "support": 300,
+            "combined": 605
+        },
+        {
+            "attacker": 330,
+            "support": 204,
+            "combined": 534
+        },
+        {
+            "attacker": 340,
+            "support": 173,
+            "combined": 513
+        },
+        {
+            "attacker": 285,
+            "support": 270,
+            "combined": 555
+        },
+        {
+            "attacker": 22,
+            "support": -58,
+            "combined": -36
+        },
+        {
+            "attacker": 12,
+            "support": -137,
+            "combined": -125
+        },
+        {
+            "attacker": 352,
+            "support": 194,
+            "combined": 546
+        },
+        {
+            "attacker": 30,
+            "support": -60,
+            "combined": -30
+        },
+        {
+            "attacker": 352,
+            "support": 209,
+            "combined": 561
+        },
+        {
+            "attacker": 310,
+            "support": 256,
+            "combined": 566
+        },
+        {
+            "attacker": 332,
+            "support": 215,
+            "combined": 547
+        },
+        {
+            "attacker": 275,
+            "support": 227,
+            "combined": 502
+        },
+        {
+            "attacker": 425,
+            "support": 183,
+            "combined": 608
+        },
+        {
+            "attacker": 317,
+            "support": 188,
+            "combined": 505
+        },
+        {
+            "attacker": 492,
+            "support": 250,
+            "combined": 742
+        },
+        {
+            "attacker": 7,
+            "support": -122,
+            "combined": -115
+        },
+        {
+            "attacker": 427,
+            "support": 449,
+            "combined": 876
+        },
+        {
+            "attacker": 115,
+            "support": 73,
+            "combined": 188
+        },
+        {
+            "attacker": 295,
+            "support": 162,
+            "combined": 457
+        },
+        {
+            "attacker": 349,
+            "support": 308,
+            "combined": 657
+        },
+        {
+            "attacker": 42,
+            "support": -133,
+            "combined": -91
+        },
+        {
+            "attacker": 80,
+            "support": 24,
+            "combined": 104
+        },
+        {
+            "attacker": 190,
+            "support": -134,
+            "combined": 56
+        },
+        {
+            "attacker": 30,
+            "support": -23,
+            "combined": 7
+        },
+        {
+            "attacker": 100,
+            "support": 160,
+            "combined": 260
+        },
+        {
+            "attacker": 295,
+            "support": 271,
+            "combined": 566
+        },
+        {
+            "attacker": 145,
+            "support": 19,
+            "combined": 164
+        },
+        {
+            "attacker": 285,
+            "support": 197,
+            "combined": 482
+        },
+        {
+            "attacker": 175,
+            "support": 286,
+            "combined": 461
+        },
+        {
+            "attacker": 5,
+            "support": -205,
+            "combined": -200
+        },
+        {
+            "attacker": 5,
+            "support": -113,
+            "combined": -108
+        },
+        {
+            "attacker": 60,
+            "support": -61,
+            "combined": -1
+        },
+        {
+            "attacker": 337,
+            "support": 309,
+            "combined": 646
+        },
+        {
+            "attacker": 44,
+            "support": -189,
+            "combined": -145
+        },
+        {
+            "attacker": 317,
+            "support": 239,
+            "combined": 556
+        },
+        {
+            "attacker": 307,
+            "support": 240,
+            "combined": 547
+        },
+        {
+            "attacker": 345,
+            "support": 311,
+            "combined": 656
+        },
+        {
+            "attacker": 342,
+            "support": 330,
+            "combined": 672
+        },
+        {
+            "attacker": 292,
+            "support": 261,
+            "combined": 553
+        },
+        {
+            "attacker": 245,
+            "support": 73,
+            "combined": 318
+        },
+        {
+            "attacker": 474,
+            "support": 233,
+            "combined": 707
+        },
+        {
+            "attacker": 310,
+            "support": 268,
+            "combined": 578
+        },
+        {
+            "attacker": 370,
+            "support": 189,
+            "combined": 559
+        },
+        {
+            "attacker": 470,
+            "support": 117,
+            "combined": 587
+        },
+        {
+            "attacker": 442,
+            "support": 189,
+            "combined": 631
+        },
+        {
+            "attacker": 355,
+            "support": 297,
+            "combined": 652
+        },
+        {
+            "attacker": 17,
+            "support": -57,
+            "combined": -40
+        },
+        {
+            "attacker": 350,
+            "support": 202,
+            "combined": 552
+        },
+        {
+            "attacker": 255,
+            "support": 33,
+            "combined": 288
+        },
+        {
+            "attacker": 195,
+            "support": 273,
+            "combined": 468
+        },
+        {
+            "attacker": 20,
+            "support": -54,
+            "combined": -34
+        },
+        {
+            "attacker": 302,
+            "support": 249,
+            "combined": 551
+        },
+        {
+            "attacker": 257,
+            "support": 366,
+            "combined": 623
+        },
+        {
+            "attacker": 35,
+            "support": -70,
+            "combined": -35
+        },
+        {
+            "attacker": 285,
+            "support": 158,
+            "combined": 443
+        },
+        {
+            "attacker": 322,
+            "support": 256,
+            "combined": 578
+        },
+        {
+            "attacker": 295,
+            "support": 243,
+            "combined": 538
+        },
+        {
+            "attacker": -25,
+            "support": -41,
+            "combined": -66
+        },
+        {
+            "attacker": 315,
+            "support": 275,
+            "combined": 590
+        },
+        {
+            "attacker": 300,
+            "support": 213,
+            "combined": 513
+        },
+        {
+            "attacker": -5,
+            "support": -59,
+            "combined": -64
+        },
+        {
+            "attacker": 317,
+            "support": 193,
+            "combined": 510
+        },
+        {
+            "attacker": 320,
+            "support": 260,
+            "combined": 580
+        },
+        {
+            "attacker": 332,
+            "support": 285,
+            "combined": 617
+        },
+        {
+            "attacker": 292,
+            "support": 216,
+            "combined": 508
+        },
+        {
+            "attacker": 45,
+            "support": -106,
+            "combined": -61
+        },
+        {
+            "attacker": 385,
+            "support": 418,
+            "combined": 803
+        },
+        {
+            "attacker": 295,
+            "support": 224,
+            "combined": 519
+        },
+        {
+            "attacker": 482,
+            "support": 170,
+            "combined": 652
+        },
+        {
+            "attacker": 320,
+            "support": 280,
+            "combined": 600
+        },
+        {
+            "attacker": 302,
+            "support": 269,
+            "combined": 571
+        },
+        {
+            "attacker": 325,
+            "support": 334,
+            "combined": 659
+        },
+        {
+            "attacker": 230,
+            "support": 302,
+            "combined": 532
+        },
+        {
+            "attacker": 430,
+            "support": 229,
+            "combined": 659
+        },
+        {
+            "attacker": -130,
+            "support": -210,
+            "combined": -340
+        },
+        {
+            "attacker": 25,
+            "support": -160,
+            "combined": -135
+        },
+        {
+            "attacker": 60,
+            "support": -71,
+            "combined": -11
+        },
+        {
+            "attacker": 325,
+            "support": 345,
+            "combined": 670
+        },
+        {
+            "attacker": -30,
+            "support": -135,
+            "combined": -165
+        },
+        {
+            "attacker": 235,
+            "support": 300,
+            "combined": 535
+        },
+        {
+            "attacker": 325,
+            "support": 258,
+            "combined": 583
+        },
+        {
+            "attacker": 27,
+            "support": -67,
+            "combined": -40
+        },
+        {
+            "attacker": 267,
+            "support": 313,
+            "combined": 580
+        },
+        {
+            "attacker": 290,
+            "support": 210,
+            "combined": 500
+        },
+        {
+            "attacker": 270,
+            "support": 276,
+            "combined": 546
+        },
+        {
+            "attacker": 40,
+            "support": -78,
+            "combined": -38
+        },
+        {
+            "attacker": 300,
+            "support": 268,
+            "combined": 568
+        },
+        {
+            "attacker": -65,
+            "support": -187,
+            "combined": -252
+        },
+        {
+            "attacker": 305,
+            "support": 204,
+            "combined": 509
+        },
+        {
+            "attacker": 372,
+            "support": 472,
+            "combined": 844
+        },
+        {
+            "attacker": 55,
+            "support": -53,
+            "combined": 2
+        },
+        {
+            "attacker": 10,
+            "support": -178,
+            "combined": -168
+        },
+        {
+            "attacker": 265,
+            "support": 262,
+            "combined": 527
+        },
+        {
+            "attacker": 290,
+            "support": 468,
+            "combined": 758
+        },
+        {
+            "attacker": 457,
+            "support": 227,
+            "combined": 684
+        },
+        {
+            "attacker": 100,
+            "support": 91,
+            "combined": 191
+        },
+        {
+            "attacker": 275,
+            "support": 221,
+            "combined": 496
+        },
+        {
+            "attacker": 220,
+            "support": 383,
+            "combined": 603
+        },
+        {
+            "attacker": 327,
+            "support": 245,
+            "combined": 572
+        },
+        {
+            "attacker": 315,
+            "support": 241,
+            "combined": 556
+        },
+        {
+            "attacker": 30,
+            "support": -155,
+            "combined": -125
+        },
+        {
+            "attacker": 250,
+            "support": 337,
+            "combined": 587
+        },
+        {
+            "attacker": 290,
+            "support": 208,
+            "combined": 498
+        },
+        {
+            "attacker": 367,
+            "support": 306,
+            "combined": 673
+        },
+        {
+            "attacker": 360,
+            "support": 257,
+            "combined": 617
+        },
+        {
+            "attacker": 297,
+            "support": 292,
+            "combined": 589
+        },
+        {
+            "attacker": 337,
+            "support": 150,
+            "combined": 487
+        },
+        {
+            "attacker": 370,
+            "support": 258,
+            "combined": 628
+        },
+        {
+            "attacker": -65,
+            "support": -145,
+            "combined": -210
+        },
+        {
+            "attacker": 315,
+            "support": 288,
+            "combined": 603
+        },
+        {
+            "attacker": -175,
+            "support": -197,
+            "combined": -372
+        },
+        {
+            "attacker": 395,
+            "support": 160,
+            "combined": 555
+        },
+        {
+            "attacker": -5,
+            "support": -170,
+            "combined": -175
+        },
+        {
+            "attacker": 350,
+            "support": 168,
+            "combined": 518
+        },
+        {
+            "attacker": 322,
+            "support": 206,
+            "combined": 528
+        },
+        {
+            "attacker": 224,
+            "support": 258,
+            "combined": 482
+        },
+        {
+            "attacker": 310,
+            "support": 270,
+            "combined": 580
+        },
+        {
+            "attacker": 200,
+            "support": 219,
+            "combined": 419
+        },
+        {
+            "attacker": 302,
+            "support": 170,
+            "combined": 472
+        },
+        {
+            "attacker": -25,
+            "support": -127,
+            "combined": -152
+        },
+        {
+            "attacker": -138,
+            "support": -55,
+            "combined": -193
+        },
+        {
+            "attacker": -10,
+            "support": -6,
+            "combined": -16
+        },
+        {
+            "attacker": 145,
+            "support": 120,
+            "combined": 265
+        },
+        {
+            "attacker": -16,
+            "support": -174,
+            "combined": -190
+        },
+        {
+            "attacker": -95,
+            "support": -122,
+            "combined": -217
+        },
+        {
+            "attacker": -55,
+            "support": -80,
+            "combined": -135
+        },
+        {
+            "attacker": -130,
+            "support": -160,
+            "combined": -290
+        },
+        {
+            "attacker": 32,
+            "support": -4,
+            "combined": 28
+        },
+        {
+            "attacker": -85,
+            "support": -155,
+            "combined": -240
+        },
+        {
+            "attacker": -105,
+            "support": -101,
+            "combined": -206
+        },
+        {
+            "attacker": 62,
+            "support": -43,
+            "combined": 19
+        },
+        {
+            "attacker": -58,
+            "support": -125,
+            "combined": -183
+        },
+        {
+            "attacker": -55,
+            "support": -112,
+            "combined": -167
+        },
+        {
+            "attacker": 25,
+            "support": -115,
+            "combined": -90
+        },
+        {
+            "attacker": -110,
+            "support": -170,
+            "combined": -280
+        },
+        {
+            "attacker": -275,
+            "support": -190,
+            "combined": -465
+        },
+        {
+            "attacker": 15,
+            "support": -53,
+            "combined": -38
+        },
+        {
+            "attacker": -65,
+            "support": -158,
+            "combined": -223
+        },
+        {
+            "attacker": 0,
+            "support": -65,
+            "combined": -65
+        },
+        {
+            "attacker": -210,
+            "support": -125,
+            "combined": -335
+        },
+        {
+            "attacker": -55,
+            "support": -100,
+            "combined": -155
+        },
+        {
+            "attacker": 5,
+            "support": -140,
+            "combined": -135
+        },
+        {
+            "attacker": 37,
+            "support": -149,
+            "combined": -112
+        },
+        {
+            "attacker": -125,
+            "support": -210,
+            "combined": -335
+        },
+        {
+            "attacker": -65,
+            "support": -75,
+            "combined": -140
+        },
+        {
+            "attacker": -85,
+            "support": -133,
+            "combined": -218
+        },
+        {
+            "attacker": -55,
+            "support": -85,
+            "combined": -140
+        },
+        {
+            "attacker": -35,
+            "support": -75,
+            "combined": -110
+        },
+        {
+            "attacker": 382,
+            "support": 210,
+            "combined": 592
+        },
+        {
+            "attacker": -85,
+            "support": -135,
+            "combined": -220
+        },
+        {
+            "attacker": -4,
+            "support": -155,
+            "combined": -159
+        },
+        {
+            "attacker": -105,
+            "support": -160,
+            "combined": -265
+        },
+        {
+            "attacker": 322,
+            "support": 452,
+            "combined": 774
+        },
+        {
+            "attacker": -115,
+            "support": -125,
+            "combined": -240
+        },
+        {
+            "attacker": 72,
+            "support": -44,
+            "combined": 28
+        },
+        {
+            "attacker": -13,
+            "support": -105,
+            "combined": -118
+        },
+        {
+            "attacker": -110,
+            "support": -120,
+            "combined": -230
+        },
+        {
+            "attacker": -88,
+            "support": -211,
+            "combined": -299
+        },
+        {
+            "attacker": -95,
+            "support": -115,
+            "combined": -210
+        },
+        {
+            "attacker": 4,
+            "support": -68,
+            "combined": -64
+        },
+        {
+            "attacker": -205,
+            "support": -135,
+            "combined": -340
+        },
+        {
+            "attacker": -98,
+            "support": -133,
+            "combined": -231
+        },
+        {
+            "attacker": -68,
+            "support": -70,
+            "combined": -138
+        },
+        {
+            "attacker": -40,
+            "support": -80,
+            "combined": -120
+        },
+        {
+            "attacker": -65,
+            "support": -115,
+            "combined": -180
+        },
+        {
+            "attacker": 10,
+            "support": -107,
+            "combined": -97
+        },
+        {
+            "attacker": -5,
+            "support": 5,
+            "combined": 0
+        },
+        {
+            "attacker": -75,
+            "support": -140,
+            "combined": -215
+        },
+        {
+            "attacker": 95,
+            "support": -46,
+            "combined": 49
+        },
+        {
+            "attacker": -80,
+            "support": -155,
+            "combined": -235
+        },
+        {
+            "attacker": -110,
+            "support": -155,
+            "combined": -265
+        },
+        {
+            "attacker": -40,
+            "support": -95,
+            "combined": -135
+        },
+        {
+            "attacker": -85,
+            "support": -165,
+            "combined": -250
+        },
+        {
+            "attacker": 95,
+            "support": 79,
+            "combined": 174
+        },
+        {
+            "attacker": -48,
+            "support": -131,
+            "combined": -179
+        },
+        {
+            "attacker": -105,
+            "support": -175,
+            "combined": -280
+        },
+        {
+            "attacker": -70,
+            "support": -105,
+            "combined": -175
+        },
+        {
+            "attacker": 190,
+            "support": 274,
+            "combined": 464
+        },
+        {
+            "attacker": -118,
+            "support": -90,
+            "combined": -208
+        },
+        {
+            "attacker": -70,
+            "support": -175,
+            "combined": -245
+        },
+        {
+            "attacker": -65,
+            "support": -55,
+            "combined": -120
+        },
+        {
+            "attacker": -20,
+            "support": -168,
+            "combined": -188
+        },
+        {
+            "attacker": -36,
+            "support": 8,
+            "combined": -28
+        },
+        {
+            "attacker": -150,
+            "support": -110,
+            "combined": -260
+        },
+        {
+            "attacker": -90,
+            "support": -115,
+            "combined": -205
+        },
+        {
+            "attacker": -75,
+            "support": -45,
+            "combined": -120
+        },
+        {
+            "attacker": -80,
+            "support": -100,
+            "combined": -180
+        },
+        {
+            "attacker": -90,
+            "support": -155,
+            "combined": -245
+        },
+        {
+            "attacker": -38,
+            "support": 25,
+            "combined": -13
+        },
+        {
+            "attacker": -130,
+            "support": -125,
+            "combined": -255
+        },
+        {
+            "attacker": -125,
+            "support": -135,
+            "combined": -260
+        },
+        {
+            "attacker": -115,
+            "support": -145,
+            "combined": -260
+        },
+        {
+            "attacker": -55,
+            "support": -115,
+            "combined": -170
+        },
+        {
+            "attacker": -105,
+            "support": -120,
+            "combined": -225
+        },
+        {
+            "attacker": -110,
+            "support": -155,
+            "combined": -265
+        },
+        {
+            "attacker": -135,
+            "support": -135,
+            "combined": -270
+        },
+        {
+            "attacker": -78,
+            "support": -163,
+            "combined": -241
+        },
+        {
+            "attacker": -43,
+            "support": -145,
+            "combined": -188
+        },
+        {
+            "attacker": -35,
+            "support": -85,
+            "combined": -120
+        },
+        {
+            "attacker": -110,
+            "support": -100,
+            "combined": -210
+        },
+        {
+            "attacker": -60,
+            "support": -104,
+            "combined": -164
+        },
+        {
+            "attacker": -20,
+            "support": -15,
+            "combined": -35
+        },
+        {
+            "attacker": -70,
+            "support": -110,
+            "combined": -180
+        },
+        {
+            "attacker": 110,
+            "support": -75,
+            "combined": 35
+        },
+        {
+            "attacker": -100,
+            "support": -125,
+            "combined": -225
+        },
+        {
+            "attacker": -100,
+            "support": -145,
+            "combined": -245
+        },
+        {
+            "attacker": -78,
+            "support": -105,
+            "combined": -183
+        },
+        {
+            "attacker": -33,
+            "support": -138,
+            "combined": -171
+        },
+        {
+            "attacker": -58,
+            "support": -108,
+            "combined": -166
+        },
+        {
+            "attacker": -100,
+            "support": -110,
+            "combined": -210
+        },
+        {
+            "attacker": -85,
+            "support": -143,
+            "combined": -228
+        },
+        {
+            "attacker": -120,
+            "support": -112,
+            "combined": -232
+        },
+        {
+            "attacker": -110,
+            "support": -145,
+            "combined": -255
+        },
+        {
+            "attacker": -65,
+            "support": 25,
+            "combined": -40
+        },
+        {
+            "attacker": -368,
+            "support": -120,
+            "combined": -488
+        },
+        {
+            "attacker": -150,
+            "support": -120,
+            "combined": -270
+        },
+        {
+            "attacker": -85,
+            "support": -175,
+            "combined": -260
+        },
+        {
+            "attacker": -53,
+            "support": -165,
+            "combined": -218
+        },
+        {
+            "attacker": 5,
+            "support": 88,
+            "combined": 93
+        },
+        {
+            "attacker": -25,
+            "support": -110,
+            "combined": -135
+        },
+        {
+            "attacker": -285,
+            "support": -170,
+            "combined": -455
+        },
+        {
+            "attacker": -50,
+            "support": -85,
+            "combined": -135
+        },
+        {
+            "attacker": -105,
+            "support": -195,
+            "combined": -300
+        },
+        {
+            "attacker": -30,
+            "support": -137,
+            "combined": -167
+        },
+        {
+            "attacker": -25,
+            "support": -72,
+            "combined": -97
+        },
+        {
+            "attacker": -95,
+            "support": -155,
+            "combined": -250
+        },
+        {
+            "attacker": -110,
+            "support": -185,
+            "combined": -295
+        },
+        {
+            "attacker": -75,
+            "support": -115,
+            "combined": -190
+        },
+        {
+            "attacker": -25,
+            "support": 65,
+            "combined": 40
+        },
+        {
+            "attacker": -25,
+            "support": -75,
+            "combined": -100
+        },
+        {
+            "attacker": -15,
+            "support": -73,
+            "combined": -88
+        },
+        {
+            "attacker": -33,
+            "support": -145,
+            "combined": -178
+        },
+        {
+            "attacker": -38,
+            "support": -135,
+            "combined": -173
+        },
+        {
+            "attacker": -83,
+            "support": -165,
+            "combined": -248
+        },
+        {
+            "attacker": -40,
+            "support": -155,
+            "combined": -195
+        },
+        {
+            "attacker": -130,
+            "support": -120,
+            "combined": -250
+        },
+        {
+            "attacker": -85,
+            "support": -172,
+            "combined": -257
+        },
+        {
+            "attacker": -150,
+            "support": -125,
+            "combined": -275
+        },
+        {
+            "attacker": -130,
+            "support": -130,
+            "combined": -260
+        },
+        {
+            "attacker": -80,
+            "support": -136,
+            "combined": -216
+        },
+        {
+            "attacker": 5,
+            "support": 25,
+            "combined": 30
+        },
+        {
+            "attacker": -95,
+            "support": -65,
+            "combined": -160
+        },
+        {
+            "attacker": -100,
+            "support": -98,
+            "combined": -198
+        }
+    ],
+    "agent_wins": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ],
+    "enemy_wins": [
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+    ],
+    "moves": [
+        10,
+        11,
+        14,
+        21,
+        8,
+        16,
+        9,
+        18,
+        18,
+        15,
+        17,
+        9,
+        8,
+        22,
+        10,
+        19,
+        15,
+        8,
+        16,
+        18,
+        6,
+        20,
+        10,
+        16,
+        9,
+        8,
+        17,
+        14,
+        12,
+        12,
+        18,
+        17,
+        13,
+        16,
+        16,
+        8,
+        15,
+        13,
+        17,
+        8,
+        12,
+        11,
+        25,
+        12,
+        16,
+        9,
+        14,
+        16,
+        10,
+        7,
+        11,
+        9,
+        18,
+        20,
+        8,
+        13,
+        13,
+        13,
+        10,
+        12,
+        11,
+        17,
+        18,
+        11,
+        18,
+        12,
+        9,
+        11,
+        7,
+        19,
+        7,
+        17,
+        17,
+        20,
+        12,
+        9,
+        14,
+        17,
+        21,
+        21,
+        19,
+        13,
+        9,
+        19,
+        12,
+        22,
+        13,
+        16,
+        19,
+        13,
+        13,
+        10,
+        10,
+        16,
+        14,
+        9,
+        9,
+        21,
+        10,
+        9,
+        20,
+        14,
+        14,
+        18,
+        13,
+        9,
+        20,
+        17,
+        9,
+        23,
+        17,
+        10,
+        11,
+        8,
+        17,
+        10,
+        9,
+        24,
+        7,
+        11,
+        12,
+        8,
+        17,
+        20,
+        8,
+        23,
+        11,
+        10,
+        13,
+        20,
+        19,
+        10,
+        15,
+        19,
+        11,
+        13,
+        19,
+        14,
+        16,
+        19,
+        10,
+        10,
+        17,
+        9,
+        10,
+        8,
+        19,
+        19,
+        14,
+        12,
+        26,
+        21,
+        9,
+        7,
+        21,
+        11,
+        10,
+        15,
+        20,
+        9,
+        14,
+        13,
+        9,
+        16,
+        11,
+        11,
+        9,
+        19,
+        10,
+        12,
+        9,
+        10,
+        18,
+        10,
+        17,
+        14,
+        13,
+        21,
+        18,
+        10,
+        15,
+        12,
+        14,
+        9,
+        21,
+        12,
+        12,
+        21,
+        11,
+        12,
+        16,
+        13,
+        13,
+        20,
+        10,
+        16,
+        15,
+        12,
+        17,
+        15,
+        9,
+        13,
+        11,
+        14,
+        15,
+        19,
+        12,
+        13,
+        9,
+        24,
+        10,
+        17,
+        14,
+        10,
+        9,
+        11,
+        18,
+        14,
+        10,
+        13,
+        14,
+        12,
+        17,
+        18,
+        12,
+        23,
+        11,
+        10,
+        13,
+        10,
+        24,
+        12,
+        10,
+        12,
+        25,
+        15,
+        10,
+        16,
+        15,
+        19,
+        11,
+        13,
+        15,
+        21,
+        10,
+        18,
+        10,
+        9,
+        9,
+        12,
+        12,
+        10,
+        9,
+        11,
+        13,
+        15,
+        10,
+        12,
+        18,
+        11,
+        22,
+        11,
+        10,
+        11,
+        12,
+        13,
+        11,
+        13,
+        12,
+        9,
+        18,
+        20,
+        10,
+        10,
+        11,
+        19,
+        14,
+        11,
+        14,
+        10,
+        16,
+        13,
+        11,
+        9,
+        13,
+        20,
+        14,
+        17,
+        12,
+        15,
+        10,
+        12,
+        10,
+        9,
+        10,
+        9,
+        12,
+        20,
+        13,
+        12
+    ],
+    "success_rate": [
+        1.0,
+        0.5,
+        0.6666666666666666,
+        0.5,
+        0.6,
+        0.6666666666666666,
+        0.7142857142857143,
+        0.625,
+        0.6666666666666666,
+        0.6,
+        0.6363636363636364,
+        0.6666666666666666,
+        0.6923076923076923,
+        0.6428571428571429,
+        0.6666666666666666,
+        0.625,
+        0.6470588235294118,
+        0.6666666666666666,
+        0.6842105263157895,
+        0.7,
+        0.7142857142857143,
+        0.6818181818181818,
+        0.6956521739130435,
+        0.6666666666666666,
+        0.68,
+        0.6923076923076923,
+        0.6666666666666666,
+        0.6785714285714286,
+        0.6896551724137931,
+        0.7,
+        0.6774193548387096,
+        0.6875,
+        0.696969696969697,
+        0.6764705882352942,
+        0.6857142857142857,
+        0.6944444444444444,
+        0.7027027027027027,
+        0.7105263157894737,
+        0.6923076923076923,
+        0.7,
+        0.7073170731707317,
+        0.7142857142857143,
+        0.6976744186046512,
+        0.7045454545454546,
+        0.6888888888888889,
+        0.6956521739130435,
+        0.7021276595744681,
+        0.7083333333333334,
+        0.7142857142857143,
+        0.72,
+        0.7254901960784313,
+        0.7307692307692307,
+        0.7169811320754716,
+        0.7037037037037037,
+        0.7090909090909091,
+        0.6964285714285714,
+        0.7017543859649122,
+        0.7068965517241379,
+        0.711864406779661,
+        0.7166666666666667,
+        0.7213114754098361,
+        0.7096774193548387,
+        0.6984126984126984,
+        0.703125,
+        0.6923076923076923,
+        0.696969696969697,
+        0.7014925373134329,
+        0.7058823529411765,
+        0.7101449275362319,
+        0.7142857142857143,
+        0.7183098591549296,
+        0.7222222222222222,
+        0.7123287671232876,
+        0.7162162162162162,
+        0.72,
+        0.7236842105263158,
+        0.7272727272727273,
+        0.717948717948718,
+        0.7088607594936709,
+        0.7,
+        0.691358024691358,
+        0.6951219512195121,
+        0.6987951807228916,
+        0.7023809523809523,
+        0.7058823529411765,
+        0.7093023255813954,
+        0.7011494252873564,
+        0.6931818181818182,
+        0.6853932584269663,
+        0.6888888888888889,
+        0.6813186813186813,
+        0.6847826086956522,
+        0.6881720430107527,
+        0.6914893617021277,
+        0.6947368421052632,
+        0.6979166666666666,
+        0.7010309278350515,
+        0.7040816326530612,
+        0.7070707070707071,
+        0.71,
+        0.7128712871287128,
+        0.7156862745098039,
+        0.7184466019417476,
+        0.7115384615384616,
+        0.7142857142857143,
+        0.7169811320754716,
+        0.719626168224299,
+        0.7129629629629629,
+        0.7155963302752294,
+        0.7181818181818181,
+        0.7117117117117117,
+        0.7142857142857143,
+        0.7168141592920354,
+        0.7192982456140351,
+        0.7130434782608696,
+        0.7155172413793104,
+        0.717948717948718,
+        0.711864406779661,
+        0.7142857142857143,
+        0.7166666666666667,
+        0.71900826446281,
+        0.7213114754098361,
+        0.7154471544715447,
+        0.717741935483871,
+        0.72,
+        0.7222222222222222,
+        0.7244094488188977,
+        0.7265625,
+        0.7286821705426356,
+        0.7307692307692307,
+        0.732824427480916,
+        0.7272727272727273,
+        0.7218045112781954,
+        0.7164179104477612,
+        0.7185185185185186,
+        0.7132352941176471,
+        0.7153284671532847,
+        0.717391304347826,
+        0.7122302158273381,
+        0.7142857142857143,
+        0.7163120567375887,
+        0.7183098591549296,
+        0.7132867132867133,
+        0.7152777777777778,
+        0.7103448275862069,
+        0.7123287671232876,
+        0.7142857142857143,
+        0.7094594594594594,
+        0.7046979865771812,
+        0.7066666666666667,
+        0.7086092715231788,
+        0.7105263157894737,
+        0.7124183006535948,
+        0.7142857142857143,
+        0.7161290322580646,
+        0.717948717948718,
+        0.7197452229299363,
+        0.7151898734177216,
+        0.7169811320754716,
+        0.71875,
+        0.7204968944099379,
+        0.7222222222222222,
+        0.7239263803680982,
+        0.725609756097561,
+        0.7272727272727273,
+        0.7228915662650602,
+        0.7245508982035929,
+        0.7202380952380952,
+        0.7218934911242604,
+        0.7176470588235294,
+        0.7192982456140351,
+        0.7209302325581395,
+        0.7225433526011561,
+        0.7241379310344828,
+        0.7257142857142858,
+        0.7272727272727273,
+        0.7231638418079096,
+        0.7191011235955056,
+        0.7150837988826816,
+        0.7166666666666667,
+        0.712707182320442,
+        0.7087912087912088,
+        0.7049180327868853,
+        0.7010869565217391,
+        0.6972972972972973,
+        0.6935483870967742,
+        0.6898395721925134,
+        0.6861702127659575,
+        0.6825396825396826,
+        0.6789473684210526,
+        0.675392670157068,
+        0.671875,
+        0.6683937823834197,
+        0.6649484536082474,
+        0.6615384615384615,
+        0.6581632653061225,
+        0.6548223350253807,
+        0.6515151515151515,
+        0.6482412060301508,
+        0.645,
+        0.6417910447761194,
+        0.6386138613861386,
+        0.6354679802955665,
+        0.6323529411764706,
+        0.6292682926829268,
+        0.6310679611650486,
+        0.6280193236714976,
+        0.625,
+        0.6220095693779905,
+        0.6238095238095238,
+        0.6208530805687204,
+        0.6179245283018868,
+        0.6150234741784038,
+        0.6121495327102804,
+        0.6093023255813953,
+        0.6064814814814815,
+        0.6036866359447005,
+        0.6009174311926605,
+        0.5981735159817352,
+        0.5954545454545455,
+        0.5927601809954751,
+        0.5900900900900901,
+        0.5874439461883408,
+        0.5848214285714286,
+        0.5822222222222222,
+        0.5796460176991151,
+        0.5770925110132159,
+        0.5745614035087719,
+        0.5720524017467249,
+        0.5695652173913044,
+        0.5670995670995671,
+        0.5646551724137931,
+        0.5622317596566524,
+        0.5598290598290598,
+        0.5617021276595745,
+        0.559322033898305,
+        0.5569620253164557,
+        0.5546218487394958,
+        0.5523012552301255,
+        0.55,
+        0.5477178423236515,
+        0.5454545454545454,
+        0.5432098765432098,
+        0.5409836065573771,
+        0.5387755102040817,
+        0.5365853658536586,
+        0.5344129554655871,
+        0.532258064516129,
+        0.5301204819277109,
+        0.528,
+        0.5258964143426295,
+        0.5238095238095238,
+        0.5217391304347826,
+        0.5196850393700787,
+        0.5176470588235295,
+        0.515625,
+        0.5136186770428015,
+        0.5116279069767442,
+        0.5096525096525096,
+        0.5076923076923077,
+        0.5057471264367817,
+        0.5038167938931297,
+        0.5019011406844106,
+        0.5,
+        0.4981132075471698,
+        0.49624060150375937,
+        0.4943820224719101,
+        0.4925373134328358,
+        0.49070631970260226,
+        0.4888888888888889,
+        0.4870848708487085,
+        0.4852941176470588,
+        0.4835164835164835,
+        0.48175182481751827,
+        0.48,
+        0.4782608695652174,
+        0.47653429602888087,
+        0.4748201438848921,
+        0.4731182795698925,
+        0.4714285714285714,
+        0.4697508896797153,
+        0.46808510638297873,
+        0.4664310954063604,
+        0.4647887323943662,
+        0.4631578947368421,
+        0.46153846153846156,
+        0.45993031358885017,
+        0.4583333333333333,
+        0.45674740484429066,
+        0.45517241379310347,
+        0.4536082474226804,
+        0.4520547945205479,
+        0.45051194539249145,
+        0.4489795918367347,
+        0.44745762711864406,
+        0.44594594594594594,
+        0.4444444444444444,
+        0.4429530201342282,
+        0.4414715719063545,
+        0.44
+    ],
+    "action_scores": [
+        {
+            "attacker": 0.63,
+            "support": 0.11599999999999999,
+            "combined": 0.373
+        },
+        {
+            "attacker": 0.7090909090909091,
+            "support": 0.2971428571428571,
+            "combined": 0.5031168831168831
+        },
+        {
+            "attacker": 0.5728571428571428,
+            "support": 0.3092857142857142,
+            "combined": 0.44107142857142856
+        },
+        {
+            "attacker": 0.7714285714285714,
+            "support": 0.720952380952381,
+            "combined": 0.7461904761904762
+        },
+        {
+            "attacker": 0.6875,
+            "support": 0.26,
+            "combined": 0.47375
+        },
+        {
+            "attacker": 0.6625,
+            "support": 0.23692307692307693,
+            "combined": 0.44971153846153844
+        },
+        {
+            "attacker": 0.7666666666666667,
+            "support": 0.3133333333333333,
+            "combined": 0.54
+        },
+        {
+            "attacker": 0.5227777777777778,
+            "support": 0.179375,
+            "combined": 0.3510763888888889
+        },
+        {
+            "attacker": 0.5242857142857142,
+            "support": 0.2544444444444445,
+            "combined": 0.38936507936507936
+        },
+        {
+            "attacker": 0.482,
+            "support": 0.5707692307692308,
+            "combined": 0.5263846153846155
+        },
+        {
+            "attacker": 0.5835294117647057,
+            "support": 0.30235294117647055,
+            "combined": 0.44294117647058817
+        },
+        {
+            "attacker": 0.8055555555555556,
+            "support": 0.5888888888888889,
+            "combined": 0.6972222222222222
+        },
+        {
+            "attacker": 0.60875,
+            "support": 0.3125,
+            "combined": 0.460625
+        },
+        {
+            "attacker": 0.6118181818181817,
+            "support": 0.7354999999999999,
+            "combined": 0.6736590909090908
+        },
+        {
+            "attacker": 0.508,
+            "support": 0.664,
+            "combined": 0.5860000000000001
+        },
+        {
+            "attacker": 0.6064285714285715,
+            "support": 0.5468421052631578,
+            "combined": 0.5766353383458647
+        },
+        {
+            "attacker": 0.8006666666666666,
+            "support": 0.49800000000000005,
+            "combined": 0.6493333333333333
+        },
+        {
+            "attacker": 0.57375,
+            "support": 0.185,
+            "combined": 0.379375
+        },
+        {
+            "attacker": 0.5800000000000001,
+            "support": 0.35125,
+            "combined": 0.46562500000000007
+        },
+        {
+            "attacker": 0.7250000000000001,
+            "support": 0.3833333333333333,
+            "combined": 0.5541666666666667
+        },
+        {
+            "attacker": 0.8416666666666667,
+            "support": 0.21333333333333335,
+            "combined": 0.5275
+        },
+        {
+            "attacker": 0.7539999999999999,
+            "support": 0.5461111111111111,
+            "combined": 0.6500555555555555
+        },
+        {
+            "attacker": 0.538,
+            "support": 0.312,
+            "combined": 0.42500000000000004
+        },
+        {
+            "attacker": 0.43374999999999997,
+            "support": 0.18749999999999997,
+            "combined": 0.310625
+        },
+        {
+            "attacker": 0.5933333333333333,
+            "support": 0.2733333333333333,
+            "combined": 0.4333333333333333
+        },
+        {
+            "attacker": 0.635,
+            "support": 0.46375,
+            "combined": 0.549375
+        },
+        {
+            "attacker": 0.5758823529411764,
+            "support": 0.48153846153846147,
+            "combined": 0.528710407239819
+        },
+        {
+            "attacker": 0.6257142857142856,
+            "support": 0.34357142857142847,
+            "combined": 0.48464285714285704
+        },
+        {
+            "attacker": 0.4975,
+            "support": 0.35999999999999993,
+            "combined": 0.42874999999999996
+        },
+        {
+            "attacker": 0.5233333333333333,
+            "support": 0.23250000000000004,
+            "combined": 0.3779166666666667
+        },
+        {
+            "attacker": 0.6472222222222223,
+            "support": 0.7071428571428572,
+            "combined": 0.6771825396825397
+        },
+        {
+            "attacker": 0.648235294117647,
+            "support": 0.5382352941176469,
+            "combined": 0.593235294117647
+        },
+        {
+            "attacker": 0.48384615384615387,
+            "support": 0.2983333333333333,
+            "combined": 0.3910897435897436
+        },
+        {
+            "attacker": 0.413076923076923,
+            "support": 0.5800000000000001,
+            "combined": 0.49653846153846154
+        },
+        {
+            "attacker": 0.6681250000000001,
+            "support": 0.635,
+            "combined": 0.6515625
+        },
+        {
+            "attacker": 0.7275,
+            "support": 0.35875,
+            "combined": 0.5431250000000001
+        },
+        {
+            "attacker": 0.37636363636363634,
+            "support": 0.45399999999999996,
+            "combined": 0.41518181818181815
+        },
+        {
+            "attacker": 0.6653846153846152,
+            "support": 0.37999999999999995,
+            "combined": 0.5226923076923076
+        },
+        {
+            "attacker": 0.6227272727272727,
+            "support": 0.43529411764705883,
+            "combined": 0.5290106951871658
+        },
+        {
+            "attacker": 0.52625,
+            "support": 0.345,
+            "combined": 0.435625
+        },
+        {
+            "attacker": 0.4983333333333333,
+            "support": 0.4166666666666666,
+            "combined": 0.4574999999999999
+        },
+        {
+            "attacker": 0.6309090909090909,
+            "support": 0.5881818181818181,
+            "combined": 0.6095454545454545
+        },
+        {
+            "attacker": 0.6579999999999999,
+            "support": 0.5913636363636363,
+            "combined": 0.6246818181818181
+        },
+        {
+            "attacker": 0.6916666666666665,
+            "support": 0.3516666666666666,
+            "combined": 0.5216666666666666
+        },
+        {
+            "attacker": 0.45999999999999996,
+            "support": 0.575,
+            "combined": 0.5175
+        },
+        {
+            "attacker": 0.6400000000000001,
+            "support": 0.4977777777777777,
+            "combined": 0.5688888888888889
+        },
+        {
+            "attacker": 0.6057142857142858,
+            "support": 0.5407142857142857,
+            "combined": 0.5732142857142857
+        },
+        {
+            "attacker": 0.760625,
+            "support": 0.59,
+            "combined": 0.6753125
+        },
+        {
+            "attacker": 0.5589999999999999,
+            "support": 0.34199999999999997,
+            "combined": 0.45049999999999996
+        },
+        {
+            "attacker": 0.5942857142857143,
+            "support": 0.3757142857142857,
+            "combined": 0.485
+        },
+        {
+            "attacker": 0.5754545454545453,
+            "support": 0.37000000000000005,
+            "combined": 0.47272727272727266
+        },
+        {
+            "attacker": 0.6588888888888889,
+            "support": 0.4677777777777778,
+            "combined": 0.5633333333333334
+        },
+        {
+            "attacker": 0.685,
+            "support": 0.6333333333333333,
+            "combined": 0.6591666666666667
+        },
+        {
+            "attacker": 0.61,
+            "support": 0.5489999999999999,
+            "combined": 0.5794999999999999
+        },
+        {
+            "attacker": 0.69,
+            "support": 0.41625,
+            "combined": 0.553125
+        },
+        {
+            "attacker": 0.683076923076923,
+            "support": 0.23857142857142857,
+            "combined": 0.4608241758241758
+        },
+        {
+            "attacker": 0.5461538461538461,
+            "support": 0.5046153846153846,
+            "combined": 0.5253846153846153
+        },
+        {
+            "attacker": 0.6438461538461537,
+            "support": 0.4930769230769231,
+            "combined": 0.5684615384615384
+        },
+        {
+            "attacker": 0.627,
+            "support": 0.43,
+            "combined": 0.5285
+        },
+        {
+            "attacker": 0.42250000000000004,
+            "support": 0.5766666666666667,
+            "combined": 0.4995833333333334
+        },
+        {
+            "attacker": 0.5890909090909091,
+            "support": 0.5145454545454545,
+            "combined": 0.5518181818181818
+        },
+        {
+            "attacker": 0.5526666666666666,
+            "support": 0.4564705882352942,
+            "combined": 0.5045686274509804
+        },
+        {
+            "attacker": 0.486,
+            "support": 0.6538888888888889,
+            "combined": 0.5699444444444444
+        },
+        {
+            "attacker": 0.62,
+            "support": 0.29181818181818187,
+            "combined": 0.45590909090909093
+        },
+        {
+            "attacker": 0.49833333333333335,
+            "support": 0.641875,
+            "combined": 0.5701041666666666
+        },
+        {
+            "attacker": 0.6716666666666665,
+            "support": 0.4024999999999999,
+            "combined": 0.5370833333333332
+        },
+        {
+            "attacker": 0.5466666666666666,
+            "support": 0.3955555555555555,
+            "combined": 0.47111111111111104
+        },
+        {
+            "attacker": 0.8045454545454546,
+            "support": 0.6054545454545455,
+            "combined": 0.7050000000000001
+        },
+        {
+            "attacker": 0.6628571428571429,
+            "support": 0.2,
+            "combined": 0.4314285714285715
+        },
+        {
+            "attacker": 0.5005263157894737,
+            "support": 0.533076923076923,
+            "combined": 0.5168016194331984
+        },
+        {
+            "attacker": 0.7214285714285714,
+            "support": 0.1442857142857143,
+            "combined": 0.43285714285714283
+        },
+        {
+            "attacker": 0.5647058823529413,
+            "support": 0.25529411764705884,
+            "combined": 0.41000000000000003
+        },
+        {
+            "attacker": 0.5741176470588234,
+            "support": 0.5675,
+            "combined": 0.5708088235294118
+        },
+        {
+            "attacker": 0.637,
+            "support": 0.327,
+            "combined": 0.482
+        },
+        {
+            "attacker": 0.45875,
+            "support": 0.10083333333333334,
+            "combined": 0.27979166666666666
+        },
+        {
+            "attacker": 0.4811111111111111,
+            "support": 0.20222222222222222,
+            "combined": 0.3416666666666667
+        },
+        {
+            "attacker": 0.8142857142857143,
+            "support": 0.37928571428571434,
+            "combined": 0.5967857142857143
+        },
+        {
+            "attacker": 0.6894117647058824,
+            "support": 0.25,
+            "combined": 0.4697058823529412
+        },
+        {
+            "attacker": 0.5576190476190477,
+            "support": 0.2883333333333334,
+            "combined": 0.4229761904761905
+        },
+        {
+            "attacker": 0.5723809523809523,
+            "support": 0.17266666666666666,
+            "combined": 0.3725238095238095
+        },
+        {
+            "attacker": 0.40823529411764703,
+            "support": 0.17894736842105263,
+            "combined": 0.29359133126934983
+        },
+        {
+            "attacker": 0.5809090909090909,
+            "support": 0.10307692307692308,
+            "combined": 0.341993006993007
+        },
+        {
+            "attacker": 0.5111111111111112,
+            "support": 0.23444444444444443,
+            "combined": 0.3727777777777778
+        },
+        {
+            "attacker": 0.5335714285714285,
+            "support": 0.25941176470588234,
+            "combined": 0.3964915966386554
+        },
+        {
+            "attacker": 0.5075,
+            "support": 0.26666666666666666,
+            "combined": 0.38708333333333333
+        },
+        {
+            "attacker": 0.40176470588235297,
+            "support": 0.4818181818181818,
+            "combined": 0.44179144385026736
+        },
+        {
+            "attacker": 0.5623076923076922,
+            "support": 0.2422222222222222,
+            "combined": 0.4022649572649572
+        },
+        {
+            "attacker": 0.54375,
+            "support": 0.13384615384615384,
+            "combined": 0.3387980769230769
+        },
+        {
+            "attacker": 0.531578947368421,
+            "support": 0.24928571428571428,
+            "combined": 0.39043233082706763
+        },
+        {
+            "attacker": 0.5384615384615384,
+            "support": 0.3815384615384616,
+            "combined": 0.46
+        },
+        {
+            "attacker": 0.6338461538461537,
+            "support": 0.13444444444444445,
+            "combined": 0.3841452991452991
+        },
+        {
+            "attacker": 0.4779999999999999,
+            "support": 0.165,
+            "combined": 0.32149999999999995
+        },
+        {
+            "attacker": 0.7150000000000001,
+            "support": 0.286,
+            "combined": 0.5005000000000001
+        },
+        {
+            "attacker": 0.600625,
+            "support": 0.22999999999999998,
+            "combined": 0.4153125
+        },
+        {
+            "attacker": 0.6307142857142857,
+            "support": 0.22285714285714284,
+            "combined": 0.42678571428571427
+        },
+        {
+            "attacker": 0.6033333333333333,
+            "support": 0.21777777777777776,
+            "combined": 0.4105555555555555
+        },
+        {
+            "attacker": 0.6777777777777777,
+            "support": 0.2125,
+            "combined": 0.44513888888888886
+        },
+        {
+            "attacker": 0.5876190476190476,
+            "support": 0.14277777777777778,
+            "combined": 0.3651984126984127
+        },
+        {
+            "attacker": 0.5780000000000001,
+            "support": 0.223,
+            "combined": 0.4005
+        },
+        {
+            "attacker": 0.6888888888888889,
+            "support": 0.10222222222222221,
+            "combined": 0.39555555555555555
+        },
+        {
+            "attacker": 0.4755,
+            "support": 0.18105263157894735,
+            "combined": 0.3282763157894737
+        },
+        {
+            "attacker": 0.6385714285714287,
+            "support": 0.27071428571428574,
+            "combined": 0.45464285714285724
+        },
+        {
+            "attacker": 0.6571428571428571,
+            "support": 0.3428571428571429,
+            "combined": 0.5
+        },
+        {
+            "attacker": 0.5539999999999999,
+            "support": 0.49166666666666664,
+            "combined": 0.5228333333333333
+        },
+        {
+            "attacker": 0.52,
+            "support": 0.2246153846153846,
+            "combined": 0.37230769230769234
+        },
+        {
+            "attacker": 0.5033333333333334,
+            "support": 0.15875,
+            "combined": 0.3310416666666667
+        },
+        {
+            "attacker": 0.3953333333333332,
+            "support": 0.167,
+            "combined": 0.2811666666666666
+        },
+        {
+            "attacker": 0.5317647058823529,
+            "support": 0.21999999999999995,
+            "combined": 0.37588235294117645
+        },
+        {
+            "attacker": 0.6233333333333334,
+            "support": 0.17,
+            "combined": 0.3966666666666667
+        },
+        {
+            "attacker": 0.44909090909090904,
+            "support": 0.3126086956521739,
+            "combined": 0.3808498023715415
+        },
+        {
+            "attacker": 0.6158823529411764,
+            "support": 0.14454545454545453,
+            "combined": 0.3802139037433155
+        },
+        {
+            "attacker": 0.4619999999999999,
+            "support": 0.28300000000000003,
+            "combined": 0.37249999999999994
+        },
+        {
+            "attacker": 0.6109090909090908,
+            "support": 0.10272727272727274,
+            "combined": 0.3568181818181818
+        },
+        {
+            "attacker": 0.6837500000000001,
+            "support": 0.37,
+            "combined": 0.526875
+        },
+        {
+            "attacker": 0.46529411764705875,
+            "support": 0.15357142857142853,
+            "combined": 0.30943277310924366
+        },
+        {
+            "attacker": 0.742,
+            "support": 0.274,
+            "combined": 0.508
+        },
+        {
+            "attacker": 0.5066666666666666,
+            "support": 0.09777777777777777,
+            "combined": 0.30222222222222217
+        },
+        {
+            "attacker": 0.3694117647058824,
+            "support": 0.22708333333333333,
+            "combined": 0.29824754901960787
+        },
+        {
+            "attacker": 0.9285714285714286,
+            "support": 0.26571428571428574,
+            "combined": 0.5971428571428572
+        },
+        {
+            "attacker": 0.5281818181818182,
+            "support": 0.1918181818181818,
+            "combined": 0.36
+        },
+        {
+            "attacker": 0.39666666666666667,
+            "support": 0.16,
+            "combined": 0.2783333333333333
+        },
+        {
+            "attacker": 0.6525,
+            "support": 0.34,
+            "combined": 0.49624999999999997
+        },
+        {
+            "attacker": 0.6464705882352941,
+            "support": 0.11846153846153845,
+            "combined": 0.38246606334841626
+        },
+        {
+            "attacker": 0.6995,
+            "support": 0.31799999999999995,
+            "combined": 0.50875
+        },
+        {
+            "attacker": 0.5875,
+            "support": 0.24125000000000002,
+            "combined": 0.41437500000000005
+        },
+        {
+            "attacker": 0.5947826086956521,
+            "support": 0.5370588235294118,
+            "combined": 0.5659207161125319
+        },
+        {
+            "attacker": 0.5536363636363637,
+            "support": 0.25909090909090904,
+            "combined": 0.40636363636363637
+        },
+        {
+            "attacker": 0.625,
+            "support": 0.23099999999999996,
+            "combined": 0.428
+        },
+        {
+            "attacker": 0.5492307692307691,
+            "support": 0.4715384615384615,
+            "combined": 0.5103846153846153
+        },
+        {
+            "attacker": 0.3876470588235294,
+            "support": 0.3185,
+            "combined": 0.35307352941176473
+        },
+        {
+            "attacker": 0.6473684210526315,
+            "support": 0.56,
+            "combined": 0.6036842105263158
+        },
+        {
+            "attacker": 0.29300000000000004,
+            "support": 0.14200000000000002,
+            "combined": 0.21750000000000003
+        },
+        {
+            "attacker": 0.3959999999999999,
+            "support": 0.18846153846153849,
+            "combined": 0.2922307692307692
+        },
+        {
+            "attacker": 0.48500000000000004,
+            "support": 0.45105263157894737,
+            "combined": 0.46802631578947373
+        },
+        {
+            "attacker": 0.5072727272727273,
+            "support": 0.44909090909090904,
+            "combined": 0.47818181818181815
+        },
+        {
+            "attacker": 0.5499999999999999,
+            "support": 0.17363636363636362,
+            "combined": 0.36181818181818176
+        },
+        {
+            "attacker": 0.4811111111111111,
+            "support": 0.23947368421052637,
+            "combined": 0.3602923976608187
+        },
+        {
+            "attacker": 0.4628571428571429,
+            "support": 0.13785714285714287,
+            "combined": 0.3003571428571429
+        },
+        {
+            "attacker": 0.535625,
+            "support": 0.15000000000000002,
+            "combined": 0.3428125
+        },
+        {
+            "attacker": 0.515,
+            "support": 0.17105263157894737,
+            "combined": 0.3430263157894737
+        },
+        {
+            "attacker": 0.42200000000000004,
+            "support": 0.121,
+            "combined": 0.2715
+        },
+        {
+            "attacker": 0.5,
+            "support": 0.2,
+            "combined": 0.35
+        },
+        {
+            "attacker": 0.5388235294117647,
+            "support": 0.14916666666666667,
+            "combined": 0.3439950980392157
+        },
+        {
+            "attacker": 0.6611111111111111,
+            "support": 0.3222222222222222,
+            "combined": 0.49166666666666664
+        },
+        {
+            "attacker": 0.417,
+            "support": 0.07875,
+            "combined": 0.24787499999999998
+        },
+        {
+            "attacker": 0.49000000000000005,
+            "support": 0.13125,
+            "combined": 0.31062500000000004
+        },
+        {
+            "attacker": 0.5526315789473685,
+            "support": 0.25368421052631573,
+            "combined": 0.4031578947368421
+        },
+        {
+            "attacker": 0.653157894736842,
+            "support": 0.21214285714285716,
+            "combined": 0.4326503759398496
+        },
+        {
+            "attacker": 0.6014285714285715,
+            "support": 0.1841666666666666,
+            "combined": 0.39279761904761906
+        },
+        {
+            "attacker": 0.4375,
+            "support": 0.21749999999999994,
+            "combined": 0.32749999999999996
+        },
+        {
+            "attacker": 0.45173913043478264,
+            "support": 0.3203846153846154,
+            "combined": 0.386061872909699
+        },
+        {
+            "attacker": 0.6471428571428571,
+            "support": 0.18277777777777776,
+            "combined": 0.4149603174603175
+        },
+        {
+            "attacker": 0.4342857142857142,
+            "support": 0.11444444444444445,
+            "combined": 0.2743650793650793
+        },
+        {
+            "attacker": 0.6557142857142857,
+            "support": 0.22142857142857145,
+            "combined": 0.43857142857142856
+        },
+        {
+            "attacker": 0.6476470588235295,
+            "support": 0.22380952380952382,
+            "combined": 0.43572829131652663
+        },
+        {
+            "attacker": 0.5090909090909091,
+            "support": 0.30818181818181817,
+            "combined": 0.4086363636363637
+        },
+        {
+            "attacker": 0.5409999999999999,
+            "support": 0.16699999999999998,
+            "combined": 0.354
+        },
+        {
+            "attacker": 0.596,
+            "support": 0.24,
+            "combined": 0.418
+        },
+        {
+            "attacker": 0.4872222222222222,
+            "support": 0.223,
+            "combined": 0.3551111111111111
+        },
+        {
+            "attacker": 0.5100000000000001,
+            "support": 0.1611111111111111,
+            "combined": 0.3355555555555556
+        },
+        {
+            "attacker": 0.6285714285714284,
+            "support": 0.15142857142857144,
+            "combined": 0.38999999999999996
+        },
+        {
+            "attacker": 0.48846153846153845,
+            "support": 0.18615384615384617,
+            "combined": 0.3373076923076923
+        },
+        {
+            "attacker": 0.6588888888888887,
+            "support": 0.16444444444444445,
+            "combined": 0.4116666666666666
+        },
+        {
+            "attacker": 0.6475,
+            "support": 0.15615384615384617,
+            "combined": 0.4018269230769231
+        },
+        {
+            "attacker": 0.59,
+            "support": 0.22545454545454546,
+            "combined": 0.4077272727272727
+        },
+        {
+            "attacker": 0.43727272727272726,
+            "support": 0.17125,
+            "combined": 0.30426136363636364
+        },
+        {
+            "attacker": 0.7355555555555555,
+            "support": 0.2711111111111111,
+            "combined": 0.5033333333333333
+        },
+        {
+            "attacker": 0.3223076923076922,
+            "support": 0.32526315789473687,
+            "combined": 0.32378542510121455
+        },
+        {
+            "attacker": 0.6900000000000001,
+            "support": 0.203,
+            "combined": 0.4465
+        },
+        {
+            "attacker": 0.5191666666666667,
+            "support": 0.1575,
+            "combined": 0.3383333333333333
+        },
+        {
+            "attacker": 0.6466666666666667,
+            "support": 0.1688888888888889,
+            "combined": 0.4077777777777778
+        },
+        {
+            "attacker": 0.5599999999999999,
+            "support": 0.275,
+            "combined": 0.4175
+        },
+        {
+            "attacker": 0.408125,
+            "support": 0.20833333333333334,
+            "combined": 0.30822916666666667
+        },
+        {
+            "attacker": 0.488,
+            "support": 0.144,
+            "combined": 0.316
+        },
+        {
+            "attacker": 0.40153846153846146,
+            "support": 0.2670588235294118,
+            "combined": 0.3342986425339366
+        },
+        {
+            "attacker": 0.7442857142857143,
+            "support": 0.15583333333333335,
+            "combined": 0.45005952380952385
+        },
+        {
+            "attacker": 0.4353846153846153,
+            "support": 0.16818181818181818,
+            "combined": 0.30178321678321673
+        },
+        {
+            "attacker": 0.5005,
+            "support": 0.37470588235294117,
+            "combined": 0.4376029411764706
+        },
+        {
+            "attacker": 0.456875,
+            "support": 0.55,
+            "combined": 0.5034375
+        },
+        {
+            "attacker": 0.4577777777777777,
+            "support": 0.13,
+            "combined": 0.29388888888888887
+        },
+        {
+            "attacker": 0.37799999999999995,
+            "support": 0.12666666666666665,
+            "combined": 0.2523333333333333
+        },
+        {
+            "attacker": 0.29083333333333333,
+            "support": 0.1525,
+            "combined": 0.22166666666666668
+        },
+        {
+            "attacker": 0.34428571428571425,
+            "support": 0.08071428571428572,
+            "combined": 0.2125
+        },
+        {
+            "attacker": 0.2566666666666666,
+            "support": 0.061111111111111116,
+            "combined": 0.15888888888888886
+        },
+        {
+            "attacker": 0.3147619047619047,
+            "support": 0.19428571428571426,
+            "combined": 0.2545238095238095
+        },
+        {
+            "attacker": 0.29416666666666663,
+            "support": 0.06083333333333333,
+            "combined": 0.1775
+        },
+        {
+            "attacker": 0.2333333333333333,
+            "support": 0.20166666666666666,
+            "combined": 0.21749999999999997
+        },
+        {
+            "attacker": 0.32571428571428573,
+            "support": 0.1495238095238095,
+            "combined": 0.23761904761904762
+        },
+        {
+            "attacker": 0.2727272727272727,
+            "support": 0.05454545454545456,
+            "combined": 0.16363636363636364
+        },
+        {
+            "attacker": 0.28583333333333333,
+            "support": 0.08,
+            "combined": 0.18291666666666667
+        },
+        {
+            "attacker": 0.36812500000000004,
+            "support": 0.065,
+            "combined": 0.21656250000000002
+        },
+        {
+            "attacker": 0.21230769230769234,
+            "support": 0.1053846153846154,
+            "combined": 0.15884615384615386
+        },
+        {
+            "attacker": 0.18615384615384614,
+            "support": 0.08692307692307694,
+            "combined": 0.13653846153846155
+        },
+        {
+            "attacker": 0.34950000000000003,
+            "support": 0.18049999999999997,
+            "combined": 0.265
+        },
+        {
+            "attacker": 0.382,
+            "support": 0.06999999999999999,
+            "combined": 0.226
+        },
+        {
+            "attacker": 0.3375,
+            "support": 0.12375,
+            "combined": 0.23062500000000002
+        },
+        {
+            "attacker": 0.39133333333333326,
+            "support": 0.18866666666666668,
+            "combined": 0.29
+        },
+        {
+            "attacker": 0.3408333333333333,
+            "support": 0.09083333333333334,
+            "combined": 0.21583333333333332
+        },
+        {
+            "attacker": 0.37823529411764706,
+            "support": 0.05058823529411765,
+            "combined": 0.21441176470588236
+        },
+        {
+            "attacker": 0.4726666666666667,
+            "support": 0.12000000000000002,
+            "combined": 0.29633333333333334
+        },
+        {
+            "attacker": 0.20888888888888893,
+            "support": 0.18222222222222223,
+            "combined": 0.1955555555555556
+        },
+        {
+            "attacker": 0.25461538461538463,
+            "support": 0.09692307692307695,
+            "combined": 0.1757692307692308
+        },
+        {
+            "attacker": 0.2690909090909091,
+            "support": 0.07909090909090909,
+            "combined": 0.1740909090909091
+        },
+        {
+            "attacker": 0.2635714285714285,
+            "support": 0.2071428571428571,
+            "combined": 0.23535714285714282
+        },
+        {
+            "attacker": 0.29266666666666663,
+            "support": 0.054000000000000006,
+            "combined": 0.1733333333333333
+        },
+        {
+            "attacker": 0.41052631578947374,
+            "support": 0.10631578947368418,
+            "combined": 0.25842105263157894
+        },
+        {
+            "attacker": 0.2941666666666667,
+            "support": 0.1625,
+            "combined": 0.22833333333333333
+        },
+        {
+            "attacker": 0.5323076923076923,
+            "support": 0.08846153846153847,
+            "combined": 0.31038461538461537
+        },
+        {
+            "attacker": 0.24444444444444446,
+            "support": 0.05888888888888889,
+            "combined": 0.15166666666666667
+        },
+        {
+            "attacker": 0.39999999999999997,
+            "support": 0.14416666666666667,
+            "combined": 0.27208333333333334
+        },
+        {
+            "attacker": 0.25999999999999995,
+            "support": 0.06799999999999999,
+            "combined": 0.16399999999999998
+        },
+        {
+            "attacker": 0.4094117647058823,
+            "support": 0.10823529411764707,
+            "combined": 0.2588235294117647
+        },
+        {
+            "attacker": 0.44928571428571434,
+            "support": 0.1671428571428571,
+            "combined": 0.3082142857142857
+        },
+        {
+            "attacker": 0.23499999999999996,
+            "support": 0.06300000000000001,
+            "combined": 0.149
+        },
+        {
+            "attacker": 0.3655555555555556,
+            "support": 0.11333333333333334,
+            "combined": 0.23944444444444446
+        },
+        {
+            "attacker": 0.2463636363636364,
+            "support": 0.06272727272727273,
+            "combined": 0.15454545454545457
+        },
+        {
+            "attacker": 0.3038888888888889,
+            "support": 0.11611111111111111,
+            "combined": 0.21
+        },
+        {
+            "attacker": 0.2535714285714285,
+            "support": 0.10571428571428573,
+            "combined": 0.1796428571428571
+        },
+        {
+            "attacker": 0.297,
+            "support": 0.10299999999999998,
+            "combined": 0.19999999999999998
+        },
+        {
+            "attacker": 0.3223076923076923,
+            "support": 0.08307692307692308,
+            "combined": 0.20269230769230767
+        },
+        {
+            "attacker": 0.37357142857142855,
+            "support": 0.05357142857142858,
+            "combined": 0.21357142857142858
+        },
+        {
+            "attacker": 0.32416666666666666,
+            "support": 0.07666666666666667,
+            "combined": 0.20041666666666666
+        },
+        {
+            "attacker": 0.3152941176470588,
+            "support": 0.058823529411764705,
+            "combined": 0.18705882352941175
+        },
+        {
+            "attacker": 0.2688888888888889,
+            "support": 0.14777777777777779,
+            "combined": 0.20833333333333334
+        },
+        {
+            "attacker": 0.2791666666666666,
+            "support": 0.08,
+            "combined": 0.17958333333333332
+        },
+        {
+            "attacker": 0.31652173913043474,
+            "support": 0.11304347826086951,
+            "combined": 0.21478260869565213
+        },
+        {
+            "attacker": 0.28818181818181815,
+            "support": 0.06727272727272728,
+            "combined": 0.1777272727272727
+        },
+        {
+            "attacker": 0.22399999999999998,
+            "support": 0.06799999999999999,
+            "combined": 0.146
+        },
+        {
+            "attacker": 0.2823076923076923,
+            "support": 0.06692307692307693,
+            "combined": 0.17461538461538462
+        },
+        {
+            "attacker": 0.329,
+            "support": 0.05700000000000001,
+            "combined": 0.193
+        },
+        {
+            "attacker": 0.33916666666666667,
+            "support": 0.09499999999999999,
+            "combined": 0.21708333333333332
+        },
+        {
+            "attacker": 0.37499999999999994,
+            "support": 0.17833333333333332,
+            "combined": 0.2766666666666666
+        },
+        {
+            "attacker": 0.28500000000000003,
+            "support": 0.07100000000000001,
+            "combined": 0.17800000000000002
+        },
+        {
+            "attacker": 0.2924999999999999,
+            "support": 0.08166666666666668,
+            "combined": 0.1870833333333333
+        },
+        {
+            "attacker": 0.2544,
+            "support": 0.22519999999999998,
+            "combined": 0.2398
+        },
+        {
+            "attacker": 0.18266666666666667,
+            "support": 0.08200000000000002,
+            "combined": 0.13233333333333336
+        },
+        {
+            "attacker": 0.38,
+            "support": 0.05500000000000001,
+            "combined": 0.2175
+        },
+        {
+            "attacker": 0.2275,
+            "support": 0.14500000000000002,
+            "combined": 0.18625000000000003
+        },
+        {
+            "attacker": 0.3033333333333333,
+            "support": 0.09800000000000002,
+            "combined": 0.20066666666666666
+        },
+        {
+            "attacker": 0.31157894736842107,
+            "support": 0.16894736842105262,
+            "combined": 0.24026315789473685
+        },
+        {
+            "attacker": 0.12181818181818183,
+            "support": 0.14,
+            "combined": 0.13090909090909092
+        },
+        {
+            "attacker": 0.21769230769230763,
+            "support": 0.11846153846153847,
+            "combined": 0.16807692307692304
+        },
+        {
+            "attacker": 0.27266666666666667,
+            "support": 0.09200000000000001,
+            "combined": 0.18233333333333335
+        },
+        {
+            "attacker": 0.3242857142857143,
+            "support": 0.10238095238095235,
+            "combined": 0.21333333333333332
+        },
+        {
+            "attacker": 0.309,
+            "support": 0.076,
+            "combined": 0.1925
+        },
+        {
+            "attacker": 0.2783333333333333,
+            "support": 0.12444444444444445,
+            "combined": 0.2013888888888889
+        },
+        {
+            "attacker": 0.20600000000000002,
+            "support": 0.054000000000000006,
+            "combined": 0.13
+        },
+        {
+            "attacker": 0.19444444444444445,
+            "support": 0.06888888888888889,
+            "combined": 0.13166666666666665
+        },
+        {
+            "attacker": 0.2433333333333333,
+            "support": 0.060000000000000005,
+            "combined": 0.15166666666666664
+        },
+        {
+            "attacker": 0.4175,
+            "support": 0.09583333333333334,
+            "combined": 0.25666666666666665
+        },
+        {
+            "attacker": 0.2508333333333333,
+            "support": 0.1425,
+            "combined": 0.19666666666666666
+        },
+        {
+            "attacker": 0.25999999999999995,
+            "support": 0.082,
+            "combined": 0.17099999999999999
+        },
+        {
+            "attacker": 0.16777777777777778,
+            "support": 0.07333333333333333,
+            "combined": 0.12055555555555555
+        },
+        {
+            "attacker": 0.3172727272727272,
+            "support": 0.08181818181818182,
+            "combined": 0.19954545454545453
+        },
+        {
+            "attacker": 0.3269230769230769,
+            "support": 0.05230769230769231,
+            "combined": 0.18961538461538463
+        },
+        {
+            "attacker": 0.3246666666666666,
+            "support": 0.17466666666666664,
+            "combined": 0.24966666666666662
+        },
+        {
+            "attacker": 0.25799999999999995,
+            "support": 0.11100000000000002,
+            "combined": 0.1845
+        },
+        {
+            "attacker": 0.3133333333333333,
+            "support": 0.15583333333333335,
+            "combined": 0.2345833333333333
+        },
+        {
+            "attacker": 0.2683333333333333,
+            "support": 0.10055555555555556,
+            "combined": 0.18444444444444444
+        },
+        {
+            "attacker": 0.3354545454545455,
+            "support": 0.12636363636363637,
+            "combined": 0.23090909090909095
+        },
+        {
+            "attacker": 0.38272727272727275,
+            "support": 0.10227272727272725,
+            "combined": 0.2425
+        },
+        {
+            "attacker": 0.20181818181818179,
+            "support": 0.055454545454545465,
+            "combined": 0.12863636363636363
+        },
+        {
+            "attacker": 0.27899999999999997,
+            "support": 0.069,
+            "combined": 0.174
+        },
+        {
+            "attacker": 0.17545454545454547,
+            "support": 0.09545454545454546,
+            "combined": 0.13545454545454547
+        },
+        {
+            "attacker": 0.4558333333333333,
+            "support": 0.12083333333333335,
+            "combined": 0.28833333333333333
+        },
+        {
+            "attacker": 0.41307692307692306,
+            "support": 0.07846153846153846,
+            "combined": 0.24576923076923077
+        },
+        {
+            "attacker": 0.23272727272727273,
+            "support": 0.03818181818181819,
+            "combined": 0.13545454545454547
+        },
+        {
+            "attacker": 0.32999999999999996,
+            "support": 0.09846153846153846,
+            "combined": 0.21423076923076922
+        },
+        {
+            "attacker": 0.20916666666666664,
+            "support": 0.10166666666666668,
+            "combined": 0.15541666666666665
+        },
+        {
+            "attacker": 0.2288888888888889,
+            "support": 0.07888888888888888,
+            "combined": 0.15388888888888888
+        },
+        {
+            "attacker": 0.2777777777777778,
+            "support": 0.11055555555555557,
+            "combined": 0.19416666666666668
+        },
+        {
+            "attacker": 0.18,
+            "support": 0.11749999999999998,
+            "combined": 0.14875
+        },
+        {
+            "attacker": 0.16600000000000004,
+            "support": 0.05600000000000001,
+            "combined": 0.11100000000000002
+        },
+        {
+            "attacker": 0.348,
+            "support": 0.05500000000000001,
+            "combined": 0.20149999999999998
+        },
+        {
+            "attacker": 0.39909090909090905,
+            "support": 0.06363636363636364,
+            "combined": 0.23136363636363635
+        },
+        {
+            "attacker": 0.31578947368421045,
+            "support": 0.12578947368421053,
+            "combined": 0.22078947368421048
+        },
+        {
+            "attacker": 0.3328571428571428,
+            "support": 0.05,
+            "combined": 0.1914285714285714
+        },
+        {
+            "attacker": 0.12454545454545457,
+            "support": 0.0790909090909091,
+            "combined": 0.10181818181818184
+        },
+        {
+            "attacker": 0.2664285714285714,
+            "support": 0.052857142857142866,
+            "combined": 0.15964285714285714
+        },
+        {
+            "attacker": 0.26399999999999996,
+            "support": 0.10700000000000001,
+            "combined": 0.1855
+        },
+        {
+            "attacker": 0.27437500000000004,
+            "support": 0.084375,
+            "combined": 0.179375
+        },
+        {
+            "attacker": 0.5261538461538461,
+            "support": 0.06692307692307693,
+            "combined": 0.29653846153846153
+        },
+        {
+            "attacker": 0.25363636363636366,
+            "support": 0.06272727272727273,
+            "combined": 0.1581818181818182
+        },
+        {
+            "attacker": 0.2766666666666666,
+            "support": 0.060000000000000005,
+            "combined": 0.1683333333333333
+        },
+        {
+            "attacker": 0.2699999999999999,
+            "support": 0.09307692307692308,
+            "combined": 0.18153846153846148
+        },
+        {
+            "attacker": 0.246,
+            "support": 0.1055,
+            "combined": 0.17575
+        },
+        {
+            "attacker": 0.2771428571428571,
+            "support": 0.12142857142857144,
+            "combined": 0.19928571428571426
+        },
+        {
+            "attacker": 0.28941176470588237,
+            "support": 0.2111764705882353,
+            "combined": 0.25029411764705883
+        },
+        {
+            "attacker": 0.34,
+            "support": 0.06,
+            "combined": 0.2
+        },
+        {
+            "attacker": 0.3326666666666666,
+            "support": 0.07200000000000001,
+            "combined": 0.2023333333333333
+        },
+        {
+            "attacker": 0.269,
+            "support": 0.067,
+            "combined": 0.168
+        },
+        {
+            "attacker": 0.3441666666666667,
+            "support": 0.05583333333333334,
+            "combined": 0.2
+        },
+        {
+            "attacker": 0.165,
+            "support": 0.053000000000000005,
+            "combined": 0.10900000000000001
+        },
+        {
+            "attacker": 0.3722222222222223,
+            "support": 0.08777777777777779,
+            "combined": 0.23000000000000004
+        },
+        {
+            "attacker": 0.161,
+            "support": 0.054000000000000006,
+            "combined": 0.10750000000000001
+        },
+        {
+            "attacker": 0.18333333333333332,
+            "support": 0.05444444444444445,
+            "combined": 0.11888888888888888
+        },
+        {
+            "attacker": 0.26749999999999996,
+            "support": 0.08,
+            "combined": 0.17375
+        },
+        {
+            "attacker": 0.22349999999999995,
+            "support": 0.11799999999999997,
+            "combined": 0.17074999999999996
+        },
+        {
+            "attacker": 0.2438461538461538,
+            "support": 0.08,
+            "combined": 0.1619230769230769
+        },
+        {
+            "attacker": 0.24749999999999994,
+            "support": 0.1075,
+            "combined": 0.17749999999999996
+        }
+    ],
+    "cumulative_agent_wins": [
+        1,
+        1,
+        2,
+        2,
+        3,
+        4,
+        5,
+        5,
+        6,
+        6,
+        7,
+        8,
+        9,
+        9,
+        10,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        15,
+        16,
+        16,
+        17,
+        18,
+        18,
+        19,
+        20,
+        21,
+        21,
+        22,
+        23,
+        23,
+        24,
+        25,
+        26,
+        27,
+        27,
+        28,
+        29,
+        30,
+        30,
+        31,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        38,
+        38,
+        39,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        44,
+        44,
+        45,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        52,
+        53,
+        54,
+        55,
+        56,
+        56,
+        56,
+        56,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        61,
+        61,
+        61,
+        62,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        74,
+        75,
+        76,
+        77,
+        77,
+        78,
+        79,
+        79,
+        80,
+        81,
+        82,
+        82,
+        83,
+        84,
+        84,
+        85,
+        86,
+        87,
+        88,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        96,
+        96,
+        96,
+        97,
+        97,
+        98,
+        99,
+        99,
+        100,
+        101,
+        102,
+        102,
+        103,
+        103,
+        104,
+        105,
+        105,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        120,
+        121,
+        121,
+        122,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        128,
+        128,
+        128,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        129,
+        130,
+        130,
+        130,
+        130,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        131,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132,
+        132
+    ],
+    "cumulative_enemy_wins": [
+        0,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4,
+        4,
+        4,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6,
+        6,
+        6,
+        7,
+        7,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        9,
+        10,
+        10,
+        10,
+        11,
+        11,
+        11,
+        11,
+        11,
+        12,
+        12,
+        12,
+        12,
+        13,
+        13,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        14,
+        15,
+        16,
+        16,
+        17,
+        17,
+        17,
+        17,
+        17,
+        17,
+        18,
+        19,
+        19,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        20,
+        21,
+        21,
+        21,
+        21,
+        21,
+        22,
+        23,
+        24,
+        25,
+        25,
+        25,
+        25,
+        25,
+        25,
+        26,
+        27,
+        28,
+        28,
+        29,
+        29,
+        29,
+        29,
+        29,
+        29,
+        29,
+        29,
+        29,
+        29,
+        29,
+        29,
+        29,
+        30,
+        30,
+        30,
+        30,
+        31,
+        31,
+        31,
+        32,
+        32,
+        32,
+        32,
+        33,
+        33,
+        33,
+        34,
+        34,
+        34,
+        34,
+        34,
+        35,
+        35,
+        35,
+        35,
+        35,
+        35,
+        35,
+        35,
+        35,
+        36,
+        37,
+        38,
+        38,
+        39,
+        39,
+        39,
+        40,
+        40,
+        40,
+        40,
+        41,
+        41,
+        42,
+        42,
+        42,
+        43,
+        44,
+        44,
+        44,
+        44,
+        44,
+        44,
+        44,
+        44,
+        44,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        45,
+        46,
+        46,
+        47,
+        47,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        48,
+        49,
+        50,
+        51,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        76,
+        77,
+        78,
+        79,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168
+    ],
+    "hallucinations": 0
+}
