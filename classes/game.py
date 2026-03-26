@@ -1,6 +1,7 @@
 import random
 import pprint
 
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -36,9 +37,11 @@ class Person:
         return self.hp
 
     def heal(self, dmg):
+        """Cura il player senza superare maxHP"""
         self.hp += dmg
         if self.hp > self.maxhp:
             self.hp = self.maxhp
+        # print(f"{self.name} curato di {dmg} HP → HP: {self.hp}/{self.maxhp}")
 
     def get_hp(self):
         return self.hp
@@ -68,15 +71,18 @@ class Person:
 
         print("\n" + bcolors.OKBLUE + bcolors.BOLD + "    MAGIC:" + bcolors.ENDC)
         for spell in self.magic:
-            print("        " + str(i) + ".", spell.name, "(cost:", str(spell.cost) + ")")
+            print("        " + str(i) + ".", spell.name,
+                  "(cost:", str(spell.cost) + ")")
             i += 1
 
     def choose_item(self):
         i = 1
 
-        print("\n" + bcolors.OKGREEN + bcolors.BOLD + "    ITEMS:" + bcolors.ENDC)
+        print("\n" + bcolors.OKGREEN + bcolors.BOLD +
+              "    ITEMS:" + bcolors.ENDC)
         for item in self.items:
-            print("        " + str(i) + ".", item["item"].name + ":", item["item"].description, " (x" + str(item["quantity"]) +")")
+            print("        " + str(i) + ".", item["item"].name + ":",
+                  item["item"].description, " (x" + str(item["quantity"]) + ")")
             i += 1
 
     def choose_target(self, enemies):
@@ -89,8 +95,6 @@ class Person:
                 i += 1
         choice = int(input("    Choose target:")) - 1
         return choice
-
-
 
     def get_enemy_stats(self):
         hp_bar = ""
@@ -142,7 +146,6 @@ class Person:
         while len(mp_bar) < 10:
             mp_bar += " "
 
-
         hp_string = str(self.hp) + "/" + str(self.maxhp)
         current_hp = ""
 
@@ -173,7 +176,7 @@ class Person:
 
         print("                     _________________________              __________ ")
         print(bcolors.BOLD + self.name + "    " +
-              current_hp +" |" + bcolors.OKGREEN + hp_bar + bcolors.ENDC + "|    " +
+              current_hp + " |" + bcolors.OKGREEN + hp_bar + bcolors.ENDC + "|    " +
               current_mp + " |" + bcolors.OKBLUE + mp_bar + bcolors.ENDC + "|")
 
     def choose_enemy_spell(self):
@@ -187,7 +190,3 @@ class Person:
             # Verifica se la spell è utilizzabile
             if self.mp >= spell.cost and (spell.type != "white" or pct <= 50):
                 return spell, magic_dmg
-
-
-
-

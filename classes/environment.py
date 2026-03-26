@@ -2,218 +2,458 @@ import numpy as np
 import random
 from classes.magic import Spell
 from classes.inventory import Item
+from classes.games import (fire, thunder, blizzard, meteor, cura,
+                           cura_support, cura_tot, splash, cura_m, cura_totm,
+                           grenade, potion, hielixer, )
 
-# Spells and items setup
-fire = Spell("Fire", 25, 600, "black")
-thunder = Spell("Thunder", 30, 700, "black")
-blizzard = Spell("Blizzard", 35, 800, "black")
-meteor = Spell("Meteor", 40, 1000, "black")
-cura = Spell("Cura", 32, 1500, "white")
 MIN_SPELL_COST = 25
 
-potion = Item("Potion", "potion", "Heals 50 HP", 50)
-hielixer = Item("MegaElixer", "elixir", "Fully restores party's HP/MP", 9999)
-grenade = Item("Grenade", "attack", "Deals 500 damage", 500)
+ATTACKER_INDEX = 0
+SUPPORT_INDEX = 1
+
+# Environment setup
 
 
 class BattleEnv:
     def __init__(self, players, enemies):
+        """
+        players: lista di Person
+        enemies: lista di Person
+        """
         self.players = players
         self.enemies = enemies
+        self.original_player_data = []
+        for player in players:
+            self.original_player_data.append({
+                'name': player.name,
+                'magic': player.magic.copy(),
+                # Copia items
+                'items': [{"item": item["item"], "quantity": item["quantity"]} for item in player.items]
+            })
+
         self.state_size = len(self.get_state())
-        self.action_size = self.get_action_size()
+        self.action_size = self.get_action_size(0)
         self.done = False
 
+    def get_state_size_of_player(self, player_name):
+        """Ritorna la dimensione dello stato per un player specifico"""
+        player = None
+        for p in self.players:
+            if p.name == player_name:
+                player = p
+                break
+
+        if player is None:
+            raise ValueError(f"Player {player_name} not found")
+
+        # Stato = [HP, MP, spell1, spell2, ..., spellN, item1, item2, item3]
+        num_spells = len(player.magic)
+        num_items = len(player.items)
+        state_size = 2 + num_spells + num_items  # HP + MP + spells + items
+
+        return state_size
+
     def get_state(self):
-        state = []
+        """
+        crea un'array contentente tutto lo stato del gioco.
+        lo stato è composto da:
+            per ogni player:
+                hp,
+                mp,
+                1 per ogni spell se il player ha abbastanza mp per lanciarla, 0 altrimenti
+                per ogni item la quantità disponibile, tipo 2 granate
+            poi per l'enemy:
+                hp,
+                mp
+        """
+        state = {}
+        state['enemies'] = []
         # Add player and enemy stats (HP, MP, spells, items)
         for player in self.players:
-            state.extend([player.get_hp(), player.get_mp()])
+            state[player.name] = []
+
+            state[player.name].extend([player.get_hp(), player.get_mp()])
             for spell in player.magic:
-                state.append(1 if player.get_mp() >= spell.cost else 0)  # Can cast spell
+                state[player.name].append(
+                    1 if player.get_mp() >= spell.cost else 0)  # Can cast spell
             for item in player.items:
-                state.append(item["quantity"])  # Quantity of items left
+                # Quantity of items left
+                state[player.name].append(item["quantity"])
 
         if len(self.enemies) == 0:
-            state.extend([0, 0])
+            state["enemies"] = [0, 0]
         for enemy in self.enemies:
-            state.extend([enemy.get_hp(), enemy.get_mp()])
+            state["enemies"].extend([enemy.get_hp(), enemy.get_mp()])
+        return state
 
-        print(f"State: {state}, Length: {len(state)}")
-        return np.array(state)
+    def get_action_size(self, player_index):
+        """
+        calcola il numero totale di azioni disponibili nel gioco:
+        somma 1 (attacco sempre disponibile) + spell + items
 
-    def get_action_size(self):
+        probabilmente non va bene per due players, dovrebbe ritornare una lista di liste, o meglio ancora una mappa
+        """
         # Total actions: attack (1), spells (len(player.magic)), items (len(player.items))
         actions = 1  # Attack
-        if len(self.players) > 0:
-            actions += len(self.players[0].magic)  # Each spell is a separate action
-            actions += len(self.players[0].items)  # Each item is a separate action
+        # Each spell is a separate action
+        actions += len(self.players[player_index].magic)
+        # Each item is a separate action
+        actions += len(self.players[player_index].items)
         return actions
 
-    def get_valid_actions(self, player_index=0):
-        valid_actions = [0]  # Attack always valid
+    def get_valid_actions(self, player_index):
+        """
+        Questa funzione restituisce una lista di azioni valide (eseguibili) in base allo stato corrente del gioco:
+
+        Spell: per ogni spell solo se il player ha abbastanza MP
+        Item: per ogni item solo se la quantità è > 0
+        Attack: sempre valido
+
+        """
         player = self.players[player_index]
+        valid_actions = []
 
-        # Spells
-        for idx, spell in enumerate(player.magic):
+        # Se player morto
+        if player.get_hp() <= 0:
+            return []  # Nessuna azione possibile
+
+        # Action 0: Attack (sempre valida se vivo)
+        valid_actions.append(0)
+
+        # Spell (actions 1 to len(magic))
+        for i, spell in enumerate(player.magic):
+            action_index = i + 1
+            # se non ha mp necessari non posso aggiungere la spell
             if player.get_mp() >= spell.cost:
-                valid_actions.append(idx + 1)
+                valid_actions.append(action_index)
 
-        # Items
-        for idx, item in enumerate(player.items):
-            if item["quantity"] > 0:
-                # Items start after magic actions
-                valid_actions.append(len(player.magic) + 1 + idx)
+        # Items (actions after spells)
+        item_start_index = len(player.magic) + 1
+        for i, item_data in enumerate(player.items):
+            action_index = item_start_index + i
+            # if not enought quantity can't add magic
+            if item_data["quantity"] > 0:
+                valid_actions.append(action_index)
 
         return valid_actions
 
-    def reset(self):
-        self.done = False
-        player_spells = [fire, thunder, blizzard, meteor, cura]
-        player_items = [{"item": potion, "quantity": 3}, {"item": grenade, "quantity": 2},
-                        {"item": hielixer, "quantity": 1}]
+    def get_compact_state(self):
+        attacker = self.players[ATTACKER_INDEX]
+        supporter = self.players[SUPPORT_INDEX]
+        enemy = self.enemies[0] if len(self.enemies) > 0 else None
 
-        for player in self.players:
+        state_str = f"Attacker HP: {attacker.get_hp()}, MP: {attacker.get_mp()}. "
+        state_str += f"Supporter HP: {supporter.get_hp()}, MP: {supporter.get_mp()}. "
+
+        if enemy:
+            state_str += f"Enemy HP: {enemy.get_hp()}, MP: {enemy.get_mp()}. "
+        else:
+            state_str += "Enemy HP: 0, MP: 0. "
+
+        attacker_items = {item["item"].name: item["quantity"]
+                          for item in attacker.items if item['quantity'] > 0}
+        state_str += f"Attacker items: {attacker_items}. "
+
+        supporter_items = {item["item"].name: item["quantity"]
+                           for item in supporter.items if item['quantity'] > 0}
+        state_str += f"Supporter items: {supporter_items}. "
+
+        return state_str
+
+    def reset(self):
+        """Reset del gioco ripristinando HP/MP e gli spell/items originali"""
+        self.done = False
+
+        for i, player in enumerate(self.players):
             player.hp = player.maxhp
             player.mp = player.maxmp
-            player.magic = player_spells.copy()
-            player.items = [{"item": item["item"], "quantity": item["quantity"]} for item in player_items]
 
+            # Ripristina gli spell originali
+            original_data = self.original_player_data[i]
+            player.magic = original_data['magic'].copy()
+
+            # Ripristina le quantità degli items
+            player.items = [
+                {"item": item["item"], "quantity": item["quantity"]}
+                for item in original_data['items']
+            ]
+
+        # Reset nemici
         for enemy in self.enemies:
             enemy.hp = enemy.maxhp
             enemy.mp = enemy.maxmp
 
         return self.get_state()
 
-    def step(self, actions):
-        """
-        actions: lista [action_player1, action_player2] oppure singola action per retrocompatibilità
-        """
-        # Gestisci sia lista che singola action per retrocompatibilità
-        if not isinstance(actions, list):
-            actions = [actions]
-        
+    # CHIEDERE SE VANNO BENE I REWARD
+    def perform_action(self, player_index, action):
+        player = self.players[player_index]
         reward = 0
-        agent_win = False
-        enemy_win = False
-        enemy_choice = "No action"
 
-        # Esegui le azioni di tutti i player
-        for player_idx, action in enumerate(actions):
-            if player_idx >= len(self.players):
-                break
-                
-            player = self.players[player_idx]
-            
-            # Action: Attack
-            if action == 0:
-                dmg = player.generate_damage()
-                enemy = self.enemies[0]
-                enemy.take_damage(dmg)
-                reward += 25
-                
-            # Action: Cast spell
-            elif action > 0 and action <= len(player.magic):
-                spell = player.magic[action - 1]
-                if player.get_mp() >= spell.cost:
-                    magic_dmg = spell.generate_damage()
-                    player.reduce_mp(spell.cost)
-                    
-                    if spell.type == "white":
-                        player.heal(magic_dmg)
-                        reward += 15
+        if player.get_hp() <= 0:
+            return 0
+
+        if action == 0:
+            dmg = player.generate_damage()
+            enemy = self.enemies[0]
+            enemy.take_damage(dmg)
+            reward += 10  # ERA 25 - Ridotto perché attack è debole
+
+        # vedo se index azione è tra 0 e len magic, allora è una spell
+        elif action > 0 and action <= len(player.magic) and player_index == ATTACKER_INDEX:
+            spell = player.magic[action - 1]
+            if player.get_mp() >= spell.cost:
+                magic_dmg = spell.generate_damage()
+                player.reduce_mp(spell.cost)
+                if spell.type == "white":
+                    # Cura - reward in base a quanto era necessaria
+                    hp_ratio = player.hp / player.maxhp
+                    if hp_ratio < 0.3:
+                        reward += 40  # Cura critica molto premiata
+                    elif hp_ratio < 0.6:
+                        reward += 20  # Cura utile
                     else:
-                        enemy = self.enemies[0]
-                        enemy.take_damage(magic_dmg)
-                        reward += 15
+                        reward -= 5  # Cura non necessaria
+                    player.heal(magic_dmg)
                 else:
-                    reward -= 10  # Penalità per tentare spell senza MP
-                    
-            # Action: Use item
-            elif action > len(player.magic):
-                item_index = action - len(player.magic) - 1
-                if item_index < len(player.items):
-                    item = player.items[item_index]["item"]
-                    
-                    if player.items[item_index]["quantity"] > 0:
-                        player.items[item_index]["quantity"] -= 1
-                        
-                        if item.type == "potion":
-                            player.heal(item.prop)
-                            reward += 15
-                        elif item.type == "attack":
-                            enemy = self.enemies[0]
-                            enemy.take_damage(item.prop)
-                            reward += 15
-                        elif item.type == "elixir":
-                            if player.hp <= 1000:
-                                reward += 50
-                            else:
-                                reward += 5
-                            player.hp = player.maxhp
-                            player.mp = player.maxmp
+                    enemy = self.enemies[0]
+                    enemy.take_damage(magic_dmg)
+                    # Reward proporzionale al danno (spell forti premiate di più)
+                    if spell.name == "Meteor":
+                        reward += 30
+                    elif spell.name == "Blizzard":
+                        reward += 25
+                    elif spell.name == "Thunder":
+                        reward += 22
+                    else:  # Fire
+                        reward += 20
+
+        elif action > 0 and action <= len(player.magic) and player_index == SUPPORT_INDEX:
+            spell = player.magic[action - 1]
+            mate = self.players[ATTACKER_INDEX]
+            if player.get_mp() >= spell.cost:
+                magic_dmg = spell.generate_damage()
+                player.reduce_mp(spell.cost)
+
+                if spell.type.startswith("white"):
+                    if "_" in spell.type:
+                        dest = spell.type.split("white_")[1]
                     else:
-                        reward -= 10  # Penalità per usare item non disponibile
+                        dest = ""
 
-        # Check for battle ended (enemy defeated)
-        if self.enemies[0].get_hp() <= 0:
-            self.done = True
-            reward += 100
-            agent_win = True
-            return self.get_state(), reward, self.done, agent_win, enemy_win, enemy_choice
+                    if dest == "" or dest is None:
+                        # Auto-cura support
+                        hp_ratio = player.hp / player.maxhp
+                        mate_hp_ratio = mate.hp / mate.maxhp
 
-        # Enemy turn (attacks after all players have acted)
-        for enemy in self.enemies:
-            enemy_choice = 'attack'
-            
-            # If the enemy has enough magic points, it can also choose magic
-            if enemy.get_mp() >= MIN_SPELL_COST:
-                enemy_choice = random.choice(['attack', 'magic'])
+                        # Penalità se cura se stesso quando il mate sta peggio
+                        if mate_hp_ratio < 0.4 and hp_ratio > 0.5:
+                            reward -= 15  # Egoista! Il mate ha bisogno
+                        elif hp_ratio < 0.25:
+                            reward += 40  # Critico, giusto curarsi
+                        elif hp_ratio < 0.5:
+                            reward += 20
+                        elif hp_ratio < 0.7:
+                            reward += 5
+                        else:
+                            reward -= 10  # Spreco
+                        player.heal(magic_dmg)
 
-            if enemy_choice == 'attack':
-                # Target random alive player
-                alive_players = [p for p in self.players if p.get_hp() > 0]
-                if alive_players:
+                    elif dest == "m":
+                        # Cura il mate - PRIORITÀ MASSIMA del support
+                        mate_hp_ratio = mate.hp / mate.maxhp
+                        heal_efficiency = min(
+                            magic_dmg, mate.maxhp - mate.hp) / magic_dmg
+
+                        mate.heal(magic_dmg)
+
+                        # Soglie più alte: curare PRIMA che sia critico
+                        if mate_hp_ratio < 0.25:
+                            reward += 60  # Salvare il mate è priorità massima
+                        elif mate_hp_ratio < 0.5:
+                            reward += 45  # Cura importante
+                        elif mate_hp_ratio < 0.7:
+                            reward += 25  # Cura preventiva buona
+                        elif mate_hp_ratio < 0.85:
+                            reward += 5  # Leggero top-up
+                        else:
+                            reward -= 8  # Overheal inutile
+
+                        # Bonus efficienza (poca cura sprecata)
+                        reward += int(10 * heal_efficiency)
+
+                    elif dest == "tot":
+                        # Cura entrambi
+                        self_hp_ratio = player.hp / player.maxhp
+                        mate_hp_ratio = mate.hp / mate.maxhp
+
+                        player.heal(magic_dmg)
+                        mate.heal(magic_dmg)
+
+                        # Premiata se entrambi ne beneficiano
+                        if self_hp_ratio < 0.5 and mate_hp_ratio < 0.5:
+                            reward += 50  # Ottima scelta, entrambi bassi
+                        elif self_hp_ratio < 0.6 or mate_hp_ratio < 0.6:
+                            reward += 30
+                        elif self_hp_ratio < 0.8 and mate_hp_ratio < 0.8:
+                            reward += 15
+                        else:
+                            reward -= 5  # Spreco
+                    else:
+                        print(
+                            f"Warning: Unknown spell dest '{dest}', defaulting to self-heal")
+                        player.heal(magic_dmg)
+                        reward += 5
+
+                else:
+                    # Spell offensiva del support - RIDOTTO
+                    enemy = self.enemies[0]
+                    mate_hp_ratio = mate.hp / mate.maxhp
+                    enemy.take_damage(magic_dmg)
+
+                    # Penalità se attacca mentre il mate soffre
+                    if mate_hp_ratio < 0.4:
+                        reward -= 20  # Doveva curare, non attaccare!
+                    elif mate_hp_ratio < 0.6:
+                        reward += 0  # Neutro, borderline
+                    else:
+                        reward += 8  # OK attaccare se mate sta bene
+
+        elif action > len(player.magic):
+            item_index = action - len(player.magic) - 1
+            item = player.items[item_index]["item"]
+            if player.items[item_index]["quantity"] > 0:
+                player.items[item_index]["quantity"] -= 1
+                if item.type == "potion":
+                    player.heal(item.prop)
+                    reward += 15
+                elif item.type == "attack":
+                    enemy = self.enemies[0]
+                    enemy.take_damage(item.prop)
+                    reward += 15
+                elif item.type == "elixir":
+                    if player.hp <= 1000:
+                        reward += 50
+                    else:
+                        reward += 5
+                    player.hp = player.maxhp
+                    player.mp = player.maxmp
+
+        return reward
+
+    def enemy_turn(self):
+        enemy = self.enemies[0]
+
+        if enemy.get_hp() <= 0:
+            return None
+
+        alive_players = [p for p in self.players if p.get_hp() > 0]
+
+        if not alive_players:
+            return None
+
+        enemy_choice = 'attack'
+
+        # If the enemy has enough magic points, it can also choose magic
+        if enemy.get_mp() >= MIN_SPELL_COST:
+            enemy_choice = random.choice(['attack', 'magic'])
+
+        if enemy_choice == 'attack':
+            target = random.choice(alive_players)
+            damage = enemy.generate_damage()
+            target.take_damage(damage)
+            # print(f"Enemy {enemy.name} (HP: {enemy.get_hp()}) attacks {target.name} for {damage} dmg! (HP: {target.get_hp()}/{target.maxhp})")
+
+        elif enemy_choice == 'magic':
+            spell, magic_dmg = enemy.choose_enemy_spell()
+            enemy_choice = spell.name
+
+            if enemy.get_mp() >= spell.cost:
+                enemy.reduce_mp(spell.cost)
+
+                if spell.type == "white":
+                    enemy.heal(magic_dmg)
+                    # print(f"Enemy {enemy.name} casts {spell.name} and heals for {magic_dmg} HP! (HP: {enemy.get_hp()}/{enemy.maxhp})")
+                else:
                     target = random.choice(alive_players)
-                    enemy_dmg = enemy.generate_damage()
-                    target.take_damage(enemy_dmg)
-                    
-            elif enemy_choice == 'magic':
-                spell, magic_dmg = enemy.choose_enemy_spell()
-                enemy_choice = spell.name
-                
-                if enemy.get_mp() >= spell.cost:
-                    enemy.reduce_mp(spell.cost)
-                    
-                    if spell.type == "white":
-                        enemy.heal(magic_dmg)
-                    else:
-                        # Target random alive player
-                        alive_players = [p for p in self.players if p.get_hp() > 0]
-                        if alive_players:
-                            target = random.choice(alive_players)
-                            target.take_damage(magic_dmg)
+                    target.take_damage(magic_dmg)
+                    # print(f"Enemy {enemy.name} casts {spell.name} on {target.name} for {magic_dmg} dmg! (HP: {target.get_hp()}/{target.maxhp})")
 
-        # Check for battle ended (all players defeated)
-        if all(p.get_hp() <= 0 for p in self.players):
+        return enemy_choice
+
+    def step(self, attacker_action, support_action):
+        reward_attacker = 0
+        reward_support = 0
+
+        # Salva stato HP PRIMA delle azioni per sapere se muoiono QUESTO turno
+        attacker_was_alive = self.players[ATTACKER_INDEX].get_hp() > 0
+        support_was_alive = self.players[SUPPORT_INDEX].get_hp() > 0
+
+        if attacker_action is not None:
+            valid_attacker = self.get_valid_actions(ATTACKER_INDEX)
+
+            # fallback su ATTACK
+            if attacker_action not in valid_attacker:
+                attacker_action = 0
+
+            reward_attacker = self.perform_action(
+                ATTACKER_INDEX, attacker_action)
+
+        if support_action is not None:
+            valid_support = self.get_valid_actions(SUPPORT_INDEX)
+
+            # fallback su ATTACK
+            if support_action not in valid_support:
+                support_action = 0
+
+            reward_support = self.perform_action(SUPPORT_INDEX, support_action)
+
+        # Turno del nemico
+        enemy_action = self.enemy_turn()
+
+        # Punizione morte SOLO se è morto QUESTO turno (dopo azione nemico)
+        if self.players[ATTACKER_INDEX].get_hp() <= 0 and attacker_was_alive:
+            reward_attacker -= 150
+            reward_support -= 75  # Support ha fallito nel curarlo
+
+        if self.players[SUPPORT_INDEX].get_hp() <= 0 and support_was_alive:
+            reward_support -= 150
+            reward_attacker -= 50
+
+        a_win = None
+
+        # Check fine partita
+        if self.players[ATTACKER_INDEX].get_hp() <= 0 and self.players[SUPPORT_INDEX].get_hp() <= 0:
             self.done = True
-            reward -= 100
-            enemy_win = True
+            a_win = False
 
-        return self.get_state(), reward, self.done, agent_win, enemy_win, enemy_choice
+        elif all(enemy.get_hp() <= 0 for enemy in self.enemies):
+            self.done = True
+            a_win = True
+            reward_attacker += 150
+            reward_support += 150
 
-    def describe_game_state(self, last_enemy_move, player_index=0):
+        next_state = self.get_state()
+        return next_state, reward_attacker, reward_support, self.done, a_win, enemy_action, None
+
+    def describe_game_state_attacker(self, last_enemy_move):
+        player = self.players[0]
+        """
+        descrive lo stato del game per l'LLM, attualmente non va bene per due giocatori.
+
+        """
         state_description = ""
-        
-        for idx, player in enumerate(self.players):
-            state_description += f"Player {idx+1} ({player.name}) has {player.get_hp()} Health Points (hp) and {player.get_mp()} Magic Points (mp). "
-            
+
+        state_description += f"Attacker has {player.get_hp()} Health Points (hp) and {player.get_mp()} Magic Points (mp). "
+
         for enemy in self.enemies:
             state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
-
+        if (player.get_hp() <= 0):
+            state_description += "Player is dead. Cannot perform any action. Return no_action. "
+            return state_description
         actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
-        player = self.players[player_index]
 
+        player = self.players[0]
         if player.get_mp() >= fire.cost:
             actions_description += "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
         if player.get_mp() >= thunder.cost:
@@ -231,7 +471,61 @@ class BattleEnv:
         if player.items[2]["quantity"] > 0:
             actions_description += f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
 
-        last_move_description = f"Last enemy move was [{last_enemy_move}]."
-        game_description = state_description + actions_description + last_move_description
+        # if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
+        last_move_description = ""
 
+        game_description = state_description + \
+            actions_description + last_move_description
+        return game_description
+
+    def describe_game_state_supporter(self, last_enemy_move):
+        player = self.players[1]
+        """
+        descrive lo stato del game per l'LLM, attualmente non va bene per due giocatori.
+
+        """
+        state_description = ""
+
+        state_description += f"Supporter has {player.get_hp()} Health Points (hp) and {player.get_mp()} Magic Points (mp). "
+
+        for enemy in self.enemies:
+            state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
+        if (player.get_hp() <= 0):
+            state_description += "Player is dead. Cannot perform any action. Return no_action. "
+            return state_description
+        actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
+
+        if player.get_mp() >= fire.cost:
+            fire_spell = "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
+            actions_description += fire_spell
+        if player.get_mp() >= cura_support.cost:
+            cura_support_spell = "[cura spell] It heals 1200 player's hp and removes 32 player's mp; "
+            actions_description += cura_support_spell
+        if player.get_mp() >= cura_tot.cost:
+            cura_tot_spell = "[cura_tot] Heals 700 HP from both players and removes 30 MP from the player; "
+            actions_description += cura_tot_spell
+        if player.get_mp() >= splash.cost:
+            splash_spell = "[splash] Heals 450 HP from both players and removes 18 MP from the player; "
+            actions_description += splash_spell
+        if player.get_mp() >= cura_m.cost:
+            cura_m_spell = "[cura_m] heals 1300 mate's hp and removes 28 player's mp; "
+            actions_description += cura_m_spell
+        if player.get_mp() >= cura_totm.cost:
+            cura_totm_spell = "[cura_totm] heals 1700 mate's hp and removes 36 player's mp; "
+            actions_description += cura_totm_spell
+        if player.items[0]["quantity"] > 0:
+            potion = f"[potion] heals 50 player's hp and there are {player.items[0]['quantity']}; "
+            actions_description += potion
+        if player.items[1]["quantity"] > 0:
+            grenade = f"[grenade] deals 500 enemy's hp and there are {player.items[1]['quantity']}; "
+            actions_description += grenade
+        if player.items[2]["quantity"] > 0:
+            elixer = f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
+            actions_description += elixer
+
+        # if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
+        last_move_description = ""
+
+        game_description = state_description + \
+            actions_description + last_move_description
         return game_description
