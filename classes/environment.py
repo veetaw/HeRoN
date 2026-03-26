@@ -455,29 +455,21 @@ class BattleEnv:
 
         player = self.players[0]
         if player.get_mp() >= fire.cost:
-            fire_spell = "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
-            actions_description += fire_spell
+            actions_description += "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
         if player.get_mp() >= thunder.cost:
-            thunder_spell = "[thunder spell] deals 700 enemy's hp and removes 30 player's mp; "
-            actions_description += thunder_spell
+            actions_description += "[thunder spell] deals 700 enemy's hp and removes 30 player's mp; "
         if player.get_mp() >= blizzard.cost:
-            blizzard_spell = "[blizzard spell] deals 800 enemy's hp and removes 35 player's mp; "
-            actions_description += blizzard_spell
+            actions_description += "[blizzard spell] deals 800 enemy's hp and removes 35 player's mp; "
         if player.get_mp() >= meteor.cost:
-            meteor_spell = "[meteor spell] deals 1000 enemy's hp and removes 40 player's mp; "
-            actions_description += meteor_spell
+            actions_description += "[meteor spell] deals 1000 enemy's hp and removes 40 player's mp; "
         if player.get_mp() >= cura.cost:
-            cura_spell = "[cura spell] heals 1500 player's hp and removes 32 player's mp; "
-            actions_description += cura_spell
+            actions_description += "[cura spell] heals 1500 player's hp and removes 32 player's mp; "
         if player.items[0]["quantity"] > 0:
-            potion = f"[potion] heals 50 player's hp and there are {player.items[0]['quantity']}; "
-            actions_description += potion
+            actions_description += f"[potion] heals 50 player's hp and there are {player.items[0]['quantity']}; "
         if player.items[1]["quantity"] > 0:
-            grenade = f"[grenade] deals 500 enemy's hp and there are {player.items[1]['quantity']}; "
-            actions_description += grenade
+            actions_description += f"[grenade] deals 500 enemy's hp and there are {player.items[1]['quantity']}; "
         if player.items[2]["quantity"] > 0:
-            elixer = f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
-            actions_description += elixer
+            actions_description += f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
 
         # if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
         last_move_description = ""
