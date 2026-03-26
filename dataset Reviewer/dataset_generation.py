@@ -18,11 +18,16 @@ actions_supporter = {
     'attack': {'damage': 200, 'mp_cost': 0, 'heal': 0},
     'fire spell': {'damage': 400, 'mp_cost': 20, 'heal': 0},
     'attack': {'damage': 250, 'mp_cost': 0, 'heal': 0, 'quantity': 1},
-    'cura spell': {'damage': 0, 'mp_cost': 32, 'heal': 1200, 'quantity': 1},  # Auto-cure
-    'cura_tot': {'damage': 0, 'mp_cost': 30, 'heal': 700, 'quantity': 1},     # Cura entrambi
-    'splash': {'damage': 0, 'mp_cost': 18, 'heal': 450, 'quantity': 1},       # Cura entrambi ma meno
-    'cura_m': {'damage': 0, 'mp_cost': 28, 'heal': 1300, 'quantity': 1},      # Cura il mate
-    'cura_totm': {'damage': 0, 'mp_cost': 36, 'heal': 1700, 'quantity': 1},   # Cura di più il mate
+    # Auto-cure
+    'cura spell': {'damage': 0, 'mp_cost': 32, 'heal': 1200, 'quantity': 1},
+    # Cura entrambi
+    'cura_tot': {'damage': 0, 'mp_cost': 30, 'heal': 700, 'quantity': 1},
+    # Cura entrambi ma meno
+    'splash': {'damage': 0, 'mp_cost': 18, 'heal': 450, 'quantity': 1},
+    # Cura il mate
+    'cura_m': {'damage': 0, 'mp_cost': 28, 'heal': 1300, 'quantity': 1},
+    # Cura di più il mate
+    'cura_totm': {'damage': 0, 'mp_cost': 36, 'heal': 1700, 'quantity': 1},
 }
 
 
@@ -44,8 +49,10 @@ def generate_game_scenario():
         'elixer': random.randint(0, 1)
     }
     last_enemy_move = random.choice(['attack', 'fire spell', 'cura spell'])
-    available_actions_attacker = {action: info for action, info in actions_attacker.items() if attacker_mp >= info['mp_cost']}
-    available_actions_supporter = {action: info for action, info in actions_supporter.items() if supporter_mp >= info['mp_cost']}
+    available_actions_attacker = {
+        action: info for action, info in actions_attacker.items() if attacker_mp >= info['mp_cost']}
+    available_actions_supporter = {
+        action: info for action, info in actions_supporter.items() if supporter_mp >= info['mp_cost']}
 
     return {
         'attacker_hp': attacker_hp,
@@ -63,8 +70,10 @@ def generate_game_scenario():
 
 
 def generate_response(scenario):
-    action_attacker = random.choice(list(scenario['available_actions_attacker'].keys()))
-    action_supporter = random.choice(list(scenario['available_actions_supporter'].keys()))
+    action_attacker = random.choice(
+        list(scenario['available_actions_attacker'].keys()))
+    action_supporter = random.choice(
+        list(scenario['available_actions_supporter'].keys()))
     response = {
         "attacker": action_attacker,
         "supporter": action_supporter
@@ -78,7 +87,7 @@ def generate_instructions(scenario, response):
     supporter_hp = scenario['supporter_hp']
     supporter_mp = scenario['supporter_mp']
     enemy_hp = scenario['enemy_hp']
-    
+
     # Logica per ATTACKER
     instructions_attacker = ""
     if attacker_hp < 800 and attacker_mp >= 32:
@@ -102,7 +111,7 @@ def generate_instructions(scenario, response):
             instructions_attacker = f"Attacker: [{best_attack}] to maximize damage"
         else:
             instructions_attacker = "Attacker: [attack] as default action"
-    
+
     # Logica per SUPPORTER
     instructions_supporter = ""
     if supporter_hp < 600:
@@ -136,7 +145,7 @@ def generate_instructions(scenario, response):
                 instructions_supporter = "Supporter: [attack] as default action"
     else:
         instructions_supporter = "Supporter: [attack] as default action"
-    
+
     instructions = {
         "attacker": instructions_attacker,
         "supporter": instructions_supporter

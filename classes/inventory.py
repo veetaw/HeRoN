@@ -4,4 +4,3 @@ class Item:
         self.type = type
         self.description = description
         self.prop = prop
-

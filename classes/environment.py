@@ -4,13 +4,16 @@ from classes.magic import Spell
 from classes.inventory import Item
 from classes.games import (fire, thunder, blizzard, meteor, cura,
                            cura_support, cura_tot, splash, cura_m, cura_totm,
-                           grenade, potion, hielixer,)
-MIN_SPELL_COST =  25
+                           grenade, potion, hielixer, )
+
+MIN_SPELL_COST = 25
 
 ATTACKER_INDEX = 0
 SUPPORT_INDEX = 1
 
 # Environment setup
+
+
 class BattleEnv:
     def __init__(self, players, enemies):
         """
@@ -23,14 +26,14 @@ class BattleEnv:
         for player in players:
             self.original_player_data.append({
                 'name': player.name,
-                'magic': player.magic.copy(),  # Copia gli spell originali
-                'items': [{"item": item["item"], "quantity": item["quantity"]} for item in player.items]  # Copia items
+                'magic': player.magic.copy(),
+                # Copia items
+                'items': [{"item": item["item"], "quantity": item["quantity"]} for item in player.items]
             })
-        
-        self.state_size = len(self.get_state()) # deprecato, mnon piu necessario
+
+        self.state_size = len(self.get_state())
         self.action_size = self.get_action_size(0)
         self.done = False
-
 
     def get_state_size_of_player(self, player_name):
         """Ritorna la dimensione dello stato per un player specifico"""
@@ -39,17 +42,15 @@ class BattleEnv:
             if p.name == player_name:
                 player = p
                 break
-        
+
         if player is None:
             raise ValueError(f"Player {player_name} not found")
-        
+
         # Stato = [HP, MP, spell1, spell2, ..., spellN, item1, item2, item3]
         num_spells = len(player.magic)
         num_items = len(player.items)
         state_size = 2 + num_spells + num_items  # HP + MP + spells + items
-        
-        print(f"DEBUG: Player {player_name} - Spells: {num_spells}, Items: {num_items}, State size: {state_size}")
-        
+
         return state_size
 
     def get_state(self):
@@ -73,10 +74,12 @@ class BattleEnv:
 
             state[player.name].extend([player.get_hp(), player.get_mp()])
             for spell in player.magic:
-                state[player.name].append(1 if player.get_mp() >= spell.cost else 0)  # Can cast spell
+                state[player.name].append(
+                    1 if player.get_mp() >= spell.cost else 0)  # Can cast spell
             for item in player.items:
-                state[player.name].append(item["quantity"])  # Quantity of items left
-        
+                # Quantity of items left
+                state[player.name].append(item["quantity"])
+
         if len(self.enemies) == 0:
             state["enemies"] = [0, 0]
         for enemy in self.enemies:
@@ -92,14 +95,14 @@ class BattleEnv:
         """
         # Total actions: attack (1), spells (len(player.magic)), items (len(player.items))
         actions = 1  # Attack
-        actions += len(self.players[player_index].magic)  # Each spell is a separate action
-        actions += len(self.players[player_index].items)  # Each item is a separate action
+        # Each spell is a separate action
+        actions += len(self.players[player_index].magic)
+        # Each item is a separate action
+        actions += len(self.players[player_index].items)
         return actions
 
     def get_valid_actions(self, player_index):
         """
-        NON FUNZIONA CON DUE PLAYERS
-
         Questa funzione restituisce una lista di azioni valide (eseguibili) in base allo stato corrente del gioco:
 
         Spell: per ogni spell solo se il player ha abbastanza MP
@@ -109,21 +112,21 @@ class BattleEnv:
         """
         player = self.players[player_index]
         valid_actions = []
-        
+
         # Se player morto
         if player.get_hp() <= 0:
             return []  # Nessuna azione possibile
-        
+
         # Action 0: Attack (sempre valida se vivo)
         valid_actions.append(0)
-        
+
         # Spell (actions 1 to len(magic))
         for i, spell in enumerate(player.magic):
             action_index = i + 1
             # se non ha mp necessari non posso aggiungere la spell
             if player.get_mp() >= spell.cost:
                 valid_actions.append(action_index)
-        
+
         # Items (actions after spells)
         item_start_index = len(player.magic) + 1
         for i, item_data in enumerate(player.items):
@@ -131,48 +134,50 @@ class BattleEnv:
             # if not enought quantity can't add magic
             if item_data["quantity"] > 0:
                 valid_actions.append(action_index)
-        
+
         return valid_actions
 
     def get_compact_state(self):
         attacker = self.players[ATTACKER_INDEX]
         supporter = self.players[SUPPORT_INDEX]
         enemy = self.enemies[0] if len(self.enemies) > 0 else None
-        
+
         state_str = f"Attacker HP: {attacker.get_hp()}, MP: {attacker.get_mp()}. "
         state_str += f"Supporter HP: {supporter.get_hp()}, MP: {supporter.get_mp()}. "
-        
+
         if enemy:
             state_str += f"Enemy HP: {enemy.get_hp()}, MP: {enemy.get_mp()}. "
         else:
             state_str += "Enemy HP: 0, MP: 0. "
-        
-        attacker_items = {item["item"].name: item["quantity"] for item in attacker.items if item['quantity'] > 0}
+
+        attacker_items = {item["item"].name: item["quantity"]
+                          for item in attacker.items if item['quantity'] > 0}
         state_str += f"Attacker items: {attacker_items}. "
-        
-        supporter_items = {item["item"].name: item["quantity"] for item in supporter.items if item['quantity'] > 0}
+
+        supporter_items = {item["item"].name: item["quantity"]
+                           for item in supporter.items if item['quantity'] > 0}
         state_str += f"Supporter items: {supporter_items}. "
-        
+
         return state_str
 
     def reset(self):
         """Reset del gioco ripristinando HP/MP e gli spell/items originali"""
         self.done = False
-        
+
         for i, player in enumerate(self.players):
             player.hp = player.maxhp
             player.mp = player.maxmp
-            
+
             # Ripristina gli spell originali
             original_data = self.original_player_data[i]
             player.magic = original_data['magic'].copy()
-            
+
             # Ripristina le quantità degli items
             player.items = [
-                {"item": item["item"], "quantity": item["quantity"]} 
+                {"item": item["item"], "quantity": item["quantity"]}
                 for item in original_data['items']
             ]
-        
+
         # Reset nemici
         for enemy in self.enemies:
             enemy.hp = enemy.maxhp
@@ -208,7 +213,7 @@ class BattleEnv:
                     elif hp_ratio < 0.6:
                         reward += 20  # Cura utile
                     else:
-                        reward -= 5   # Cura non necessaria
+                        reward -= 5  # Cura non necessaria
                     player.heal(magic_dmg)
                 else:
                     enemy = self.enemies[0]
@@ -223,25 +228,24 @@ class BattleEnv:
                     else:  # Fire
                         reward += 20
 
-
         elif action > 0 and action <= len(player.magic) and player_index == SUPPORT_INDEX:
             spell = player.magic[action - 1]
             mate = self.players[ATTACKER_INDEX]
             if player.get_mp() >= spell.cost:
                 magic_dmg = spell.generate_damage()
                 player.reduce_mp(spell.cost)
-                
+
                 if spell.type.startswith("white"):
                     if "_" in spell.type:
                         dest = spell.type.split("white_")[1]
                     else:
                         dest = ""
-                    
+
                     if dest == "" or dest is None:
                         # Auto-cura support
                         hp_ratio = player.hp / player.maxhp
                         mate_hp_ratio = mate.hp / mate.maxhp
-                        
+
                         # Penalità se cura se stesso quando il mate sta peggio
                         if mate_hp_ratio < 0.4 and hp_ratio > 0.5:
                             reward -= 15  # Egoista! Il mate ha bisogno
@@ -254,14 +258,15 @@ class BattleEnv:
                         else:
                             reward -= 10  # Spreco
                         player.heal(magic_dmg)
-                        
+
                     elif dest == "m":
                         # Cura il mate - PRIORITÀ MASSIMA del support
                         mate_hp_ratio = mate.hp / mate.maxhp
-                        heal_efficiency = min(magic_dmg, mate.maxhp - mate.hp) / magic_dmg
-                        
+                        heal_efficiency = min(
+                            magic_dmg, mate.maxhp - mate.hp) / magic_dmg
+
                         mate.heal(magic_dmg)
-                        
+
                         # Soglie più alte: curare PRIMA che sia critico
                         if mate_hp_ratio < 0.25:
                             reward += 60  # Salvare il mate è priorità massima
@@ -270,21 +275,21 @@ class BattleEnv:
                         elif mate_hp_ratio < 0.7:
                             reward += 25  # Cura preventiva buona
                         elif mate_hp_ratio < 0.85:
-                            reward += 5   # Leggero top-up
+                            reward += 5  # Leggero top-up
                         else:
-                            reward -= 8   # Overheal inutile
-                        
+                            reward -= 8  # Overheal inutile
+
                         # Bonus efficienza (poca cura sprecata)
                         reward += int(10 * heal_efficiency)
-                            
+
                     elif dest == "tot":
                         # Cura entrambi
                         self_hp_ratio = player.hp / player.maxhp
                         mate_hp_ratio = mate.hp / mate.maxhp
-                        
+
                         player.heal(magic_dmg)
                         mate.heal(magic_dmg)
-                        
+
                         # Premiata se entrambi ne beneficiano
                         if self_hp_ratio < 0.5 and mate_hp_ratio < 0.5:
                             reward += 50  # Ottima scelta, entrambi bassi
@@ -295,7 +300,8 @@ class BattleEnv:
                         else:
                             reward -= 5  # Spreco
                     else:
-                        print(f"Warning: Unknown spell dest '{dest}', defaulting to self-heal")
+                        print(
+                            f"Warning: Unknown spell dest '{dest}', defaulting to self-heal")
                         player.heal(magic_dmg)
                         reward += 5
 
@@ -304,14 +310,14 @@ class BattleEnv:
                     enemy = self.enemies[0]
                     mate_hp_ratio = mate.hp / mate.maxhp
                     enemy.take_damage(magic_dmg)
-                    
+
                     # Penalità se attacca mentre il mate soffre
                     if mate_hp_ratio < 0.4:
                         reward -= 20  # Doveva curare, non attaccare!
                     elif mate_hp_ratio < 0.6:
-                        reward += 0   # Neutro, borderline
+                        reward += 0  # Neutro, borderline
                     else:
-                        reward += 8   # OK attaccare se mate sta bene
+                        reward += 8  # OK attaccare se mate sta bene
 
         elif action > len(player.magic):
             item_index = action - len(player.magic) - 1
@@ -335,56 +341,54 @@ class BattleEnv:
 
         return reward
 
-    def enemy_turn(self):        
+    def enemy_turn(self):
         enemy = self.enemies[0]
-        
+
         if enemy.get_hp() <= 0:
             return None
-        
+
         alive_players = [p for p in self.players if p.get_hp() > 0]
-        
+
         if not alive_players:
             return None
-        
+
         enemy_choice = 'attack'
-        
+
         # If the enemy has enough magic points, it can also choose magic
         if enemy.get_mp() >= MIN_SPELL_COST:
             enemy_choice = random.choice(['attack', 'magic'])
-        
+
         if enemy_choice == 'attack':
             target = random.choice(alive_players)
             damage = enemy.generate_damage()
             target.take_damage(damage)
-            #print(f"Enemy {enemy.name} (HP: {enemy.get_hp()}) attacks {target.name} for {damage} dmg! (HP: {target.get_hp()}/{target.maxhp})")
-            
+            # print(f"Enemy {enemy.name} (HP: {enemy.get_hp()}) attacks {target.name} for {damage} dmg! (HP: {target.get_hp()}/{target.maxhp})")
+
         elif enemy_choice == 'magic':
             spell, magic_dmg = enemy.choose_enemy_spell()
             enemy_choice = spell.name
-            
+
             if enemy.get_mp() >= spell.cost:
                 enemy.reduce_mp(spell.cost)
-                
+
                 if spell.type == "white":
                     enemy.heal(magic_dmg)
-                    #print(f"Enemy {enemy.name} casts {spell.name} and heals for {magic_dmg} HP! (HP: {enemy.get_hp()}/{enemy.maxhp})")
+                    # print(f"Enemy {enemy.name} casts {spell.name} and heals for {magic_dmg} HP! (HP: {enemy.get_hp()}/{enemy.maxhp})")
                 else:
                     target = random.choice(alive_players)
                     target.take_damage(magic_dmg)
-                    #print(f"Enemy {enemy.name} casts {spell.name} on {target.name} for {magic_dmg} dmg! (HP: {target.get_hp()}/{target.maxhp})")
-        
+                    # print(f"Enemy {enemy.name} casts {spell.name} on {target.name} for {magic_dmg} dmg! (HP: {target.get_hp()}/{target.maxhp})")
+
         return enemy_choice
 
-
-        
     def step(self, attacker_action, support_action):
         reward_attacker = 0
         reward_support = 0
-        
+
         # Salva stato HP PRIMA delle azioni per sapere se muoiono QUESTO turno
         attacker_was_alive = self.players[ATTACKER_INDEX].get_hp() > 0
         support_was_alive = self.players[SUPPORT_INDEX].get_hp() > 0
-        
+
         if attacker_action is not None:
             valid_attacker = self.get_valid_actions(ATTACKER_INDEX)
 
@@ -392,7 +396,8 @@ class BattleEnv:
             if attacker_action not in valid_attacker:
                 attacker_action = 0
 
-            reward_attacker = self.perform_action(ATTACKER_INDEX, attacker_action)
+            reward_attacker = self.perform_action(
+                ATTACKER_INDEX, attacker_action)
 
         if support_action is not None:
             valid_support = self.get_valid_actions(SUPPORT_INDEX)
@@ -402,32 +407,32 @@ class BattleEnv:
                 support_action = 0
 
             reward_support = self.perform_action(SUPPORT_INDEX, support_action)
-        
+
         # Turno del nemico
         enemy_action = self.enemy_turn()
-        
+
         # Punizione morte SOLO se è morto QUESTO turno (dopo azione nemico)
         if self.players[ATTACKER_INDEX].get_hp() <= 0 and attacker_was_alive:
             reward_attacker -= 150
             reward_support -= 75  # Support ha fallito nel curarlo
-        
+
         if self.players[SUPPORT_INDEX].get_hp() <= 0 and support_was_alive:
             reward_support -= 150
             reward_attacker -= 50
-        
+
         a_win = None
-        
+
         # Check fine partita
         if self.players[ATTACKER_INDEX].get_hp() <= 0 and self.players[SUPPORT_INDEX].get_hp() <= 0:
             self.done = True
             a_win = False
-        
+
         elif all(enemy.get_hp() <= 0 for enemy in self.enemies):
             self.done = True
             a_win = True
             reward_attacker += 150
             reward_support += 150
-        
+
         next_state = self.get_state()
         return next_state, reward_attacker, reward_support, self.done, a_win, enemy_action, None
 
@@ -443,7 +448,7 @@ class BattleEnv:
 
         for enemy in self.enemies:
             state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
-        if(player.get_hp()<=0):
+        if (player.get_hp() <= 0):
             state_description += "Player is dead. Cannot perform any action. Return no_action. "
             return state_description
         actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
@@ -474,11 +479,12 @@ class BattleEnv:
             elixer = f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
             actions_description += elixer
 
-        last_move_description = "" #if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
+        # if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
+        last_move_description = ""
 
-        game_description = state_description + actions_description + last_move_description
+        game_description = state_description + \
+            actions_description + last_move_description
         return game_description
-
 
     def describe_game_state_supporter(self, last_enemy_move):
         player = self.players[1]
@@ -492,11 +498,10 @@ class BattleEnv:
 
         for enemy in self.enemies:
             state_description += f"Enemy has {enemy.get_hp()} Health Points (hp) and {enemy.get_mp()} Magic Points (mp). "
-        if(player.get_hp()<=0):
+        if (player.get_hp() <= 0):
             state_description += "Player is dead. Cannot perform any action. Return no_action. "
             return state_description
         actions_description = "Available actions: [attack] deals 300 enemy's hp and removes 0 player's mp; "
-
 
         if player.get_mp() >= fire.cost:
             fire_spell = "[fire spell] deals 600 enemy's hp and removes 25 player's mp; "
@@ -526,7 +531,9 @@ class BattleEnv:
             elixer = f"[elixir] fully restores player's hp and mp and there are {player.items[2]['quantity']}. "
             actions_description += elixer
 
-        last_move_description = "" #if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
+        # if last_enemy_move is None else f"Last enemy move was [{last_enemy_move}]."
+        last_move_description = ""
 
-        game_description = state_description + actions_description + last_move_description
+        game_description = state_description + \
+            actions_description + last_move_description
         return game_description

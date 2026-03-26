@@ -15,7 +15,6 @@ Train_*.png
 
 # Dataset risultati
 *success_rate*.csv
-*.csv
 *.png
 .DS_Store
 

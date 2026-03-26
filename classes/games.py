@@ -45,14 +45,18 @@ attacker_spells = [fire, thunder, blizzard, meteor, cura]
 support_spells = [fire, cura_support, cura_tot, splash, cura_m, cura_totm]
 
 player_items = [
-        {"item": potion, "quantity": 3}, 
-        {"item": grenade, "quantity": 2},
-        {"item": hielixer, "quantity": 1}
-    ]
+    {"item": potion, "quantity": 3},
+    {"item": grenade, "quantity": 2},
+    {"item": hielixer, "quantity": 1}
+]
 
-player1 = Person(PLAYER_1_NAME, PLAYER_1_HEALTH, PLAYER_1_MP, PLAYER_1_ATK, PLAYER_1_DIF, attacker_spells, player_items)
-player2 = Person(PLAYER_2_NAME, PLAYER_2_HEALTH, PLAYER_2_MP, PLAYER_2_ATK, PLAYER_2_DIF, support_spells, player_items)
-enemy1 = Person(ENEMY_NAME, ENEMY_HEALTH, ENEMY_MP, ENEMY_ATK, ENEMY_DIF, [fire, cura], [])
+player1 = Person(PLAYER_1_NAME, PLAYER_1_HEALTH, PLAYER_1_MP,
+                 PLAYER_1_ATK, PLAYER_1_DIF, attacker_spells, player_items)
+player2 = Person(PLAYER_2_NAME, PLAYER_2_HEALTH, PLAYER_2_MP,
+                 PLAYER_2_ATK, PLAYER_2_DIF, support_spells, player_items)
+enemy1 = Person(ENEMY_NAME, ENEMY_HEALTH, ENEMY_MP,
+                ENEMY_ATK, ENEMY_DIF, [fire, cura], [])
+
 
 def map_llm_action_to_attacker_action(llm_response):
     action = llm_response.strip().lower()
@@ -77,6 +81,7 @@ def map_llm_action_to_attacker_action(llm_response):
     elif action == "no_action":
         return -1
     return None
+
 
 def map_llm_action_to_supporter_action(llm_response):
     action = llm_response.strip().lower()
@@ -103,6 +108,7 @@ def map_llm_action_to_supporter_action(llm_response):
     elif action == "no_action":
         return -1
     return None
+
 
 def map_action_attack(action):
     """Mappa l'indice azione al nome per ATTACKER"""
@@ -137,4 +143,3 @@ def map_action_support(action):
         9: 'elixir'
     }
     return actions_map.get(action, 'attack')
-

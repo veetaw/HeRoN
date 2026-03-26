@@ -13,25 +13,23 @@ from classes.games import *
 from classes.support_agent import DQNSupportAgent
 import json
 
-OUTPUT_DIRECTORY = "test1_results_test"
+OUTPUT_DIRECTORY = "test_rl_5"
 
 
-# Main loop with training
 def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
-
     players = [player1, player2]
     enemies = [enemy1]
 
     env = BattleEnv(players, enemies)
 
     attacker_agent = DQNAgent(
-        env.get_state_size_of_player(PLAYER_1_NAME), 
-        env.get_action_size(0), 
+        env.get_state_size_of_player(PLAYER_1_NAME),
+        env.get_action_size(0),
         attacker_path
     )
     supporter_agent = DQNSupportAgent(
-        env.get_state_size_of_player(PLAYER_2_NAME), 
-        env.get_action_size(1), 
+        env.get_state_size_of_player(PLAYER_2_NAME),
+        env.get_action_size(1),
         support_path
     )
 
@@ -49,9 +47,11 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
 
         state_global = env.reset()
         state_attacker = state_global[PLAYER_1_NAME]
-        state_attacker = np.reshape(state_attacker, [1, env.get_state_size_of_player(PLAYER_1_NAME)])
+        state_attacker = np.reshape(
+            state_attacker, [1, env.get_state_size_of_player(PLAYER_1_NAME)])
         state_support = state_global[PLAYER_2_NAME]
-        state_support = np.reshape(state_support, [1, env.get_state_size_of_player(PLAYER_2_NAME)])
+        state_support = np.reshape(
+            state_support, [1, env.get_state_size_of_player(PLAYER_2_NAME)])
 
         done = False
         total_reward_support = 0
@@ -66,117 +66,131 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
         while not done:
             attacker_action = attacker_agent.act(state_attacker, env, 0)
             support_action = supporter_agent.act(state_support, env, 1)
-            
+
             # è null quando è morto
             if attacker_action is None:
                 attacker_action = 0
-            
+
             if support_action is None:
                 support_action = 0
-            
+
             match_attacker = map_action_attack(attacker_action)
             match_support = map_action_support(support_action)
-            
+
             player_attacker = players[0]
             player_support = players[1]
-            
+
             if player_attacker.get_hp() > 0:
                 attacker_scores = score.calculate_scores_attacker(
-                    player_attacker.get_hp(), 
-                    player_attacker.get_mp(), 
+                    player_attacker.get_hp(),
+                    player_attacker.get_mp(),
                     enemies[0].get_hp()
                 )
             else:
                 attacker_scores = {match_attacker: 0}
-            
+
             if player_support.get_hp() > 0:
                 support_scores = score.calculate_scores_support(
-                    player_support.get_hp(), 
+                    player_support.get_hp(),
                     player_attacker.get_hp(),
-                    player_support.get_mp(), 
+                    player_support.get_mp(),
                     enemies[0].get_hp()
                 )
             else:
                 support_scores = {match_support: 0}
-            
-            match_score_attacker.append(round(attacker_scores.get(match_attacker, 0), 2))
-            match_score_support.append(round(support_scores.get(match_support, 0), 2))
-            
+
+            match_score_attacker.append(
+                round(attacker_scores.get(match_attacker, 0), 2))
+            match_score_support.append(
+                round(support_scores.get(match_support, 0), 2))
+
             if moves % 3 == 0 or moves == 0:
                 status_atk = "DEAD" if player_attacker.get_hp() <= 0 else "ATK"
                 status_sup = "DEAD" if player_support.get_hp() <= 0 else "SUP"
-                
-                print(f"\n[Move {moves:02d}] Ep {e+1}/{episodes}")
-                #print(f"  [{status_atk}] {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
-                #print(f"  [{status_sup}] {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
-                #print(f"  Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
 
-            next_state, reward_attacker, reward_support, done, a_win, _, __ = env.step(attacker_action, support_action)
-            
-            #print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
-            
+                print(f"\n[Move {moves:02d}] Ep {e + 1}/{episodes}")
+                # print(f"  [{status_atk}] {match_attacker:<18} (HP: {player_attacker.get_hp():>4}, MP: {player_attacker.get_mp():>3}) → score: {attacker_scores.get(match_attacker, 0):.2f}")
+                # print(f"  [{status_sup}] {match_support:<18} (HP: {player_support.get_hp():>4}, MP: {player_support.get_mp():>3}) → score: {support_scores.get(match_support, 0):.2f}")
+                # print(f"  Enemy HP: {enemies[0].get_hp():>4}/{enemies[0].maxhp}")
+
+            next_state, reward_attacker, reward_support, done, a_win, _, __ = env.step(
+                attacker_action, support_action)
+
+            # print(f"  Reward ATK: {reward_attacker:+4d} | SUP: {reward_support:+4d}")
+
             score.update_quantity(match_attacker, player_attacker.get_mp(), 0)
             score.update_quantity(match_support, player_support.get_mp(), 1)
 
             total_reward_attacker += reward_attacker
             total_reward_support += reward_support
-            
-            next_state_attacker = np.reshape(next_state[PLAYER_1_NAME], [1, state_size_attacker])
-            next_state_support = np.reshape(next_state[PLAYER_2_NAME], [1, state_size_support])
-            
+
+            next_state_attacker = np.reshape(
+                next_state[PLAYER_1_NAME], [1, state_size_attacker])
+            next_state_support = np.reshape(
+                next_state[PLAYER_2_NAME], [1, state_size_support])
+
             next_valid_attacker = env.get_valid_actions(0)
             next_valid_support = env.get_valid_actions(1)
-            
-            attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done, next_valid_attacker)
-            supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done, next_valid_support)
-            
+
+            attacker_agent.remember(state_attacker, attacker_action, reward_attacker, next_state_attacker, done,
+                                    next_valid_attacker)
+            supporter_agent.remember(state_support, support_action, reward_support, next_state_support, done,
+                                     next_valid_support)
+
             state_attacker = next_state_attacker
             state_support = next_state_support
-            
+
             moves += 1
 
             if len(attacker_agent.memory) > batch_size:
                 attacker_agent.replay(batch_size, env, 0)
-            
+
             if len(supporter_agent.memory) > batch_size:
                 supporter_agent.replay(batch_size, env, 1)
 
             if done:
                 result = "VICTORY" if a_win else "DEFEAT"
-                
+
                 survivors = []
                 if player_attacker.get_hp() > 0:
-                    survivors.append(f"{PLAYER_1_NAME} (HP: {player_attacker.get_hp()})")
+                    survivors.append(
+                        f"{PLAYER_1_NAME} (HP: {player_attacker.get_hp()})")
                 if player_support.get_hp() > 0:
-                    survivors.append(f"{PLAYER_2_NAME} (HP: {player_support.get_hp()})")
-                
-                survivor_text = ", ".join(survivors) if survivors else "Nessuno"
-                
-                print(f"\n{'='*70}")
-                print(f"  {result}  |  Episode {e+1}/{episodes}")
-                print(f"{'='*70}")
-                print(f"  Attacker Reward: {total_reward_attacker:>6.0f}  |  Moves: {moves}")
-                print(f"  Support Reward:  {total_reward_support:>6.0f}  |  Epsilon: ATK={attacker_agent.epsilon:.3f}, SUP={supporter_agent.epsilon:.3f}")
+                    survivors.append(
+                        f"{PLAYER_2_NAME} (HP: {player_support.get_hp()})")
+
+                survivor_text = ", ".join(
+                    survivors) if survivors else "Nessuno"
+
+                print(f"\n{'=' * 70}")
+                print(f"  {result}  |  Episode {e + 1}/{episodes}")
+                print(f"{'=' * 70}")
+                print(
+                    f"  Attacker Reward: {total_reward_attacker:>6.0f}  |  Moves: {moves}")
+                print(
+                    f"  Support Reward:  {total_reward_support:>6.0f}  |  Epsilon: ATK={attacker_agent.epsilon:.3f}, SUP={supporter_agent.epsilon:.3f}")
                 print(f"  Sopravvissuti: {survivor_text}")
-                
+
                 if a_win:
                     total_agent_wins += 1
                 else:
                     total_enemy_wins += 1
-                
+
                 win_rate = total_agent_wins / (e + 1)
-                print(f"  Win Rate: {total_agent_wins}/{e+1} ({100*win_rate:.1f}%)")
-                print(f"{'='*70}\n")
-                
+                print(
+                    f"  Win Rate: {total_agent_wins}/{e + 1} ({100 * win_rate:.1f}%)")
+                print(f"{'=' * 70}\n")
+
                 break
-        
+
         if attacker_agent.epsilon > attacker_agent.epsilon_min:
             attacker_agent.epsilon *= attacker_agent.epsilon_decay
-        
+
         if supporter_agent.epsilon > supporter_agent.epsilon_min:
             supporter_agent.epsilon *= supporter_agent.epsilon_decay
-        
-        print(f"Vittorie agente: {total_agent_wins}, vittorie nemico: {total_enemy_wins}")
+
+        print(
+            f"Vittorie agente: {total_agent_wins}, vittorie nemico: {total_enemy_wins}")
 
         rewards_per_episode.append({
             'attacker': total_reward_attacker,
@@ -187,7 +201,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
         agent_wins.append(1 if a_win else 0)
         enemy_wins.append(0 if a_win else 1)
         success_rate.append(total_agent_wins / (e + 1))
-        
+
         action_scores.append({
             'attacker': np.mean(match_score_attacker),
             'support': np.mean(match_score_support),
@@ -200,7 +214,7 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
     avg_score_attacker = np.mean([s['attacker'] for s in action_scores])
     avg_score_support = np.mean([s['support'] for s in action_scores])
     avg_score_combined = np.mean([s['combined'] for s in action_scores])
-    
+
     print("\n=== TRAINING SUMMARY ===")
     print(f"Average reward (Attacker): {avg_reward_attacker:.2f}")
     print(f"Average reward (Support): {avg_reward_support:.2f}")
@@ -217,13 +231,13 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
 
 
 def plot_training(
-    rewards,
-    agent_wins,
-    enemy_wins,
-    moves,
-    success_rate,
-    action_scores,
-    output_dir=OUTPUT_DIRECTORY
+        rewards,
+        agent_wins,
+        enemy_wins,
+        moves,
+        success_rate,
+        action_scores,
+        output_dir=OUTPUT_DIRECTORY
 ):
     os.makedirs(output_dir, exist_ok=True)
     reward_attacker = [r['attacker'] for r in rewards]
@@ -232,7 +246,8 @@ def plot_training(
     plt.figure(figsize=(8, 6))
     plt.plot(reward_attacker, label='Attacker Reward', color='red', alpha=0.7)
     plt.plot(reward_support, label='Support Reward', color='blue', alpha=0.7)
-    plt.plot(reward_combined, label='Combined Reward', color='green', linewidth=2)
+    plt.plot(reward_combined, label='Combined Reward',
+             color='green', linewidth=2)
 
     plt.title('Rewards per Episode')
     plt.xlabel('Episodes')
@@ -244,8 +259,10 @@ def plot_training(
     cumulative_agent_wins = np.cumsum(agent_wins).tolist()
     cumulative_enemy_wins = np.cumsum(enemy_wins).tolist()
     plt.figure(figsize=(8, 6))
-    plt.plot(cumulative_agent_wins, label="Agent Wins (Cumulative)", color='green')
-    plt.plot(cumulative_enemy_wins, label="Enemy Wins (Cumulative)", color='red')
+    plt.plot(cumulative_agent_wins,
+             label="Agent Wins (Cumulative)", color='green')
+    plt.plot(cumulative_enemy_wins,
+             label="Enemy Wins (Cumulative)", color='red')
     plt.legend()
     plt.title('Cumulative Wins of Agent vs Enemy per Episode')
     plt.xlabel('Episodes')
@@ -277,7 +294,8 @@ def plot_training(
     plt.figure(figsize=(8, 6))
     plt.plot(attacker_scores, label='Attacker Score', color='red', alpha=0.7)
     plt.plot(support_scores, label='Support Score', color='blue', alpha=0.7)
-    plt.plot(combined_scores, label='Combined Score', color='green', linewidth=2)
+    plt.plot(combined_scores, label='Combined Score',
+             color='green', linewidth=2)
 
     plt.title('Action Scores per Episode')
     plt.xlabel('Episodes')
@@ -331,19 +349,21 @@ def load_csv_series(filename, column):
 if __name__ == "__main__":
     if not os.path.exists(OUTPUT_DIRECTORY):
         os.makedirs(OUTPUT_DIRECTORY)
-    print(OUTPUT_DIRECTORY)
-    attacker_path =  "/Users/giuseppepiosorrentino/HeronBase/test1_results/MODELLO_NO_LLM_ATTACKER" # Percorso del modello da caricare, se esistente
-    support_path =   "/Users/giuseppepiosorrentino/HeronBase/test1_results/MODELLO_NO_LLM_SUPPORT"  # Percorso del modello da caricare, se esistente
-    # Train the agent
+    print("run in ", OUTPUT_DIRECTORY, " per 300 epoche...")
+    # Percorso del modello da caricare, se esistente
+    attacker_path = "C:\\Users\\daisl\\Downloads\\Heron Collaboration\\Heron Collaboration\\OLD RESULTS\\train_rl_5\\MODELLO_NO_LLM_ATTACKER"
+    # Percorso del modello da caricare, se esistente
+    support_path = "C:\\Users\\daisl\\Downloads\\Heron Collaboration\\Heron Collaboration\\OLD RESULTS\\train_rl_5\\MODELLO_NO_LLM_SUPPORT"
 
-    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(episodes=2, attacker_path=attacker_path, support_path=support_path)
-    
+    rewards, agent_wins, enemy_wins, moves, success_rate, action_scores = train_dqn(
+        episodes=300, attacker_path=attacker_path, support_path=support_path)
+
     # Plot dei risultati
-    plot_training(rewards, agent_wins, enemy_wins, moves, success_rate, action_scores)
-    
-    # Esporta success rate
+    plot_training(rewards, agent_wins, enemy_wins,
+                  moves, success_rate, action_scores)
+
     export_success_rate(success_rate)
-    
+
     print("\nTraining completato!")
     print("Grafici salvati:")
     print("   - " + OUTPUT_DIRECTORY + "/Train_reward_DQN.png")
