@@ -90,6 +90,78 @@ def _safe_read_text(path):
         return "N/A"
 
 
+def _mode_value(values):
+    mode_result = stats.mode(values, keepdims=True)
+    return float(mode_result.mode[0])
+
+
+def print_stats_table(json_path):
+    data = _load_json_data(json_path)
+
+    rewards = data['rewards']
+    moves = data.get('moves', [])
+    success_rate = data.get('success_rate', [])
+    action_scores = data.get('action_scores', [])
+    agent_wins = data.get('cumulative_agent_wins', [])
+    enemy_wins = data.get('cumulative_enemy_wins', [])
+
+    attacker_rewards, support_rewards, _ = _extract_rewards(rewards)
+    attacker_scores, support_scores = _extract_action_scores(action_scores)
+
+    metrics = [
+        ('Attacker Rewards', attacker_rewards),
+        ('Support Rewards', support_rewards),
+        ('Cumulative Agent Wins', agent_wins),
+        ('Cumulative Enemy Wins', enemy_wins),
+        ('Moves', moves),
+        ('Success Rate', success_rate),
+        ('Attacker Action Scores', attacker_scores),
+        ('Support Action Scores', support_scores),
+    ]
+
+    rows = []
+    for name, values in metrics:
+        if not values:
+            continue
+        arr = np.asarray(values, dtype=float)
+        mean_val = np.mean(arr)
+        max_val = np.max(arr)
+        min_val = np.min(arr)
+        mode_val = _mode_value(arr)
+        std_val = np.std(arr)
+        rows.append([
+            name,
+            f"{mean_val:.4f}",
+            f"{max_val:.4f}",
+            f"{min_val:.4f}",
+            f"{mode_val:.4f}",
+            f"{std_val:.4f}",
+            f"${mean_val:.4f} \\pm {std_val:.4f}$",
+        ])
+
+    headers = ['Metrica', 'Media', 'Max',
+               'Min', 'Moda', 'Dev Std', 'Media\\pmStd (LaTeX)']
+    widths = [len(h) for h in headers]
+    for row in rows:
+        for i, value in enumerate(row):
+            widths[i] = max(widths[i], len(value))
+
+    print("\n" + "=" * 110)
+    print("STATISTICHE RIASSUNTIVE")
+    print("=" * 110)
+
+    header_line = " | ".join(headers[i].ljust(widths[i])
+                             for i in range(len(headers)))
+    separator_line = "-+-".join("-" * widths[i] for i in range(len(widths)))
+    print(header_line)
+    print(separator_line)
+
+    for row in rows:
+        print(" | ".join(row[i].ljust(widths[i]) for i in range(len(row))))
+
+    print("=" * 110 + "\n")
+
+
 def plot_rewards_from_json(json_path):
     data = _load_json_data(json_path)
 
@@ -320,12 +392,16 @@ if __name__ == "__main__":
                         help='Lista di file JSON da confrontare')
     parser.add_argument('--labels', nargs='+',
                         help='Etichette per i file da confrontare')
+    parser.add_argument('-s', '--stats', action='store_true',
+                        help='Stampa statistiche tabellari (media, max, min, moda, dev std, media±std)')
 
     args = parser.parse_args()
 
     if args.compare:
         labels = args.labels if args.labels else None
         plot_rewards_comparison(args.compare, labels=labels)
+    elif args.stats:
+        print_stats_table(args.json_path)
     elif args.plot_all:
         epsilon_path_atk = args.json_path.replace(
             'training_data.json', 'MODELLO_HELPER_B_ATTACKER_epsilon.txt')

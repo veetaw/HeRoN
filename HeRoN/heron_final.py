@@ -141,9 +141,8 @@ def train_dqn(episodes, batch_size=32, attacker_path=None, support_path=None):
             match_support = None
             attacker_scores = {}
             support_scores = {}
-            print("PORCODIOOOOO CAMBIA DOPO")
             # quando deve esplorare e quando no
-            if p > threshold or ep < 1:
+            if p > threshold and ep < 180:
                 # Description of environment and Helper action #
                 suggestion += 1
                 game_description_attacker = env.describe_game_state_attacker(
